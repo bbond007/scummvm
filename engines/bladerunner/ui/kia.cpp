@@ -227,8 +227,9 @@ void KIA::tick() {
 		return;
 	}
 
-	int timeNow = _vm->_time->currentSystem();
-	int timeDiff = timeNow - _timeLast;
+	uint32 timeNow = _vm->_time->currentSystem();
+	// unsigned difference is intentional
+	uint32 timeDiff = timeNow - _timeLast;
 
 	if (_playerActorDialogueQueueSize == _playerActorDialogueQueuePosition) {
 		_playerActorDialogueState = 0;
@@ -255,22 +256,22 @@ void KIA::tick() {
 		}
 	}
 
-	int timeDiffDiv48 = (timeNow - _playerVqaTimeLast) / 48;
-	if (timeDiffDiv48 > 0) {
+	uint32 timeDiffDiv48 = (timeNow < _playerVqaTimeLast) ? 0u : (timeNow - _playerVqaTimeLast) / 48;
+	if (timeDiffDiv48 > 0u) {
 		_playerVqaTimeLast = timeNow;
 		if (_playerActorDialogueQueueSize == _playerActorDialogueQueuePosition || _playerSliceModelId != -1 || _playerPhotographId != -1 || _playerImage.getPixels() != nullptr) {
 			if (_playerVisualizerState > 0) {
-				_playerVisualizerState = MAX(_playerVisualizerState - timeDiffDiv48, 0);
+				_playerVisualizerState = (_playerVisualizerState < timeDiffDiv48) ? 0u : MAX<uint32>(_playerVisualizerState - timeDiffDiv48, 0u);
 			}
 		} else {
 			if (_playerVisualizerState < 2) {
-				_playerVisualizerState = MIN(_playerVisualizerState + timeDiffDiv48, 2);
+				_playerVisualizerState = MIN<uint32>(_playerVisualizerState + timeDiffDiv48, 2u);
 			}
 		}
 
 		if ( _playerSliceModelId != -1 || _playerPhotographId != -1 || _playerImage.getPixels() != nullptr) {
 			if (_playerVqaFrame < 8) {
-				int newVqaFrame  = MIN(timeDiffDiv48 + _playerVqaFrame, 8);
+				int newVqaFrame  = MIN<uint32>(timeDiffDiv48 + _playerVqaFrame, 8u);
 				if (_playerVqaFrame <= 0 && newVqaFrame > 0) {
 					_vm->_audioPlayer->playAud(_vm->_gameInfo->getSfxTrack(kSfxMECHAN1), 100, 70, 70, 50, 0);
 				}
@@ -278,7 +279,7 @@ void KIA::tick() {
 			}
 		} else {
 			if (_playerVqaFrame > 0) {
-				int newVqaFrame = MAX(_playerVqaFrame - timeDiffDiv48, 0);
+				int newVqaFrame = (_playerVqaFrame < timeDiffDiv48) ? 0 : MAX<uint32>(_playerVqaFrame - timeDiffDiv48, 0u);
 				if (_playerVqaFrame >= 8 && newVqaFrame < 8) {
 					_vm->_audioPlayer->playAud(_vm->_gameInfo->getSfxTrack(kSfxMECHAN1C), 100, 70, 70, 50, 0);
 				}
@@ -309,8 +310,8 @@ void KIA::tick() {
 		_shapes->get(41)->draw(_vm->_surfaceFront, 211, 447);
 	}
 	if (_currentSectionId != kKIASectionQuit && _transitionId != 14) {
-		if (_vm->_settings->getDifficulty() > 0) {
-			_vm->_mainFont->drawColor(Common::String::format("%04d", _vm->_gameVars[kVariableChinyen]), _vm->_surfaceFront, 580, 341, _vm->_surfaceFront.format.RGBToColor(80, 96, 136));
+		if (_vm->_settings->getDifficulty() > kGameDifficultyEasy) {
+			_vm->_mainFont->drawString(&_vm->_surfaceFront, Common::String::format("%04d", _vm->_gameVars[kVariableChinyen]), 580, 341, _vm->_surfaceFront.w, _vm->_surfaceFront.format.RGBToColor(80, 96, 136));
 		} else {
 			_shapes->get(39)->draw(_vm->_surfaceFront, 583, 342);
 		}
@@ -370,7 +371,7 @@ void KIA::tick() {
 			_shapes->get(47)->draw(_vm->_surfaceFront, 182, 446);
 		}
 	}
-	_vm->_mainFont->drawColor("1.00", _vm->_surfaceFront, 438, 471, _vm->_surfaceFront.format.RGBToColor(56, 56, 56)); // 1.01 is DVD version, but only cd handling routines were changed, no game logic
+	_vm->_mainFont->drawString(&_vm->_surfaceFront, "1.00", 438, 471, _vm->_surfaceFront.w, _vm->_surfaceFront.format.RGBToColor(56, 56, 56)); // 1.01 is DVD version, but only cd handling routines were changed, no game logic
 	if (!_transitionId) {
 		_buttons->drawTooltip(_vm->_surfaceFront, mouse.x, mouse.y);
 	}
@@ -448,6 +449,16 @@ void KIA::handleKeyUp(const Common::KeyState &kbd) {
 		return;
 	}
 
+	if (_currentSection) {
+		_currentSection->handleKeyUp(kbd);
+	}
+}
+
+void KIA::handleKeyDown(const Common::KeyState &kbd) {
+	if (!isOpen()) {
+		return;
+	}
+
 	if (toupper(kbd.ascii) != kPogo[_pogoPos]) {
 		_pogoPos = 0;
 	}
@@ -460,28 +471,18 @@ void KIA::handleKeyUp(const Common::KeyState &kbd) {
 			}
 		}
 	}
-	if (kbd.keycode == Common::KEYCODE_ESCAPE) {
+
+	switch (kbd.keycode) {
+	case Common::KEYCODE_ESCAPE:
 		if (!_forceOpen) {
 			open(kKIASectionNone);
 		}
-	} else {
-		if (_currentSection) {
-			_currentSection->handleKeyUp(kbd);
-		}
-	}
-	if (_currentSection && _currentSection->_scheduledSwitch) {
-		open(kKIASectionNone);
-	}
-}
+		break;
 
-void KIA::handleKeyDown(const Common::KeyState &kbd) {
-	if (!isOpen()) {
-		return;
-	}
-	switch (kbd.keycode) {
 	case Common::KEYCODE_F1:
 		open(kKIASectionHelp);
 		break;
+
 	case Common::KEYCODE_F2:
 		if (!_forceOpen) {
 			open(kKIASectionSave);
@@ -490,9 +491,11 @@ void KIA::handleKeyDown(const Common::KeyState &kbd) {
 	case Common::KEYCODE_F3:
 		open(kKIASectionLoad);
 		break;
+
 	case Common::KEYCODE_F10:
 		open(kKIASectionQuit);
 		break;
+
 	case Common::KEYCODE_F4:
 		if (_currentSectionId != kKIASectionCrimes) {
 			if (!_forceOpen) {
@@ -502,6 +505,7 @@ void KIA::handleKeyDown(const Common::KeyState &kbd) {
 			}
 		}
 		break;
+
 	case Common::KEYCODE_F5:
 		if (_currentSectionId != kKIASectionSuspects) {
 			if (!_forceOpen) {
@@ -511,6 +515,7 @@ void KIA::handleKeyDown(const Common::KeyState &kbd) {
 			}
 		}
 		break;
+
 	case Common::KEYCODE_F6:
 		if (_currentSectionId != kKIASectionClues) {
 			if (!_forceOpen) {
@@ -520,12 +525,14 @@ void KIA::handleKeyDown(const Common::KeyState &kbd) {
 			}
 		}
 		break;
+
 	default:
 		if (_currentSection) {
 			_currentSection->handleKeyDown(kbd);
 		}
 		break;
 	}
+
 	if (_currentSection && _currentSection->_scheduledSwitch) {
 		open(kKIASectionNone);
 	}
@@ -604,7 +611,7 @@ void KIA::mouseDownCallback(int buttonId, void *callbackData) {
 	case 13:
 	case 14:
 		self->_vm->_audioPlayer->playAud(self->_vm->_gameInfo->getSfxTrack(kSfxBUTN5P), 70, 0, 0, 50, 0);
-		if (buttonId == 12){
+		if (buttonId == 12) {
 			self->_vm->_audioPlayer->playAud(self->_vm->_gameInfo->getSfxTrack(kSfxSHUTDOWN), 70, 0, 0, 50, 0);
 		}
 		break;
@@ -867,7 +874,7 @@ void KIA::createButtons(int sectionId) {
 		}
 		Common::String tooltip;
 		if (_vm->_settings->getAmmo(1) > 0) {
-			if (_vm->_settings->getDifficulty() > 0) {
+			if (_vm->_settings->getDifficulty() > kGameDifficultyEasy) {
 				tooltip = Common::String::format("%d", _vm->_settings->getAmmo(1));
 			} else {
 				tooltip = _vm->_textKIA->getText(50);
@@ -875,7 +882,7 @@ void KIA::createButtons(int sectionId) {
 			_buttons->defineImage(17, kiaButton17, nullptr, nullptr, nullptr, tooltip.c_str());
 		}
 		if (_vm->_settings->getAmmo(2) > 0) {
-			if (_vm->_settings->getDifficulty() > 0) {
+			if (_vm->_settings->getDifficulty() > kGameDifficultyEasy) {
 				tooltip = Common::String::format("%d", _vm->_settings->getAmmo(2));
 			} else {
 				tooltip = _vm->_textKIA->getText(50);

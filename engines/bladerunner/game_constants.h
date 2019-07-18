@@ -459,7 +459,7 @@ enum Flags {
 	kFlagPS12toPS11 = 17, // is never checked
 	kFlagPS12toPS13 = 18,
 	kFlagPS13toPS12 = 19,
-	// 20 is never used
+	kFlagRC02RunciterVKChosen = 20, // re-purposed - original: 20 is never used
 	kFlagPS13toPS05 = 21,
 	kFlagPS02toPS05 = 22,
 	kFlagPS06toPS05 = 23,
@@ -489,7 +489,7 @@ enum Flags {
 	kFlagDektoraIsReplicant = 47,
 	kFlagSadikIsReplicant = 48,
 	kFlagPS09GrigorianTalk1 = 49,
-	// 50 is never used
+	kFlagPS09GrigorianVKChosen = 50, // re-purposed, original is never used
 	kFlagGrigorianDislikeMcCoy = 51,
 	// 52 is never used
 	kFlagPS09GrigorianDialogue = 53,
@@ -1108,19 +1108,19 @@ enum Flags {
 	kFlagMcCoyFreedOfAccusations = 666,
 	// 667 is never used
 	// 668 is never used
-	// 669 is never used
+	kFlagKP02DispatchOnToxicKipple = 669, // Re-purposed. Original: 669 is never used
 	kFlagCallWithGuzza = 670,
 	kFlagUG18GuzzaScene = 671,
 	kFlagMA07toPS14 = 672,
 	kFlagPS14toMA07 = 673,
 	kFlagKP01Entered = 674,
-	// 675 is never used
+	kFlagUG04DispatchOnHoodooRats = 675, // Re-purposed. Original: 675 is never used
 	kFlagUG15RatShot = 676,
 	kFlagUG15BridgeWillBreak = 677,
 	kFlagChapter2Intro = 678,
 	kFlagChapter3Intro = 679,
 	kFlagChapter4Intro = 680,
-	// 681 is never used
+	kFlagMcCoyCommentsOnHoodooRats = 681, // Re-purposed. Original: 681 is never used
 	kFlagUG15BridgeBroken = 682,
 	kFlagUG05TalkToPolice = 683,
 	kFlagHF05PoliceAttacked = 684,
@@ -1197,7 +1197,7 @@ enum Variables {
 	kVariableGenericWalkerAModel = 32,
 	kVariableGenericWalkerBModel = 33,
 	kVariableGenericWalkerCModel = 34,
-	kVariableGenericWalkerConfig = 35, // has no use
+	kVariableGenericWalkerConfig = 35, // Re-purposed in ScummVM version - original: has no real use
 	kVariableBB10ShelvesAvailable = 36,
 	kVariableWalkLoopActor = 37,
 	kVariableWalkLoopRun = 38,
@@ -1249,7 +1249,7 @@ enum Outtakes {
 	kOuttakeEnd7 = 26,
 	kOuttakeTyrellBuildingFly = 27,
 	kOuttakeWestwood = 28,
-	kOuttakeFlyThrough = 29,        // Act 1
+	kOuttakeFlyThrough = 29,        // Act 1 - Original: unused - has no sound
 	kOuttakeAway1 = 30,             // Act 2, 3
 	kOuttakeAway2 = 31,             // Act 1
 	kOuttakeAscent = 32,            // Act 1, 4, 5 - Original: unused
@@ -2347,6 +2347,13 @@ enum GoalBulletBob {
 	kGoalBulletBobGone = 99
 };
 
+// applies to all generic walkers
+enum GoalGenericWalker {
+	kGoalGenwalkerDefault = 0, // setup walker model and path
+	kGoalGenwalkerMoving = 1,
+	kGoalGenwalkerABulletBobsTrackGun = 200  // only kActorGenWalkerA will change goal to this
+};
+
 enum GoalRachael {
 	kGoalRachaelDefault                        =   0,
 	kGoalRachaelLeavesAfterTyrellMeeting       = 200,
@@ -2482,7 +2489,7 @@ enum GoalOfficerGrayford {
 	kGoalOfficerGrayfordStopPatrolToTalkToMcCoyAtDR04 = 106,
 	kGoalOfficerGrayfordLeavesWithMorajiCorpseDR04 = 110,
 	kGoalOfficerGrayfordArrestMcCoyInTB03Act4 = 399, // TB02_TB03
-	kGoalOfficerGrayfordStopAndTalkDR04 = 199, // this is used temporarily to make him stop and talk while at UG04 (Moraji's death scene)
+	kGoalOfficerGrayfordStopAndTalkDR04 = 199, // this is used temporarily to make him stop and talk while at DR04 (Moraji's death scene)
 	kGoalOfficerGrayfordStartOfAct4 = 300,
 	kGoalOfficerGrayfordHuntingAroundAct4 = 305,
 	kGoalOfficerGrayfordPrepareToHuntAroundAct4 = 306,
@@ -2588,7 +2595,8 @@ enum GoalCrazyLegs {
 	kGoalCrazyLegsIsArrested = 699
 };
 
-enum GoalFreeSlotA { // Rat
+enum GoalFreeSlotA { // Rat A
+	kGoalFreeSlotADefault = 0,
 	kGoalFreeSlotAUG15Wait = 300,
 	kGoalFreeSlotAUG15WalkOut = 301,
 	kGoalFreeSlotAUG15RunToOtherSide = 302,
@@ -2600,7 +2608,20 @@ enum GoalFreeSlotA { // Rat
 	kGoalFreeSlotAUG15Die = 305,
 	kGoalFreeSlotAUG15Fall = 309,
 	kGoalFreeSlotAUG15Prepare = 310,
+	kGoalFreeSlotAAct5Default = 400,
+	kGoalFreeSlotAAct5Prepare = 405,
+	kGoalFreeSlotAAct5KP02Attack = 406,
 	kGoalFreeSlotAGone = 599
+};
+
+enum GoalFreeSlotB { // Rat B
+	kGoalFreeSlotBAct4Default = 300,
+	kGoalFreeSlotBAct4WalkAround = 301,
+	kGoalFreeSlotBAct4AttackMcCoy = 302,
+	kGoalFreeSlotBAct5Default = 400,
+	kGoalFreeSlotBAct5Prepare = 405,
+	kGoalFreeSlotBAct5KP02Attack = 406,
+	kGoalFreeSlotBGone = 599
 };
 
 enum GoalMaggie {

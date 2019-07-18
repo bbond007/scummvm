@@ -114,36 +114,21 @@ bool FrotzMetaEngine::detectGames(const Common::FSList &fslist, DetectedGames &g
 				(filesize != p->_filesize && isBlorb)))
 			++p;
 
-		DetectedGame gd;
 		if (!p->_gameId) {
 			// Generic .dat/.zip files don't get reported as matches unless they have a known md5
 			if (filename.hasSuffixIgnoreCase(".dat") || filename.hasSuffixIgnoreCase(".zip") || emptyBlorb)
 				continue;
 
-			if (gDebugLevel > 0) {
-				// Print an entry suitable for putting into the detection_tables.h, using the
-				// name of the parent folder the game is in as the presumed game Id
-				Common::String folderName = file->getParent().getName();
-				if (folderName.hasSuffix("\\"))
-					folderName.deleteLastChar();
-				Common::String fname = filename;
-				const char *dot = strchr(fname.c_str(), '.');
-				if (dot)
-					fname = Common::String(fname.c_str(), dot);
-
-				debug("ENTRY0(\"%s\", %s, \"%s\", %u),",
-					fname.c_str(), strlen(serial) ? serial : "nullptr", md5.c_str(), (uint)filesize);
-			}
 			const PlainGameDescriptor &desc = ZCODE_GAME_LIST[0];
-			gd = DetectedGame(desc.gameId, desc.description, Common::UNK_LANG, Common::kPlatformUnknown);
+			gameList.push_back(GlkDetectedGame(desc.gameId, desc.description, filename, md5, filesize));
 		} else {
 			GameDescriptor gameDesc = findGame(p->_gameId);
-			gd = DetectedGame(p->_gameId, gameDesc._description, p->_language, Common::kPlatformUnknown, p->_extra);
+			DetectedGame gd = DetectedGame(p->_gameId, gameDesc._description, p->_language, Common::kPlatformUnknown, p->_extra);
 			gd.setGUIOptions(p->_guiOptions);
-		}
 
-		gd.addExtraEntry("filename", filename);
-		gameList.push_back(gd);
+			gd.addExtraEntry("filename", filename);
+			gameList.push_back(gd);
+		}
 	}
 
 	return !gameList.empty();

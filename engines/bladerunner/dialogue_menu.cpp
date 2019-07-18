@@ -143,6 +143,25 @@ bool DialogueMenu::addToList(int answer, bool done, int priorityPolite, int prio
 	return true;
 }
 
+/**
+* Aux function - used in cut content mode to re-use some NeverRepeatOnceSelected dialogue options for different characters
+*/
+bool DialogueMenu::clearNeverRepeatWasSelectedFlag(int answer) {
+	int foundIndex = -1;
+	for (int i = 0; i != _neverRepeatListSize; ++i) {
+		if (answer == _neverRepeatValues[i]) {
+			foundIndex = i;
+			break;
+		}
+	}
+
+	if (foundIndex >= 0 && _neverRepeatWasSelected[foundIndex]) {
+		_neverRepeatWasSelected[foundIndex] = false;
+		return true;
+	}
+	return false;
+}
+
 bool DialogueMenu::addToListNeverRepeatOnceSelected(int answer, int priorityPolite, int priorityNormal, int prioritySurly) {
 	int foundIndex = -1;
 	for (int i = 0; i != _neverRepeatListSize; ++i) {
@@ -324,7 +343,7 @@ void DialogueMenu::draw(Graphics::Surface &s) {
 
 		if (_items[i].colorIntensity < targetColorIntensity) {
 			_items[i].colorIntensity += 4;
-			if(_items[i].colorIntensity > targetColorIntensity) {
+			if (_items[i].colorIntensity > targetColorIntensity) {
 				_items[i].colorIntensity = targetColorIntensity;
 			}
 		} else if (_items[i].colorIntensity > targetColorIntensity) {
@@ -362,7 +381,7 @@ void DialogueMenu::draw(Graphics::Surface &s) {
 		_shapes[1].draw(s, x1, y);
 		_shapes[4].draw(s, x2, y);
 		uint16 color = s.format.RGBToColor((_items[i].colorIntensity / 2) * (256 / 32), (_items[i].colorIntensity / 2) * (256 / 32), _items[i].colorIntensity * (256 / 32));
-		_vm->_mainFont->drawColor(_items[i].text, s, x, y, color);
+		_vm->_mainFont->drawString(&s, _items[i].text, x, y, s.w, color);
 		y += kLineHeight;
 	}
 	for (; x != x2; ++x) {
@@ -388,7 +407,7 @@ const char *DialogueMenu::getText(int id) const {
 void DialogueMenu::calculatePosition(int unusedX, int unusedY) {
 	_maxItemWidth = 0;
 	for (int i = 0; i != _listSize; ++i) {
-		_maxItemWidth = MAX(_maxItemWidth, _vm->_mainFont->getTextWidth(_items[i].text));
+		_maxItemWidth = MAX(_maxItemWidth, _vm->_mainFont->getStringWidth(_items[i].text));
 	}
 	_maxItemWidth += 2;
 

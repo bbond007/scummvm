@@ -89,6 +89,9 @@ void GlkEngine::initialize() {
 	_sounds = new Sounds();
 	_streams = new Streams();
 	_windows = new Windows(_screen);
+
+	// Setup mixer
+	syncSoundSettings();
 }
 
 Screen *GlkEngine::createScreen() {
@@ -126,16 +129,15 @@ Common::Error GlkEngine::run() {
 			return Common::kNoGameDataFoundError;
 	} else {
 		// Check for a secondary blorb file with the same filename
-		Common::String baseName = filename;
-		while (baseName.contains('.'))
-			baseName.deleteLastChar();
+		Common::StringArray blorbFilenames;
+		Blorb::getBlorbFilenames(filename, blorbFilenames, getInterpreterType());
 
-		if (Common::File::exists(baseName + ".blorb")) {
-			_blorb = new Blorb(baseName + ".blorb", getInterpreterType());
-			SearchMan.add("blorb", _blorb, 99, false);
-		} else if (Common::File::exists(baseName + ".blb")) {
-			_blorb = new Blorb(baseName + ".blb", getInterpreterType());
-			SearchMan.add("blorb", _blorb, 99, false);
+		for (uint idx = 0; idx < blorbFilenames.size(); ++idx) {
+			if (Common::File::exists(blorbFilenames[idx])) {
+				_blorb = new Blorb(blorbFilenames[idx], getInterpreterType());
+				SearchMan.add("blorb", _blorb, 99, false);
+				break;
+			}
 		}
 
 		// Open up the game file
@@ -247,6 +249,13 @@ Common::Error GlkEngine::saveGameState(int slot, const Common::String &desc) {
 
 	file->close();
 	return errCode;
+}
+
+void GlkEngine::syncSoundSettings() {
+	Engine::syncSoundSettings();
+
+	int volume = ConfMan.getBool("sfx_mute") ? 0 : CLIP(ConfMan.getInt("sfx_volume"), 0, 255);
+	_mixer->setVolumeForSoundType(Audio::Mixer::kPlainSoundType, volume);
 }
 
 void GlkEngine::beep() {

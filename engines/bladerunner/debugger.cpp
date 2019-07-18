@@ -140,7 +140,7 @@ Debugger::Debugger(BladeRunnerEngine *vm) : GUI::Debugger() {
 }
 
 Debugger::~Debugger() {
-	if(!_specificDrawnObjectsList.empty()) {
+	if (!_specificDrawnObjectsList.empty()) {
 		_specificDrawnObjectsList.clear();
 	}
 }
@@ -379,7 +379,7 @@ bool Debugger::cmdDraw(int argc, const char **argv) {
 			debugPrintf("Drawing Z buffer = %s\n", _viewZBuffer? "true" : "false");
 		} else if (arg == "reset") {
 
-			if(!_specificDrawnObjectsList.empty()) {
+			if (!_specificDrawnObjectsList.empty()) {
 				_specificDrawnObjectsList.clear();
 			}
 
@@ -858,12 +858,12 @@ bool Debugger::cmdTimer(int argc, const char **argv) {
 		if (value == 0) {
 			actor->timerReset(timer);
 		} else {
-			actor->timerStart(timer, value);
+			actor->timerStart(timer, (uint32)value);
 		}
 	}
 
 	for (int i = 0; i < 7; ++i) {
-		debugPrintf("actorTimer(%i, %i) = %i ms\n", actorId, i, actor->timerLeft(i));
+		debugPrintf("actorTimer(%i, %i) = %u ms\n", actorId, i, actor->timerLeft(i));
 	}
 
 	return true;
@@ -1203,7 +1203,7 @@ bool Debugger::cmdOverlay(int argc, const char **argv) {
 				if ( (overlaysList[itemIter].resourceId == chapterIdOverlaysAvailableInt)
 					|| ( modeMixOverlaysAvailableFlg && overlaysList[itemIter].resourceId == 6)
 				) {
-					if (strcmp(overlaysList[itemIter].name, overlayName.c_str()) == 0){
+					if (strcmp(overlaysList[itemIter].name, overlayName.c_str()) == 0) {
 						break;
 					}
 				}
@@ -1218,7 +1218,7 @@ bool Debugger::cmdOverlay(int argc, const char **argv) {
 				// Attempt to load the overlay in an empty slot
 				// even if it's not already loaded for the scene (in _vm->_overlays->_videos)
 				int overlayVideoIdx = _vm->_overlays->play(overlayName, overlayAnimationId, loopForever, startNowFlag, 0);
-				if( overlayVideoIdx == -1 ) {
+				if ( overlayVideoIdx == -1 ) {
 					debugPrintf("Could not load the overlay animation: %s in this scene. Try reseting overlays first to free up slots!\n", overlayName.c_str());
 				} else {
 					debugPrintf("Loading overlay animation: %s...\n", overlayName.c_str());
@@ -1295,8 +1295,8 @@ bool Debugger::cmdSubtitle(int argc, const char **argv) {
 			            _vm->_subtitles->getSubtitlesInfo().dateOfCompile.c_str(),
 			            _vm->_subtitles->getSubtitlesInfo().languageMode.c_str(),
 			            _vm->_subtitles->getSubtitlesInfo().credits.c_str());
-			debugPrintf("Subtitles fonts loaded: %s\n",
-			            _vm->_subtitles->isSubsFontsLoaded()? "True":"False");
+			debugPrintf("Subtitles font loaded: %s\n",
+			            _vm->_subtitles->getSubtitlesInfo().fontName.c_str());
 
 		} else if (subtitleText == "reset") {
 			_vm->_subtitles->setGameSubsText("", false);
@@ -1464,7 +1464,7 @@ bool Debugger::cmdObject(int argc, const char **argv) {
 					Vector3 positionBottomRight(atof(argv[3]), atof(argv[4]), atof(argv[5]));
 					Vector3 positionTopLeft(atof(argv[6]), atof(argv[7]), atof(argv[8]));
 					_vm->_scene->_set->_objects[objectId].bbox.setXYZ(positionBottomRight.x, positionBottomRight.y, positionBottomRight.z, positionTopLeft.x, positionTopLeft.y, positionTopLeft.z);
-					if (!_vm->_sceneIsLoading && _vm->_sceneObjects->remove(objectId + kSceneObjectOffsetObjects)){
+					if (!_vm->_sceneIsLoading && _vm->_sceneObjects->remove(objectId + kSceneObjectOffsetObjects)) {
 						_vm->_sceneObjects->addObject(objectId + kSceneObjectOffsetObjects,
 						                               _vm->_scene->_set->_objects[objectId].bbox,
 						                               _vm->_scene->_set->_objects[objectId].isClickable,
@@ -1676,7 +1676,7 @@ bool Debugger::cmdRegion(int argc, const char **argv) {
 			debugPrintf("A region id has to be an integer within [0, 9]\n");
 			return true;
 		}
-		if (modeName == "add" && ((regionTypeName == "reg" && argc == 8) || (regionTypeName == "exit" && argc == 9)) ){
+		if (modeName == "add" && ((regionTypeName == "reg" && argc == 8) || (regionTypeName == "exit" && argc == 9)) ) {
 			// add region mode
 			if (!regions->_regions[regionID].present) {
 				int type = 0;
@@ -2061,7 +2061,7 @@ bool Debugger::cmdList(int argc, const char **argv) {
 			int count = 0;
 			for (int i = 0; i < _vm->_waypoints->_count; i++) {
 				Waypoints::Waypoint *waypoint = &_vm->_waypoints->_waypoints[i];
-				if(waypoint->setId != _vm->_scene->getSetId()) {
+				if (waypoint->setId != _vm->_scene->getSetId()) {
 					continue;
 				}
 				char waypointText[40];
@@ -2221,7 +2221,7 @@ void Debugger::drawSceneObjects() {
 					color = _vm->_surfaceFront.format.RGBToColor(255, 0, 0);
 					drawBBox(a, b, _vm->_view, &_vm->_surfaceFront, color);
 					_vm->_surfaceFront.frameRect(sceneObject->screenRectangle, color);
-					_vm->_mainFont->drawColor(_vm->_textActorNames->getText(sceneObject->id - kSceneObjectOffsetActors), _vm->_surfaceFront, pos.x, pos.y, color);
+					_vm->_mainFont->drawString(&_vm->_surfaceFront, _vm->_textActorNames->getText(sceneObject->id - kSceneObjectOffsetActors), pos.x, pos.y, _vm->_surfaceFront.w, color);
 				}
 				break;
 			case kSceneObjectTypeItem:
@@ -2233,7 +2233,7 @@ void Debugger::drawSceneObjects() {
 					drawBBox(a, b, _vm->_view, &_vm->_surfaceFront, color);
 					sprintf(itemText, "item %i", sceneObject->id - kSceneObjectOffsetItems);
 					_vm->_surfaceFront.frameRect(sceneObject->screenRectangle, color);
-					_vm->_mainFont->drawColor(itemText, _vm->_surfaceFront, pos.x, pos.y, color);
+					_vm->_mainFont->drawString(&_vm->_surfaceFront, itemText, pos.x, pos.y, _vm->_surfaceFront.w, color);
 				}
 				break;
 			case kSceneObjectTypeObject:
@@ -2246,7 +2246,7 @@ void Debugger::drawSceneObjects() {
 					}
 					drawBBox(a, b, _vm->_view, &_vm->_surfaceFront, color);
 					_vm->_surfaceFront.frameRect(sceneObject->screenRectangle, color);
-					_vm->_mainFont->drawColor(_vm->_scene->objectGetName(sceneObject->id - kSceneObjectOffsetObjects), _vm->_surfaceFront, pos.x, pos.y, color);
+					_vm->_mainFont->drawString(&_vm->_surfaceFront, _vm->_scene->objectGetName(sceneObject->id - kSceneObjectOffsetObjects), pos.x, pos.y, _vm->_surfaceFront.w, color);
 				}
 				break;
 			}
@@ -2283,7 +2283,7 @@ void Debugger::drawLights() {
 
 			_vm->_surfaceFront.drawLine(posOriginT.x, posOriginT.y, posTargetT.x, posTargetT.y, color);
 
-			_vm->_mainFont->drawColor(light->_name, _vm->_surfaceFront, posOriginT.x, posOriginT.y, color);
+			_vm->_mainFont->drawString(&_vm->_surfaceFront, light->_name, posOriginT.x, posOriginT.y, _vm->_surfaceFront.w, color);
 		}
 	}
 }
@@ -2319,7 +2319,7 @@ void Debugger::drawFogs() {
 			// TODO: draw line only for cone fogs, draw boxes or circles for the other types
 			_vm->_surfaceFront.drawLine(posOriginT.x, posOriginT.y, posTargetT.x, posTargetT.y, color);
 
-			_vm->_mainFont->drawColor(fog->_name, _vm->_surfaceFront, posOriginT.x, posOriginT.y, color);
+			_vm->_mainFont->drawString(&_vm->_surfaceFront, fog->_name, posOriginT.x, posOriginT.y, _vm->_surfaceFront.w, color);
 		}
 		fog = fog->_next;
 	}
@@ -2358,7 +2358,7 @@ void Debugger::drawWaypoints() {
 		//draw world waypoints
 		for (int i = 0; i < _vm->_waypoints->_count; i++) {
 			Waypoints::Waypoint *waypoint = &_vm->_waypoints->_waypoints[i];
-			if(waypoint->setId != _vm->_scene->getSetId()) {
+			if (waypoint->setId != _vm->_scene->getSetId()) {
 				continue;
 			}
 			if (_viewWaypointsNormalToggle
@@ -2371,7 +2371,7 @@ void Debugger::drawWaypoints() {
 				Vector3 spos = _vm->_view->calculateScreenPosition(pos);
 				char waypointText[40];
 				sprintf(waypointText, "waypoint %i", i);
-				_vm->_mainFont->drawColor(waypointText, _vm->_surfaceFront, spos.x, spos.y, color);
+				_vm->_mainFont->drawString(&_vm->_surfaceFront, waypointText, spos.x, spos.y, _vm->_surfaceFront.w, color);
 			}
 		}
 	}
@@ -2393,7 +2393,7 @@ void Debugger::drawWaypoints() {
 				Vector3 spos = _vm->_view->calculateScreenPosition(pos);
 				char coverText[40];
 				sprintf(coverText, "cover %i", i);
-				_vm->_mainFont->drawColor(coverText, _vm->_surfaceFront, spos.x, spos.y, color);
+				_vm->_mainFont->drawString(&_vm->_surfaceFront, coverText, spos.x, spos.y, _vm->_surfaceFront.w, color);
 			}
 		}
 	}
@@ -2415,7 +2415,7 @@ void Debugger::drawWaypoints() {
 				Vector3 spos = _vm->_view->calculateScreenPosition(pos);
 				char fleeText[40];
 				sprintf(fleeText, "flee %i", i);
-				_vm->_mainFont->drawColor(fleeText, _vm->_surfaceFront, spos.x, spos.y, color);
+				_vm->_mainFont->drawString(&_vm->_surfaceFront, fleeText, spos.x, spos.y, _vm->_surfaceFront.w, color);
 			}
 		}
 	}
@@ -2433,7 +2433,7 @@ void Debugger::drawWalkboxes() {
 				Vector3 end = _vm->_view->calculateScreenPosition(walkbox->vertices[(j + 1) % walkbox->vertexCount]);
 				_vm->_surfaceFront.drawLine(start.x, start.y, end.x, end.y, _vm->_surfaceFront.format.RGBToColor(255, 255, 0));
 				Vector3 pos = _vm->_view->calculateScreenPosition(0.5 * (walkbox->vertices[j] + walkbox->vertices[(j + 1) % walkbox->vertexCount]));
-				_vm->_mainFont->drawColor(walkbox->name, _vm->_surfaceFront, pos.x, pos.y, _vm->_surfaceFront.format.RGBToColor(255, 255, 0));
+				_vm->_mainFont->drawString(&_vm->_surfaceFront, walkbox->name, pos.x, pos.y, _vm->_surfaceFront.w, _vm->_surfaceFront.format.RGBToColor(255, 255, 0));
 			}
 		}
 	}
@@ -2506,7 +2506,7 @@ int Debugger::findInDbgDrawList(DebuggerDrawnObjectType drObjType, int drObjId, 
 			&& (drObjId == -1 || drObjId == _specificDrawnObjectsList[i].objId)
 		    && (drObjSetId == -1 || _specificDrawnObjectsList[i].setId == -1 || drObjSetId == _specificDrawnObjectsList[i].setId)
 		    && (drObjSceneId == -1 || _specificDrawnObjectsList[i].sceneId == -1 || drObjSceneId == _specificDrawnObjectsList[i].sceneId)
-		){
+		) {
 			// TODO for actors, 3d objects, items and waypoints it's probably preferable to ignore the sceneId (?)
 			return i;
 		}
