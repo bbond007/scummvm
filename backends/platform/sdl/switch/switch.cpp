@@ -77,7 +77,7 @@ void OSystem_Switch::initBackend() {
 
 	// Create the savefile manager
 	if (_savefileManager == 0) {
-		_savefileManager = new POSIXSaveFileManager();
+		_savefileManager = new DefaultSaveFileManager("./saves");
 	}
 
 	// Event source
@@ -124,7 +124,6 @@ Common::String OSystem_Switch::getDefaultConfigFileName() {
 	return _baseConfigName;
 }
 
-Common::WriteStream *OSystem_Switch::createLogFile() {
-	Common::FSNode file("scummvm.log");
-	return file.createWriteStream();
+Common::String OSystem_Switch::getDefaultLogFileName() {
+	return "scummvm.log";
 }

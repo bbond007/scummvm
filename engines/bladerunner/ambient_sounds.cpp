@@ -57,11 +57,19 @@ AmbientSounds::~AmbientSounds() {
 	delete[] _loopingSounds;
 }
 
-static inline void sort(int &a, int &b) {
-	if (a > b) {
-		int t = a;
-		a = b;
-		b = t;
+static inline void sort(int *a, int *b) {
+	if (*a > *b) {
+		int t = *a;
+		*a = *b;
+		*b = t;
+	}
+}
+
+static inline void sort(uint32 *a, uint32 *b) {
+	if (*a > *b) {
+		uint32 t = *a;
+		*a = *b;
+		*b = t;
 	}
 }
 
@@ -73,9 +81,13 @@ void AmbientSounds::addSound(
 	int panEndMin, int panEndMax,
 	int priority, int unk) {
 
-	sort(volumeMin, volumeMax);
-	sort(panStartMin, panStartMax);
-	sort(panEndMin, panEndMax);
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+	sort(&timeMin, &timeMax);
+#endif // BLADERUNNER_ORIGINAL_BUGS
+	sort(&volumeMin, &volumeMax);
+	sort(&panStartMin, &panStartMax);
+	sort(&panEndMin, &panEndMax);
 
 	addSoundByName(
 				_vm->_gameInfo->getSfxTrack(sfxId),
@@ -102,9 +114,13 @@ void AmbientSounds::removeAllNonLoopingSounds(bool stopPlaying) {
 }
 
 void AmbientSounds::addSpeech(int actorId, int sentenceId, uint32 timeMin, uint32 timeMax, int volumeMin, int volumeMax, int panStartMin, int panStartMax, int panEndMin, int panEndMax, int priority, int unk) {
-	sort(volumeMin, volumeMax);
-	sort(panStartMin, panStartMax);
-	sort(panEndMin, panEndMax);
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+	sort(&timeMin, &timeMax);
+#endif // BLADERUNNER_ORIGINAL_BUGS
+	sort(&volumeMin, &volumeMax);
+	sort(&panStartMin, &panStartMax);
+	sort(&panEndMin, &panEndMax);
 
 	Common::String name = Common::String::format( "%02d-%04d%s.AUD", actorId, sentenceId, _vm->_languageCode.c_str());
 	addSoundByName(name,
@@ -315,6 +331,14 @@ void AmbientSounds::addSoundByName(
 
 	uint32 now = _vm->_time->current();
 
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+	sort(&timeMin, &timeMax);
+	sort(&volumeMin, &volumeMax);
+	sort(&panStartMin, &panStartMax);
+	sort(&panEndMin, &panEndMax);
+#endif // BLADERUNNER_ORIGINAL_BUGS
+
 	track.isActive = true;
 	track.name = name;
 	track.hash = MIXArchive::getHash(name);
@@ -416,6 +440,10 @@ void AmbientSounds::load(SaveFileReadStream &f) {
 		track.timeMax = (uint32)f.readInt();
 		f.skip(4); // track.nextPlayTime is not used after load
 		track.nextPlayTimeStart = now;
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+		sort(&(track.timeMin), &(track.timeMax));
+#endif // BLADERUNNER_ORIGINAL_BUGS
 		track.nextPlayTimeDiff  = _vm->_rnd.getRandomNumberRng(track.timeMin, track.timeMax);
 		track.volumeMin = f.readInt();
 		track.volumeMax = f.readInt();
@@ -424,6 +452,12 @@ void AmbientSounds::load(SaveFileReadStream &f) {
 		track.panStartMax = f.readInt();
 		track.panEndMin = f.readInt();
 		track.panEndMax = f.readInt();
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+		sort(&(track.volumeMin), &(track.volumeMax));
+		sort(&(track.panStartMin), &(track.panStartMax));
+		sort(&(track.panEndMin), &(track.panEndMax));
+#endif // BLADERUNNER_ORIGINAL_BUGS
 		track.priority = f.readInt();
 		f.skip(4); // field_45
 	}

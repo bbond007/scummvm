@@ -836,8 +836,8 @@ const SciWorkaroundEntry kGraphRedrawBox_workarounds[] = {
 	{ GID_SQ4,           410,   410,  0,       "swimAfterEgo", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air - accidental additional parameter specified
 	{ GID_SQ4,           410,   410,  0,                   "", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air... Russian version - bug #5573
 	{ GID_SQ4,           411,   411,  0,        "egoFollowed", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when getting shot by the police - accidental additional parameter specified
-	{ GID_SQ4,           411,   411,  0,       "swimAndShoot", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air - accidental additional parameter specified
-	{ GID_SQ4,           411,   411,  0,                   "", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air... Russian version - bug #5573
+	{ GID_SQ4,            -1,   411,  0,       "swimAndShoot", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air - accidental additional parameter specified
+	{ GID_SQ4,            -1,   411,  0,                   "", "changeState",                      NULL,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // skateOrama when "swimming" in the air... Russian version - bug #5573
 	{ GID_SQ4,           150,   150,  0,        "laserScript", "changeState", sig_kGraphRedrawBox_sq4_1,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // when visiting the pedestral where Roger Jr. is trapped, before trashing the brain icon in the programming chapter, accidental additional parameter specified - bug #5479, German - bug #5527
 	{ GID_SQ4,           150,   150,  0,                   "", "changeState", sig_kGraphRedrawBox_sq4_1,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // same as above, for the Russian version - bug #5573
 	{ GID_SQ4,            -1,   703,  0,     "shootEgoScript", "changeState", sig_kGraphRedrawBox_sq4_2,     0,     0, { WORKAROUND_STILLCALL, 0 } }, // estros when getting shot by the police - accidental additional parameter specified
@@ -1205,6 +1205,8 @@ static const SciMessageWorkaroundEntry messageWorkarounds[] = {
 	{ GID_LAURABOW2,     SCI_MEDIA_FLOPPY, K_LANG_NONE,    370, 1885,   1,   6,  16,  4, { MSG_WORKAROUND_REMAP,   1885,   1,   6,  16,  6,  0,   0,   0, NULL } },
 	// Missing message when clicking carbon paper on desk lamp in room 550, floppy 1.0 - bug #10706
 	{ GID_LAURABOW2,     SCI_MEDIA_FLOPPY, K_LANG_NONE,     -1,  550,   5,  39,   6,  1, { MSG_WORKAROUND_REMAP,    550,  45,  39,   6,  1,  0,   0,   0, NULL } },
+	// Looking at coal in room 720, message is prepended with carriage return and newline
+	{ GID_LAURABOW2,     SCI_MEDIA_CD,     K_LANG_ENGLISH,  -1,  720,  12,   1,   0,  1, { MSG_WORKAROUND_EXTRACT,  720,  12,   1,   0,  1, 99,   2, 255, NULL } },
 	// Using the hand icon on Keith in the Blue Room (missing message) - bug #6253
 	{ GID_PQ1,           SCI_MEDIA_ALL,    K_LANG_NONE,     -1,   38,  10,   4,   8,  1, { MSG_WORKAROUND_REMAP,     38,  10,   4,   9,  1,  0,   0,   0, NULL } },
 	// Using the eye icon on Keith in the Blue Room (no message and wrong talker) - bug #6253

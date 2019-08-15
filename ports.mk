@@ -88,8 +88,8 @@ scummvm.docktileplugin: ScummVMDockTilePlugin
 	mkdir -p scummvm.docktileplugin/Contents
 	cp $(srcdir)/dists/macosx/dockplugin/Info.plist scummvm.docktileplugin/Contents
 	mkdir -p scummvm.docktileplugin/Contents/MacOS
-	cp ScummVMDockTilePlugIn scummvm.docktileplugin/Contents/MacOS/
-	chmod 644 scummvm.docktileplugin/Contents/MacOS/ScummVMDockTilePlugIn
+	cp ScummVMDockTilePlugin scummvm.docktileplugin/Contents/MacOS/
+	chmod 644 scummvm.docktileplugin/Contents/MacOS/ScummVMDockTilePlugin
 
 endif
 
@@ -295,7 +295,7 @@ endif
 ifneq ($(BACKEND), iphone)
 ifneq ($(BACKEND), ios7)
 # Static libaries, used for the scummvm-static and iphone targets
-OSX_STATIC_LIBS := `$(SDLCONFIG) --static-libs`
+OSX_STATIC_LIBS := `$(SDLCONFIG) --prefix=$(STATICLIBPATH) --static-libs`
 ifdef USE_SDL_NET
 ifdef USE_SDL2
 OSX_STATIC_LIBS += $(STATICLIBPATH)/lib/libSDL2_net.a
@@ -381,10 +381,12 @@ OSX_ZLIB ?= $(STATICLIBPATH)/lib/libz.a
 endif
 
 ifdef USE_SPARKLE
+ifdef MACOSX
 ifneq ($(SPARKLEPATH),)
 OSX_STATIC_LIBS += -F$(SPARKLEPATH)
 endif
 OSX_STATIC_LIBS += -framework Sparkle -Wl,-rpath,@loader_path/../Frameworks
+endif
 endif
 
 # Special target to create a static linked binary for Mac OS X.
@@ -402,7 +404,7 @@ iphone: $(OBJS)
 		$(OSX_STATIC_LIBS) \
 		-framework UIKit -framework CoreGraphics -framework OpenGLES \
 		-framework CoreFoundation -framework QuartzCore -framework Foundation \
-		-framework AudioToolbox -framework CoreAudio -lobjc -lz
+		-framework AudioToolbox -framework CoreAudio -framework SystemConfiguration -lobjc -lz
 
 # Special target to create a snapshot disk image for Mac OS X
 # TODO: Replace AUTHORS by Credits.rtf

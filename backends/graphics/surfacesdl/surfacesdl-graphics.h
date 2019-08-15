@@ -126,7 +126,6 @@ public:
 	virtual void unlockScreen() override;
 	virtual void fillScreen(uint32 col) override;
 	virtual void updateScreen() override;
-	virtual void setShakePos(int shakeOffset) override;
 	virtual void setFocusRectangle(const Common::Rect& rect) override;
 	virtual void clearFocusRectangle() override;
 
@@ -189,6 +188,7 @@ protected:
 	virtual void handleResizeImpl(const int width, const int height) override;
 
 	virtual int getGraphicsModeScale(int mode) const override;
+	virtual ScalerProc *getGraphicsScalerProc(int mode) const;
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	/* SDL2 features a different API for 2D graphics. We create a wrapper
@@ -347,8 +347,8 @@ protected:
 	};
 
 	// Shake mode
+	// This is always set to 0 when building with SDL2.
 	int _currentShakePos;
-	int _newShakePos;
 
 	// Palette data
 	SDL_Color *_currentPalette;

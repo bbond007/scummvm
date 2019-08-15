@@ -28,6 +28,7 @@
 #include "common/system.h"
 #include "common/serializer.h"
 #include "engines/engine.h"
+#include "glk/debugger.h"
 #include "glk/glk_types.h"
 #include "glk/streams.h"
 #include "glk/pc_speaker.h"
@@ -99,6 +100,13 @@ protected:
 	virtual Screen *createScreen();
 
 	/**
+	 * Creates a debugger instance
+	 */
+	virtual Debugger *createDebugger() {
+		return new Debugger();
+	}
+
+	/**
 	 * Main game loop for the individual interpreters
 	 */
 	virtual void runGame() = 0;
@@ -106,6 +114,7 @@ public:
 	Blorb *_blorb;
 	Clipboard *_clipboard;
 	Conf *_conf;
+	Debugger *_debugger;
 	Events *_events;
 	Pictures *_pictures;
 	Screen *_screen;
@@ -147,6 +156,11 @@ public:
 	 * Returns the running interpreter type
 	 */
 	virtual InterpreterType getInterpreterType() const = 0;
+
+	/**
+	 * Returns the game's Id
+	 */
+	const Common::String &getGameID() const { return _gameDescription._gameId; }
 
 	/**
 	 * Returns the game's md5

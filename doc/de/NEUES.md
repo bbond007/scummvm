@@ -5,11 +5,18 @@ Programmcodes finden Sie auf Englisch unter:
 #### 2.1.0 (??.??.2019)
 
  Neue Spiele:
-   - Might and Magic IV - Clouds of Xeen.
-   - Might and Magic V - Darkside of Xeen.
-   - Might and Magic - World of Xeen.
-   - Might and Magic - World of Xeen 2 CD Talkie (mit Sprachausgabe).
-   - Might and Magic - Swords of Xeen.
+   - Unterstützung für Blade Runner hinzugefügt.
+   - Unterstützung für Hoyle Bridge hinzugefügt.
+   - Unterstützung für Hoyle Children's Collection hinzugefügt.
+   - Unterstützung für Hoyle Classic Games hinzugefügt.
+   - Unterstützung für Hoyle Solitaire hinzugefügt.
+   - Unterstützung für Might and Magic IV - Clouds of Xeen hinzugefügt.
+   - Unterstützung für Might and Magic V - Darkside of Xeen hinzugefügt.
+   - Unterstützung für Might and Magic - World of Xeen hinzugefügt.
+   - Unterstützung für Might and Magic - World of Xeen 2 CD Talkie (mit Sprachausgabe) hinzugefügt.
+   - Unterstützung für Might and Magic - Swords of Xeen hinzugefügt.
+   - Unterstützung für Quest for Glory: Shadows of Darkness hinzugefügt.
+   - Unterstützung für Versailles 1685 hinzugefügt.
 
  Neue Portierungen:
    - Portierung auf Nintendo Switch hinzugefügt.

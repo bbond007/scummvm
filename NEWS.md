@@ -4,11 +4,18 @@ For a more comprehensive changelog of the latest experimental code, see:
 #### 2.1.0 (2019-??-??)
 
  New games:
-   - Might and Magic IV - Clouds of Xeen.
-   - Might and Magic V - Darkside of Xeen.
-   - Might and Magic - World of Xeen.
-   - Might and Magic - World of Xeen 2 CD Talkie.
-   - Might and Magic - Swords of Xeen.
+   - Added support for Blade Runner.
+   - Added support for Hoyle Bridge.
+   - Added support for Hoyle Children's Collection.
+   - Added support for Hoyle Classic Games.
+   - Added support for Hoyle Solitaire.
+   - Added support for Might and Magic IV - Clouds of Xeen.
+   - Added support for Might and Magic V - Darkside of Xeen.
+   - Added support for Might and Magic - World of Xeen.
+   - Added support for Might and Magic - World of Xeen 2 CD Talkie.
+   - Added support for Might and Magic - Swords of Xeen.
+   - Added support for Quest for Glory: Shadows of Darkness.
+   - Added support for Versailles 1685.
 
  New ports:
    - Added Nintendo Switch port.
@@ -20,6 +27,11 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Fixed incorrect cursor movement when it's controlled using the keyboard.
    - Updated the Roland MT-32 emulation code to Munt 2.3.0.
    - Improved unknown game variants reporting.
+
+ ADL:
+   - Improved color accuracy.
+   - Added a TV emulation mode.
+   - Added support for the WOZ disk image format.
 
  Drascula:
    - Fixed loading game from launcher when the game had been saved in chapter 1.

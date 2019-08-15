@@ -56,7 +56,7 @@ OpenGLGraphicsManager::OpenGLGraphicsManager()
     : _currentState(), _oldState(), _transactionMode(kTransactionNone), _screenChangeID(1 << (sizeof(int) * 8 - 2)),
       _pipeline(nullptr), _stretchMode(STRETCH_FIT),
       _defaultFormat(), _defaultFormatAlpha(),
-      _gameScreen(nullptr), _gameScreenShakeOffset(0), _overlay(nullptr),
+      _gameScreen(nullptr), _overlay(nullptr),
       _cursor(nullptr),
       _cursorHotspotX(0), _cursorHotspotY(0),
       _cursorHotspotXScaled(0), _cursorHotspotYScaled(0), _cursorWidthScaled(0), _cursorHeightScaled(0),
@@ -208,25 +208,16 @@ Common::List<Graphics::PixelFormat> OpenGLGraphicsManager::getSupportedFormats()
 	// RGBA4444
 	formats.push_back(Graphics::PixelFormat(2, 4, 4, 4, 4, 12, 8, 4, 0));
 
-#if !USE_FORCED_GLES && !USE_FORCED_GLES2
-#if !USE_FORCED_GL
-	if (!isGLESContext()) {
-#endif
+	// These formats are not natively supported by OpenGL ES implementations,
+	// we convert the pixel format internally.
 #ifdef SCUMM_LITTLE_ENDIAN
-		// RGBA8888
-		formats.push_back(Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
+	// RGBA8888
+	formats.push_back(Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0));
 #else
-		// ABGR8888
-		formats.push_back(Graphics::PixelFormat(4, 8, 8, 8, 8, 0, 8, 16, 24));
+	// ABGR8888
+	formats.push_back(Graphics::PixelFormat(4, 8, 8, 8, 8, 0, 8, 16, 24));
 #endif
-#if !USE_FORCED_GL
-	}
-#endif
-#endif
-
 	// RGB555, this is used by SCUMM HE 16 bit games.
-	// This is not natively supported by OpenGL ES implementations, we convert
-	// the pixel format internally.
 	formats.push_back(Graphics::PixelFormat(2, 5, 5, 5, 0, 10, 5, 0, 0));
 
 	formats.push_back(Graphics::PixelFormat::createFormatCLUT8());
@@ -465,13 +456,6 @@ void OpenGLGraphicsManager::fillScreen(uint32 col) {
 	_gameScreen->fill(col);
 }
 
-void OpenGLGraphicsManager::setShakePos(int shakeOffset) {
-	if (_gameScreenShakeOffset != shakeOffset) {
-		_gameScreenShakeOffset = shakeOffset;
-		_forceRedraw = true;
-	}
-}
-
 void OpenGLGraphicsManager::updateScreen() {
 	if (!_gameScreen) {
 		return;
@@ -517,13 +501,11 @@ void OpenGLGraphicsManager::updateScreen() {
 		_backBuffer.enableScissorTest(true);
 	}
 
-	const GLfloat shakeOffset = _gameScreenShakeOffset * (GLfloat)_gameDrawRect.height() / _gameScreen->getHeight();
-
 	// Alpha blending is disabled when drawing the screen
 	_backBuffer.enableBlend(Framebuffer::kBlendModeDisabled);
 
 	// First step: Draw the (virtual) game screen.
-	g_context.getActivePipeline()->drawTexture(_gameScreen->getGLTexture(), _gameDrawRect.left, _gameDrawRect.top + shakeOffset, _gameDrawRect.width(), _gameDrawRect.height());
+	g_context.getActivePipeline()->drawTexture(_gameScreen->getGLTexture(), _gameDrawRect.left, _gameDrawRect.top, _gameDrawRect.width(), _gameDrawRect.height());
 
 	// Second step: Draw the overlay if visible.
 	if (_overlayVisible) {
@@ -535,13 +517,9 @@ void OpenGLGraphicsManager::updateScreen() {
 	if (_cursorVisible && _cursor) {
 		_backBuffer.enableBlend(Framebuffer::kBlendModePremultipliedTransparency);
 
-		// Adjust game screen shake position, but only when the overlay is not
-		// visible.
-		const GLfloat cursorOffset = _overlayVisible ? 0 : shakeOffset;
-
 		g_context.getActivePipeline()->drawTexture(_cursor->getGLTexture(),
 		                         _cursorX - _cursorHotspotXScaled,
-		                         _cursorY - _cursorHotspotYScaled + cursorOffset,
+		                         _cursorY - _cursorHotspotYScaled,
 		                         _cursorWidthScaled, _cursorHeightScaled);
 	}
 
@@ -1109,9 +1087,14 @@ Surface *OpenGLGraphicsManager::createSurface(const Graphics::PixelFormat &forma
 		// OpenGL ES does not support a texture format usable for RGB555.
 		// Since SCUMM uses this pixel format for some games (and there is no
 		// hope for this to change anytime soon) we use pixel format
-		// conversion to a supported texture format. However, this is a one
-		// time exception.
+		// conversion to a supported texture format.
 		return new TextureRGB555();
+#ifdef SCUMM_LITTLE_ENDIAN
+	} else if (isGLESContext() && format == Graphics::PixelFormat(4, 8, 8, 8, 8, 24, 16, 8, 0)) { // RGBA8888
+#else
+	} else if (isGLESContext() && format == Graphics::PixelFormat(4, 8, 8, 8, 8, 0, 8, 16, 24)) { // ABGR8888
+#endif
+		return new TextureRGBA8888Swap();
 #endif // !USE_FORCED_GL
 	} else {
 		const bool supported = getGLPixelFormat(format, glIntFormat, glFormat, glType);

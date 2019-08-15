@@ -343,6 +343,11 @@ Common::Error BladeRunnerEngine::run() {
 		// additional code for gracefully handling end-game after _endCredits->show()
 		_gameOver = false;
 		_gameIsRunning = true;
+		// reset ammo amounts
+		_settings->reset();
+		// need to clear kFlagKIAPrivacyAddon to remove Bob's Privacy Addon for KIA
+		// so it won't appear here after end credits
+		_gameFlags->reset(kFlagKIAPrivacyAddon);
 		if (!playerHasControl()) {
 			// force a player gains control
 			playerGainsControl(true);
@@ -584,7 +589,7 @@ bool BladeRunnerEngine::startup(bool hasSavegames) {
 	_playerActor = _actors[_gameInfo->getPlayerId()];
 
 	_playerActor->setFPS(15);
-	_playerActor->timerStart(kActorTimerRunningStaminaFPS, 200u);
+	_playerActor->timerStart(kActorTimerRunningStaminaFPS, 200);
 
 	_policeMaze = new PoliceMaze(this);
 
@@ -814,6 +819,11 @@ void BladeRunnerEngine::shutdown() {
 
 	if (isArchiveOpen("MUSIC.MIX")) {
 		closeArchive("MUSIC.MIX");
+	}
+
+	// in case player closes the ScummVM window when in ESPER mode or similar
+	if (isArchiveOpen("MODE.MIX")) {
+		closeArchive("MODE.MIX");
 	}
 
 	if (_chapters) {
@@ -1959,6 +1969,12 @@ void BladeRunnerEngine::playerDied() {
 
 #if BLADERUNNER_ORIGINAL_BUGS
 #else
+	// reset ammo amounts
+	_settings->reset();
+	// need to clear kFlagKIAPrivacyAddon to remove Bob's Privacy Addon for KIA
+	// so it won't appear here after end credits
+	_gameFlags->reset(kFlagKIAPrivacyAddon);
+
 	_ambientSounds->removeAllNonLoopingSounds(true);
 	_ambientSounds->removeAllLoopingSounds(4);
 	_music->stop(4);
@@ -2232,8 +2248,8 @@ Graphics::Surface BladeRunnerEngine::generateThumbnail() const {
 		for (int x = 0; x < thumbnail.w; ++x) {
 			uint8 r, g, b;
 
-			uint16  srcPixel = *(const uint16 *)_surfaceFront.getBasePtr(x * 8, y * 8);
-			uint16 *dstPixel = (uint16 *)thumbnail.getBasePtr(x, y);
+			uint16  srcPixel = *(const uint16 *)_surfaceFront.getBasePtr(CLIP(x * 8, 0, _surfaceFront.w - 1), CLIP(y * 8, 0, _surfaceFront.h - 1) );
+			uint16 *dstPixel = (uint16 *)thumbnail.getBasePtr(CLIP(x, 0, thumbnail.w - 1), CLIP(y, 0, thumbnail.h - 1));
 
 			// Throw away alpha channel as it is not needed
 			_surfaceFront.format.colorToRGB(srcPixel, r, g, b);

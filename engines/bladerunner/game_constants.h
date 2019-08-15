@@ -491,7 +491,7 @@ enum Flags {
 	kFlagPS09GrigorianTalk1 = 49,
 	kFlagPS09GrigorianVKChosen = 50, // re-purposed, original is never used
 	kFlagGrigorianDislikeMcCoy = 51,
-	// 52 is never used
+	kFlagRC02McCoyCommentsOnVideoScreens = 52, // re-purposed, original is never used
 	kFlagPS09GrigorianDialogue = 53,
 	kFlagPS09GrigorianTalk2 = 54,
 	kFlagGrigorianArrested = 55,
@@ -1160,7 +1160,7 @@ enum Flags {
 	kflagPS01toPS02 = 718,
 	kFlagCT02McCoyFell = 719,
 	kFlagCT02McCoyCombatReady = 720,
-	kFlagNotUsed721 = 721,
+	kFlagCT02McCoyShouldCommentOnDumpedSoup = 721,	// Now: used for cut content for McCoy's monologue if he fails to dodge the soup, Original: was set but not used
 	kFlagChapter4Starting = 722,
 	kFlagZubenBountyPaid = 723,
 	kFlagUG15BridgeBreaks = 724,
@@ -2121,7 +2121,7 @@ enum GoalDektora {
 	kGoalDektoraNR11BurningFallToNR10 = 279,
 	kGoalDektoraNR11RanAway = 290,
 	kGoalDektoraNR07RanAway = 295,
-
+	kGoalDektoraKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalDektoraGone = 599
 };
 
@@ -2172,7 +2172,7 @@ enum GoalGordo {
 	kGoalGordoNR01Arrested = 260,
 	kGoalGordoNR01RanAway = 280,
 	kGoalGordoNR01Die = 299,
-
+	kGoalGordoKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalGordoGone = 599
 };
 
@@ -2260,7 +2260,7 @@ enum GoalLucy {
 	kGoalLucyUG01Wait =	310,
 	kGoalLucyUG01VoightKampff = 311,
 	kGoalLucyUG01RunAway = 312,
-
+	kGoalLucyKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalLucyGone = 599
 };
 
@@ -2278,15 +2278,17 @@ enum GoalIzo {
 	kGoalIzoRC03RunAway = 114,
 	kGoalIzoGetArrested = 120,
 	kGoalIzoGotArrested = 180,
+	kGoalIzoRC03RanAwayDone = 181, // new - added for bug fix of Izo getting stuck at RC03
 	kGoalIzoGoToHC01 = 150,
 	kGoalIzoGoToHC03 = 155,
 	kGoalIzoDieHidden = 198,
 	kGoalIzoDie = 199,
+	kGoalIzoKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalIzoGone = 599
 };
 
 enum GoalSadik {
-	kGoalSadikDefaut = 100,
+	kGoalSadikDefault = 100,
 	kGoalSadikRunFromBB09 = 101,
 	kGoalSadikBB11Wait = 102,
 	kGoalSadikBB11ThrowMcCoy = 103,
@@ -2317,6 +2319,7 @@ enum GoalLuther {
 	kGoalLutherDyingCheck = 497,
 	kGoalLutherDie = 498,
 	kGoalLutherDead = 499,
+	kGoalLutherKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalLutherGone = 599
 };
 
@@ -2438,6 +2441,7 @@ enum GoalZuben {
 	kGoalZubenFled = 20,
 	kGoalZubenMA01AttackMcCoy = 21,
 	kGoalZubenDiesInChapter1 = 99,
+	kGoalZubenKP07Wait = 513, // new goal when in moonbus, Act 5
 	kGoalZubenGone = 599
 };
 

@@ -445,6 +445,7 @@ void XcodeProvider::setupFrameworksBuildPhase(const BuildSetup &setup) {
 	DEF_SYSFRAMEWORK("OpenGLES");
 	DEF_SYSFRAMEWORK("QuartzCore");
 	DEF_SYSFRAMEWORK("UIKit");
+	DEF_SYSFRAMEWORK("SystemConfiguration");
 	DEF_SYSTBD("libiconv");
 
 	// Local libraries
@@ -524,6 +525,7 @@ void XcodeProvider::setupFrameworksBuildPhase(const BuildSetup &setup) {
 	frameworks_iOS.push_back("CoreFoundation.framework");
 	frameworks_iOS.push_back("Foundation.framework");
 	frameworks_iOS.push_back("UIKit.framework");
+	frameworks_iOS.push_back("SystemConfiguration.framework");
 	frameworks_iOS.push_back("AudioToolbox.framework");
 	frameworks_iOS.push_back("QuartzCore.framework");
 	frameworks_iOS.push_back("OpenGLES.framework");
@@ -747,7 +749,7 @@ XcodeProvider::ValueList& XcodeProvider::getResourceFiles() const {
 	if (files.empty()) {
 		files.push_back("gui/themes/scummclassic.zip");
 		files.push_back("gui/themes/scummmodern.zip");
-    files.push_back("gui/themes/scummremastered.zip");
+		files.push_back("gui/themes/scummremastered.zip");
 		files.push_back("gui/themes/translations.dat");
 		files.push_back("dists/engine-data/access.dat");
 		files.push_back("dists/engine-data/cryo.dat");
