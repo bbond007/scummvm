@@ -20,37 +20,29 @@
  *
  */
 
-#include "common/scummsys.h"
+#ifndef STARTREK_CONSOLE_H
+#define STARTREK_CONSOLE_H
 
-#ifdef __SYMBIAN32__
+#include "gui/debugger.h"
 
-#include "backends/graphics/symbiansdl/symbiansdl-graphics.h"
-#include "backends/platform/symbian/src/SymbianActions.h"
+namespace StarTrek {
 
-SymbianSdlGraphicsManager::SymbianSdlGraphicsManager(SdlEventSource *sdlEventSource, SdlWindow *window)
-	: SurfaceSdlGraphicsManager(sdlEventSource, window) {
-}
+class StarTrekEngine;
 
-bool SymbianSdlGraphicsManager::hasFeature(OSystem::Feature f) const {
-	switch (f) {
-	case OSystem::kFeatureAspectRatioCorrection:
-	case OSystem::kFeatureCursorPalette:
-		return true;
-	default:
-		return false;
-	}
-}
+class Console : public GUI::Debugger {
+public:
+	Console(StarTrekEngine *vm);
+	virtual ~Console(void);
 
-void SymbianSdlGraphicsManager::setFeatureState(OSystem::Feature f, bool enable) {
-	switch (f) {
-	case OSystem::kFeatureVirtualKeyboard:
-		break;
-	case OSystem::kFeatureDisableKeyFiltering:
-		GUI::Actions::Instance()->beginMapping(enable);
-		break;
-	default:
-		SurfaceSdlGraphicsManager::setFeatureState(f, enable);
-	}
-}
+private:
+	StarTrekEngine *_vm;
 
+	bool Cmd_Room(int argc, const char **argv);
+	bool Cmd_Actions(int argc, const char **argv);
+
+	Common::String EventToString(uint32 action);
+	Common::String ItemToString(byte index);
+};
+
+} // End of namespace StarTrek
 #endif
