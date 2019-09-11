@@ -28,6 +28,7 @@
 #include "common/taskbar.h"
 #include "common/textconsole.h"
 #include "common/translation.h"
+#include "common/encoding.h"
 
 #include "backends/saves/default/default-saves.h"
 
@@ -767,4 +768,47 @@ int SDL_SetColorKey_replacement(SDL_Surface *surface, Uint32 flag, Uint32 key) {
 	return SDL_SetColorKey(surface, SDL_TRUE, key) ? -1 : 0;
 }
 #endif
+
+char *OSystem_SDL::convertEncoding(const char *to, const char *from, const char *string, size_t length) {
+	int zeroBytes = 1;
+	if (Common::String(from).hasPrefixIgnoreCase("utf-16"))
+		zeroBytes = 2;
+	else if (Common::String(from).hasPrefixIgnoreCase("utf-32"))
+		zeroBytes = 4;
+
+	char *result;
+	// SDL_iconv_string() takes char * instead of const char * as it's third parameter
+	// with some older versions of SDL.
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	result = SDL_iconv_string(to, from, string, length + zeroBytes);
+#else
+	char *stringCopy = (char *) calloc(sizeof(char), length + zeroBytes);
+	memcpy(stringCopy, string, length);
+	result = SDL_iconv_string(to, from, stringCopy, length + zeroBytes);
+	free(stringCopy);
+#endif
+	if (result == nullptr)
+		return nullptr;
+
+	// We need to copy the result, so that we can use SDL_free()
+	// on the string returned by SDL_iconv_string() and free()
+	// can then be used on the copyed and returned string.
+	// Sometimes free() and SDL_free() aren't compatible and
+	// using free() instead of SDL_free() can cause crashes.
+	size_t newLength = Common::Encoding::stringLength(result, to);
+	zeroBytes = 1;
+	if (Common::String(to).hasPrefixIgnoreCase("utf-16"))
+		zeroBytes = 2;
+	else if (Common::String(to).hasPrefixIgnoreCase("utf-32"))
+		zeroBytes = 4;
+	char *finalResult = (char *) malloc(newLength + zeroBytes);
+	if (!finalResult) {
+		warning("Could not allocate memory for encoding conversion");
+		SDL_free(result);
+		return nullptr;
+	}
+	memcpy(finalResult, result, newLength + zeroBytes);
+	SDL_free(result);
+	return finalResult;
+}
 

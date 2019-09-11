@@ -84,6 +84,7 @@ jmethodID JNI::_MID_setTextInClipboard = 0;
 jmethodID JNI::_MID_isConnectionLimited = 0;
 jmethodID JNI::_MID_setWindowCaption = 0;
 jmethodID JNI::_MID_showVirtualKeyboard = 0;
+jmethodID JNI::_MID_showKeyboardControl = 0;
 jmethodID JNI::_MID_getSysArchives = 0;
 jmethodID JNI::_MID_initSurface = 0;
 jmethodID JNI::_MID_deinitSurface = 0;
@@ -110,8 +111,6 @@ const JNINativeMethod JNI::_natives[] = {
 		(void *)JNI::main },
 	{ "pushEvent", "(IIIIIII)V",
 		(void *)JNI::pushEvent },
-	{ "enableZoning", "(Z)V",
-		(void *)JNI::enableZoning },
 	{ "setPause", "(Z)V",
 		(void *)JNI::setPause },
 	{ "getCurrentCharset", "()Ljava/lang/String;",
@@ -361,6 +360,19 @@ void JNI::showVirtualKeyboard(bool enable) {
 	}
 }
 
+void JNI::showKeyboardControl(bool enable) {
+	JNIEnv *env = JNI::getEnv();
+
+	env->CallVoidMethod(_jobj, _MID_showKeyboardControl, enable);
+
+	if (env->ExceptionCheck()) {
+		LOGE("Error trying to show virtual keyboard control");
+
+		env->ExceptionDescribe();
+		env->ExceptionClear();
+	}
+}
+
 void JNI::addSysArchivesToSearchSet(Common::SearchSet &s, int priority) {
 	JNIEnv *env = JNI::getEnv();
 
@@ -517,6 +529,7 @@ void JNI::create(JNIEnv *env, jobject self, jobject asset_manager,
 	FIND_METHOD(, setTextInClipboard, "([B)Z");
 	FIND_METHOD(, isConnectionLimited, "()Z");
 	FIND_METHOD(, showVirtualKeyboard, "(Z)V");
+	FIND_METHOD(, showKeyboardControl, "(Z)V");
 	FIND_METHOD(, getSysArchives, "()[Ljava/lang/String;");
 	FIND_METHOD(, initSurface, "()Ljavax/microedition/khronos/egl/EGLSurface;");
 	FIND_METHOD(, deinitSurface, "()V");
@@ -645,12 +658,6 @@ void JNI::pushEvent(JNIEnv *env, jobject self, int type, int arg1, int arg2,
 	assert(_system);
 
 	_system->pushEvent(type, arg1, arg2, arg3, arg4, arg5, arg6);
-}
-
-void JNI::enableZoning(JNIEnv *env, jobject self, jboolean enable) {
-	assert(_system);
-
-	_system->enableZoning(enable);
 }
 
 void JNI::setPause(JNIEnv *env, jobject self, jboolean value) {

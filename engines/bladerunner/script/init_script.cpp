@@ -2242,6 +2242,7 @@ void InitScript::Init_World_Waypoints() {
 	World_Waypoint_Set(551, kSetKP05_KP06, -737.31f, 0.0f, -145.05f);
 	// 552 - UNUSED
 	// 553 - kSetRC03 - Izo AI script
+	// 554 - kSetAR01_AR02 - Hasan AI script (new)
 }
 
 void InitScript::Init_SDB() {
@@ -2599,6 +2600,11 @@ void InitScript::Init_CDB() {
 	CDB_Set_Clue_Asset_Type(kClueChessTable, kClueTypeAudioRecording);
 	CDB_Set_Clue_Asset_Type(kClueStaggeredbyPunches, kClueTypeAudioRecording);
 	CDB_Set_Clue_Asset_Type(kClueMaggieBracelet, kClueTypeObject);
+	if (_vm->_cutContent) {
+		CDB_Set_Clue_Asset_Type(kClueGarterSnake, kClueTypeObject);
+		CDB_Set_Clue_Asset_Type(kClueGoldfish, kClueTypeObject);
+		CDB_Set_Clue_Asset_Type(kClueSlug, kClueTypeObject);
+	}
 	CDB_Set_Clue_Asset_Type(kClueEnvelope, kClueTypeObject);
 	CDB_Set_Clue_Asset_Type(kClueIzosFriend, kClueTypePhotograph);
 	CDB_Set_Clue_Asset_Type(kClueChinaBarSecurityPhoto, kClueTypePhotograph);
@@ -2977,6 +2983,11 @@ void InitScript::Init_Actor_Health() {
 	Actor_Set_Health(kActorGenwalkerA, 50, 50);
 	Actor_Set_Health(kActorGenwalkerB, 50, 50);
 	Actor_Set_Health(kActorGenwalkerC, 50, 50);
+
+	// A bug? The health for some actors is set again here
+	// with different values except for Izo and kActorOfficerGrayford
+	// rendering the initial setting redundant.
+	// The health of all who can be Replicants will again be set further below (including Izo)
 	Actor_Set_Health(kActorZuben, 80, 80);
 	Actor_Set_Health(kActorGordo, 40, 40);
 	Actor_Set_Health(kActorLucy, 20, 20);
@@ -2987,6 +2998,7 @@ void InitScript::Init_Actor_Health() {
 	Actor_Set_Health(kActorClovis, 90, 90);
 	Actor_Set_Health(kActorOfficerLeary, 40, 40);
 	Actor_Set_Health(kActorOfficerGrayford, 50, 50);
+
 	Actor_Set_Health(kActorMutant1, 30, 30);
 	Actor_Set_Health(kActorMutant2, 50, 50);
 	Actor_Set_Health(kActorMutant3, 20, 20);

@@ -128,9 +128,10 @@ void Room::loadRoomMessages() {
 	// TODO: There are some more messages which are not stored in that offset
 	uint16 messagesOffset = readRdfWord(32);
 	const char *text = (const char *)_rdfData + messagesOffset;
+	const char roomIndexChar = '0' + _vm->_roomIndex;
 
 	do {
-		while (text[0] != '#' || text[1] != _vm->_missionName[0])
+		while (text[0] != '#' || (text[1] != _vm->_missionName[0] && text[4] != roomIndexChar))
 			text++;
 
 		if (text[5] == '\\')
@@ -183,8 +184,10 @@ void Room::loadOtherRoomMessages() {
 			break;
 
 		while (offset < nextOffset) {
-			if (*(_rdfData + offset) == 0xeb && *(_rdfData + offset + 2) == '#')
-				loadRoomMessage((const char *)_rdfData + offset + 2);
+			const char *text = (const char *)_rdfData + offset;
+
+			if (text[0] == '#' && text[1] == _vm->_missionName[0] && text[5] == '\\')
+				loadRoomMessage(text);
 
 			offset++;
 		}
@@ -607,7 +610,7 @@ Common::String Room::getCrewmanAnimFilename(int object, const Common::String &st
 	return _vm->getCrewmanAnimFilename(object, str);
 }
 
-void Room::spockScan(int direction, TextRef text, bool changeDirection) {
+void Room::spockScan(int direction, TextRef text, bool changeDirection, bool fromRDF) {
 	const char *dirs = "nsew";
 	Common::String anim = "sscan_";
 	anim.setChar(dirs[direction], 5);
@@ -619,10 +622,10 @@ void Room::spockScan(int direction, TextRef text, bool changeDirection) {
 	playSoundEffectIndex(SND_TRICORDER);
 
 	if (text != -1)
-		showText(TX_SPEAKER_SPOCK, text);
+		showText(TX_SPEAKER_SPOCK, text, fromRDF);
 }
 
-void Room::mccoyScan(int direction, TextRef text, bool changeDirection) {
+void Room::mccoyScan(int direction, TextRef text, bool changeDirection, bool fromRDF) {
 	const char *dirs = "nsew";
 	Common::String anim = "mscan_";
 	anim.setChar(dirs[direction], 5);
@@ -634,7 +637,7 @@ void Room::mccoyScan(int direction, TextRef text, bool changeDirection) {
 	playSoundEffectIndex(SND_TRICORDER);
 
 	if (text != -1)
-		showText(TX_SPEAKER_MCCOY, text);
+		showText(TX_SPEAKER_MCCOY, text, fromRDF);
 }
 
 } // End of namespace StarTrek

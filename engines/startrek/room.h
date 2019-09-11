@@ -66,6 +66,8 @@ public:
 	Room(StarTrekEngine *vm, const Common::String &name);
 	~Room();
 
+	friend class Console;
+
 	uint16 readRdfWord(int offset);
 
 	/**
@@ -280,8 +282,8 @@ private:
 	 * If "changeDirection" is true, they remain facing that direction even after their
 	 * animation is finished. The game is inconsistent about doing this.
 	 */
-	void spockScan(int direction, TextRef text, bool changeDirection = false);
-	void mccoyScan(int direction, TextRef text, bool changeDirection = false);
+	void spockScan(int direction, TextRef text, bool changeDirection = false, bool fromRDF = false);
+	void mccoyScan(int direction, TextRef text, bool changeDirection = false, bool fromRDF = false);
 
 	// Room-specific code
 public:
