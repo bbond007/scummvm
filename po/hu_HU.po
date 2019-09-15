@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.3.0svn\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-09 19:41+0200\n"
-"PO-Revision-Date: 2019-08-29 19:14+0000\n"
+"POT-Creation-Date: 2019-09-14 02:42+0200\n"
+"PO-Revision-Date: 2019-09-14 06:25+0000\n"
 "Last-Translator: George Kormendi <grubycza@hotmail.com>\n"
 "Language-Team: Hungarian <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/hu/>\n"
@@ -63,7 +63,7 @@ msgstr "Feljebb"
 #: gui/saveload-dialog.cpp:389 gui/saveload-dialog.cpp:451
 #: gui/saveload-dialog.cpp:746 gui/saveload-dialog.cpp:1140
 #: gui/themebrowser.cpp:55 gui/unknown-game-dialog.cpp:49
-#: engines/engine.cpp:558 backends/events/default/default-events.cpp:190
+#: engines/engine.cpp:556 backends/events/default/default-events.cpp:190
 #: backends/events/default/default-events.cpp:212
 #: backends/platform/wii/options.cpp:48 engines/drascula/saveload.cpp:49
 #: engines/mohawk/myst_stacks/menu.cpp:284
@@ -162,7 +162,7 @@ msgstr ""
 #: gui/downloaddialog.cpp:147 gui/editgamedialog.cpp:300
 #: gui/fluidsynth-dialog.cpp:154 gui/KeysDialog.cpp:42 gui/launcher.cpp:504
 #: gui/launcher.cpp:508 gui/massadd.cpp:89 gui/options.cpp:1827
-#: gui/saveload-dialog.cpp:1141 engines/engine.cpp:469 engines/engine.cpp:480
+#: gui/saveload-dialog.cpp:1141 engines/engine.cpp:467 engines/engine.cpp:478
 #: backends/platform/wii/options.cpp:47
 #: backends/platform/wince/CELauncherDialog.cpp:54
 #: engines/agos/animation.cpp:559 engines/drascula/saveload.cpp:49
@@ -1256,21 +1256,20 @@ msgstr "LAN"
 
 #: gui/options.cpp:1791
 msgid "Accessibility"
-msgstr ""
+msgstr "Hozzáférhetõség"
 
 #: gui/options.cpp:1793
 msgctxt "lowres"
 msgid "Accessibility"
-msgstr ""
+msgstr "Hozzáférhetõség"
 
 #: gui/options.cpp:1795
-#, fuzzy
 msgid "Use Text to speech"
-msgstr "Szöveg és beszéd:"
+msgstr "Használd a Szövegbõl beszédet"
 
 #: gui/options.cpp:1795
 msgid "Will read text in gui on mouse over."
-msgstr ""
+msgstr "Olvassa a szöveget gui-ban az egérrel."
 
 #: gui/options.cpp:1826
 msgid "Apply"
@@ -1341,20 +1340,24 @@ msgstr "<soha>"
 
 #: gui/options.cpp:1937
 msgctxt "lowres"
-msgid "Saves sync automatically on launch, after saving and on loading."
-msgstr "Szink automatikus mentése indításkor, mentés után betöltéskor."
+msgid "Saved games sync automatically on launch, after saving and on loading."
+msgstr ""
+"A mentett játékok automatikusan szinkronizálódnak indításkor, mentés és "
+"betöltésekor."
 
 #: gui/options.cpp:1939
-msgid "Saves sync automatically on launch, after saving and on loading."
-msgstr "Szink automatikus mentése indításkor, mentés után betöltéskor."
+msgid "Saved games sync automatically on launch, after saving and on loading."
+msgstr ""
+"A mentett játékok automatikusan szinkronizálódnak indításkor, mentés és "
+"betöltésekor."
 
 #: gui/options.cpp:1940
 msgid "Sync now"
 msgstr "Szink most"
 
 #: gui/options.cpp:1940
-msgid "Start saves sync"
-msgstr "Szink mentés indítás"
+msgid "Start saved games sync"
+msgstr "Indítsd el a mentett játékok szinkronizálását"
 
 #: gui/options.cpp:1943
 msgctxt "lowres"
@@ -2064,31 +2067,38 @@ msgstr "~M~égse"
 msgid "~K~eys"
 msgstr "Billentyük"
 
+#: engines/engine.cpp:312
+#, c-format
+msgid "Could not switch to resolution '%dx%d'."
+msgstr "Nem válthattam a '%dx%d' felbontásra."
+
 #: engines/engine.cpp:321
 msgid "Could not initialize color format."
 msgstr "Szín formátum nincs alkalmazva."
 
-#: engines/engine.cpp:329
-msgid "Could not switch to video mode: '"
-msgstr "Videómód nincs átállítva: '"
+#: engines/engine.cpp:330
+#, c-format
+msgid "Could not switch to video mode '%s'."
+msgstr "Nem válthattam '%s' videó módra."
 
 #: engines/engine.cpp:338
-msgid "Could not switch to stretch mode: '"
-msgstr "Nem tudtam váltani nyújtás módba: '"
+#, c-format
+msgid "Could not switch to stretch mode '%s'."
+msgstr "Nem válthattam '%s' nyújtási módra."
 
-#: engines/engine.cpp:347
+#: engines/engine.cpp:345
 msgid "Could not apply aspect ratio setting."
 msgstr "Méretarány korrekció nem változott."
 
-#: engines/engine.cpp:352
+#: engines/engine.cpp:350
 msgid "Could not apply fullscreen setting."
 msgstr "Teljesképernyõs beállítás nincs alkalmazva."
 
-#: engines/engine.cpp:357
+#: engines/engine.cpp:355
 msgid "Could not apply filtering setting."
 msgstr "Nem sikerült alkalmazni a szûrési beállítást."
 
-#: engines/engine.cpp:465
+#: engines/engine.cpp:463
 msgid ""
 "You appear to be playing this game directly\n"
 "from the CD. This is known to cause problems,\n"
@@ -2102,7 +2112,7 @@ msgstr ""
 "adatfájljait a merevlemezedre.\n"
 "Nézd meg a README fájlt a részletekért."
 
-#: engines/engine.cpp:476
+#: engines/engine.cpp:474
 msgid ""
 "This game has audio tracks in its disk. These\n"
 "tracks need to be ripped from the disk using\n"
@@ -2116,7 +2126,7 @@ msgstr ""
 "hogy a játék zenéje hallható legyen.\n"
 "Nézd meg a README fájlt a részletekért."
 
-#: engines/engine.cpp:539
+#: engines/engine.cpp:537
 #, c-format
 msgid ""
 "Failed to load saved game (%s)! Please consult the README for basic "
@@ -2126,7 +2136,7 @@ msgstr ""
 "alap információkról és az utasításokat, hogy hogyan segíthetsz a "
 "késõbbiekben."
 
-#: engines/engine.cpp:555
+#: engines/engine.cpp:553
 msgid ""
 "WARNING: The game you are about to start is not yet fully supported by "
 "ScummVM. As such, it is likely to be unstable, and any saved game you make "
@@ -2136,7 +2146,7 @@ msgstr ""
 "ScummVM. Számíts rá hogy nem stabilan fut, és a mentések nem mûködnek a "
 "jövõbeni ScummVM verziókkal."
 
-#: engines/engine.cpp:558 engines/wintermute/wintermute.cpp:165
+#: engines/engine.cpp:556 engines/wintermute/wintermute.cpp:165
 msgid "Start anyway"
 msgstr "Indítás így is"
 
@@ -3231,15 +3241,15 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "'%s' átvezetõ fájl nem található!"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:340
 msgid "Failed to initialize resources"
 msgstr "Nem sikerült inicializálni az erõforrásokat"
 
-#: engines/bladerunner/bladerunner.cpp:985
+#: engines/bladerunner/bladerunner.cpp:991
 msgid "A required game resource was not found"
 msgstr "A szükséges játékforrás nem található"
 
-#: engines/bladerunner/bladerunner.cpp:2135
+#: engines/bladerunner/bladerunner.cpp:2141
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
@@ -3249,7 +3259,7 @@ msgstr ""
 "de az eredeti tartalom módban játszol. Az üzemmódot a visszaállított vágott "
 "tartalomra állítom be, amíg teljesen ki nem lépsz a játékból."
 
-#: engines/bladerunner/bladerunner.cpp:2137
+#: engines/bladerunner/bladerunner.cpp:2143
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
@@ -3259,7 +3269,7 @@ msgstr ""
 "visszaállított vágott tartalom módban játszol. Az üzemmódot eredeti tartalom "
 "módra állítom be, amíg teljesen ki nem lépsz a játékból."
 
-#: engines/bladerunner/bladerunner.cpp:2139
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid "Continue"
 msgstr "Folytatás"
 
@@ -3619,13 +3629,12 @@ msgid "Failed to save game"
 msgstr "Játék mentés nem sikerült"
 
 #: engines/hdb/detection.cpp:157
-#, fuzzy
 msgid "Enable cheat mode"
-msgstr "Helium mód engedélyezve"
+msgstr "Csaló mód engedélyezés"
 
 #: engines/hdb/detection.cpp:158
 msgid "Debug info and level selection becomes available"
-msgstr ""
+msgstr "Hibakeresési információ és szintválasztás elérhetõvé válik"
 
 #: engines/hopkins/detection.cpp:76 engines/hopkins/detection.cpp:86
 msgid "Gore Mode"

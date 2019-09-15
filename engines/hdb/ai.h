@@ -456,7 +456,7 @@ struct AIEntity {
 	int16		moverightFrames;
 	Tile		*moverightGfx[kMaxAnimFrames];
 
-	AIEntity() {
+	void reset() {
 		luaFuncInit[0] = 0;
 		luaFuncAction[0] = 0;
 		luaFuncUse[0] = 0;
@@ -543,6 +543,11 @@ struct AIEntity {
 			moverightGfx[i] = NULL;
 		}
 	}
+
+	AIEntity() {
+		reset();
+	}
+
 	~AIEntity() {
 	}
 
@@ -602,7 +607,14 @@ struct InvEnt {
 	uint16 keep;
 	AIEntity ent;
 
-	InvEnt() : keep(0) {}
+	void reset() {
+		keep = 0;
+		ent.reset();
+	}
+
+	InvEnt() {
+		reset();
+	}
 };
 
 struct DlvEnt {
@@ -622,6 +634,7 @@ struct DlvEnt {
 		destTextName[0] = 0;
 		destGfxName[0] = 0;
 	}
+
 	~DlvEnt() {
 		itemGfx = NULL;
 		destGfx = NULL;
@@ -631,7 +644,15 @@ struct DlvEnt {
 struct Waypoint {
 	int x, y, level;
 
-	Waypoint() : x(0), y(0), level(0) {}
+	void reset() {
+		x = 0;
+		y = 0;
+		level = 0;
+	}
+
+	Waypoint() {
+		reset();
+	}
 };
 
 struct LuaT {
@@ -753,7 +774,17 @@ struct Bridge {
 	uint16 delay;
 	uint16 anim;
 
-	Bridge() : x(0), y(0), dir(DIR_NONE), delay(0), anim(0) {}
+	void reset() {
+		x = 0;
+		y = 0;
+		dir = DIR_NONE;
+		delay = 0;
+		anim = 0;
+	}
+
+	Bridge() {
+		reset();
+	}
 };
 
 struct CineCommand {
@@ -1283,8 +1314,6 @@ public:
 	Common::Array<ArrowPath *> *_arrowPaths;
 	Common::Array<HereT *> *_hereList;
 	Common::Array<Trigger *> *_triggerList;
-
-	char _youGotBuffer[32];	// For printing the text of entities that are removed
 
 	// Cinematic Variables
 	Common::Array<CineCommand *> _cine;

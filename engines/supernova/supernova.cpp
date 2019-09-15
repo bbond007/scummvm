@@ -475,7 +475,7 @@ Common::SeekableReadStream *SupernovaEngine::getBlockFromDatFile(Common::String 
 		return nullptr;
 	}
 
-	uint32 gameBlockSize;
+	uint32 gameBlockSize = 0;
 	while (!f.eos()) {
 		int part = f.readByte();
 		gameBlockSize = f.readUint32LE();
@@ -696,6 +696,9 @@ bool SupernovaEngine::deserialize(Common::ReadStream *in, int version) {
 bool SupernovaEngine::loadGame(int slot) {
 	if (slot < 0)
 		return false;
+
+	// Stop any sound currently playing.
+	_sound->stop();
 
 	// Make sure no message is displayed as this would otherwise delay the
 	// switch to the new location until a mouse click.

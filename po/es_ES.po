@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.4.0svn\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-09 19:41+0200\n"
-"PO-Revision-Date: 2019-08-29 19:14+0000\n"
-"Last-Translator: Rodrigo Vegas Sánchez-Ferrero <rodrigo.vegas@gmail.com>\n"
+"POT-Creation-Date: 2019-09-14 02:42+0200\n"
+"PO-Revision-Date: 2019-09-14 12:07+0000\n"
+"Last-Translator: Eugene Sandulenko <sev@scummvm.org>\n"
 "Language-Team: Spanish <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/es/>\n"
 "Language: es_ES\n"
@@ -63,7 +63,7 @@ msgstr "Arriba"
 #: gui/saveload-dialog.cpp:389 gui/saveload-dialog.cpp:451
 #: gui/saveload-dialog.cpp:746 gui/saveload-dialog.cpp:1140
 #: gui/themebrowser.cpp:55 gui/unknown-game-dialog.cpp:49
-#: engines/engine.cpp:558 backends/events/default/default-events.cpp:190
+#: engines/engine.cpp:556 backends/events/default/default-events.cpp:190
 #: backends/events/default/default-events.cpp:212
 #: backends/platform/wii/options.cpp:48 engines/drascula/saveload.cpp:49
 #: engines/mohawk/myst_stacks/menu.cpp:284
@@ -162,7 +162,7 @@ msgstr ""
 #: gui/downloaddialog.cpp:147 gui/editgamedialog.cpp:300
 #: gui/fluidsynth-dialog.cpp:154 gui/KeysDialog.cpp:42 gui/launcher.cpp:504
 #: gui/launcher.cpp:508 gui/massadd.cpp:89 gui/options.cpp:1827
-#: gui/saveload-dialog.cpp:1141 engines/engine.cpp:469 engines/engine.cpp:480
+#: gui/saveload-dialog.cpp:1141 engines/engine.cpp:467 engines/engine.cpp:478
 #: backends/platform/wii/options.cpp:47
 #: backends/platform/wince/CELauncherDialog.cpp:54
 #: engines/agos/animation.cpp:559 engines/drascula/saveload.cpp:49
@@ -943,9 +943,8 @@ msgid "Preferred device:"
 msgstr "Dispositivo preferido:"
 
 #: gui/options.cpp:1110
-#, fuzzy
 msgid "Music device:"
-msgstr "Disp. de música:"
+msgstr "Equipo de música:"
 
 #: gui/options.cpp:1110 gui/options.cpp:1112
 msgid "Specifies preferred sound device or sound card emulator"
@@ -959,16 +958,14 @@ msgstr ""
 "Especifica el dispositivo de sonido o emulador de tarjeta de sonido de salida"
 
 #: gui/options.cpp:1112
-#, fuzzy
 msgctxt "lowres"
 msgid "Preferred dev.:"
 msgstr "Disp. preferido:"
 
 #: gui/options.cpp:1112
-#, fuzzy
 msgctxt "lowres"
 msgid "Music device:"
-msgstr "Disp. de música:"
+msgstr "Dispositivo de música:"
 
 #: gui/options.cpp:1139
 msgid "AdLib emulator:"
@@ -1125,9 +1122,8 @@ msgid "Music volume:"
 msgstr "Música:"
 
 #: gui/options.cpp:1297
-#, fuzzy
 msgid "Mute all"
-msgstr "Silenciar"
+msgstr "Silenciar todo"
 
 #: gui/options.cpp:1300
 msgid "SFX volume:"
@@ -1195,9 +1191,8 @@ msgid "Theme:"
 msgstr "Tema:"
 
 #: gui/options.cpp:1667
-#, fuzzy
 msgid "GUI renderer:"
-msgstr "Interfaz:"
+msgstr "Interfaz GPU:"
 
 #: gui/options.cpp:1679
 msgid "Autosave:"
@@ -1213,9 +1208,8 @@ msgid "Keys"
 msgstr "Teclas"
 
 #: gui/options.cpp:1696
-#, fuzzy
 msgid "GUI language:"
-msgstr "Idioma:"
+msgstr "Lenguaje de la interfaz:"
 
 #: gui/options.cpp:1696
 msgid "Language of ScummVM GUI"
@@ -1223,7 +1217,7 @@ msgstr "Idioma de la interfaz de ScummVM"
 
 #: gui/options.cpp:1722
 msgid "Switch the GUI language to the game language"
-msgstr ""
+msgstr "Cambia el idioma de la GUI al idioma del juego"
 
 #: gui/options.cpp:1723
 msgid ""
@@ -1231,16 +1225,21 @@ msgid ""
 "if a game uses the ScummVM save and load dialogs, they are in the same "
 "language as the game."
 msgstr ""
+"Al iniciar un juego, cambie el idioma de la GUI al idioma del juego. De esa "
+"manera, si un juego utiliza los cuadros de diálogo de guardar y cargar de "
+"ScummVM, estarán en el mismo idioma que el juego."
 
 #: gui/options.cpp:1736
 msgid "Use native system file browser"
-msgstr ""
+msgstr "Usa el buscador de archivos del sistema ScummVM"
 
 #: gui/options.cpp:1737
 msgid ""
 "Use the native system file browser instead of the ScummVM one to select a "
 "file or directory."
 msgstr ""
+"Use el explorador de archivos del sistema nativo en lugar del ScummVM para "
+"seleccionar un archivo o directorio."
 
 #: gui/options.cpp:1744 gui/updates-dialog.cpp:86
 msgid "Update check:"
@@ -1359,11 +1358,11 @@ msgstr "<nunca>"
 
 #: gui/options.cpp:1937
 msgctxt "lowres"
-msgid "Saves sync automatically on launch, after saving and on loading."
+msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
 
 #: gui/options.cpp:1939
-msgid "Saves sync automatically on launch, after saving and on loading."
+msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
 
 #: gui/options.cpp:1940
@@ -1371,8 +1370,9 @@ msgid "Sync now"
 msgstr ""
 
 #: gui/options.cpp:1940
-msgid "Start saves sync"
-msgstr ""
+#, fuzzy
+msgid "Start saved games sync"
+msgstr "Jugar al juego seleccionado"
 
 #: gui/options.cpp:1943
 msgctxt "lowres"
@@ -1768,9 +1768,8 @@ msgid "Disabled GFX"
 msgstr "Gráf. desactivados"
 
 #: gui/ThemeEngine.cpp:253
-#, fuzzy
 msgid "Standard renderer"
-msgstr "Estándar"
+msgstr "Renderizado estándar"
 
 #: gui/ThemeEngine.cpp:253 engines/scumm/dialogs.cpp:660
 msgid "Standard"
@@ -1802,19 +1801,25 @@ msgid ""
 "Use the button below to copy the required game information into your "
 "clipboard."
 msgstr ""
+"Usa el botón de abajo para copiar la información del juego requerida en tu "
+"portapapeles."
 
 #: gui/unknown-game-dialog.cpp:113
 msgid "You can also directly report your game to the Bug Tracker."
 msgstr ""
+"También puedes informar directamente sobre tu juego al departamento Bug "
+"Tracker."
 
 #: gui/unknown-game-dialog.cpp:213
 msgid ""
 "All necessary information about your game has been copied into the clipboard"
 msgstr ""
+"Toda la información necesaria sobre tu juego ha sido copiada en el "
+"portapapeles."
 
 #: gui/unknown-game-dialog.cpp:215
 msgid "Copying the game information to the clipboard has failed!"
-msgstr ""
+msgstr "¡Copiar la información del juego en el portapapeles ha fallado!"
 
 #: gui/updates-dialog.cpp:49
 msgid ""
@@ -1892,7 +1897,7 @@ msgstr "Modo de color no compatible"
 
 #: common/error.cpp:46
 msgid "Audio device initialization failed"
-msgstr ""
+msgstr "Fallo al iniciar el dispositivo de Audio"
 
 #: common/error.cpp:49
 msgid "Read permission denied"
@@ -2093,32 +2098,38 @@ msgstr "~C~ancelar"
 msgid "~K~eys"
 msgstr "~T~eclas"
 
+#: engines/engine.cpp:312
+#, fuzzy, c-format
+msgid "Could not switch to resolution '%dx%d'."
+msgstr "No se ha podido cambiar al modo de video: '"
+
 #: engines/engine.cpp:321
 msgid "Could not initialize color format."
 msgstr "No se ha podido iniciar el formato de color."
 
-#: engines/engine.cpp:329
-msgid "Could not switch to video mode: '"
+#: engines/engine.cpp:330
+#, fuzzy, c-format
+msgid "Could not switch to video mode '%s'."
 msgstr "No se ha podido cambiar al modo de video: '"
 
 #: engines/engine.cpp:338
-#, fuzzy
-msgid "Could not switch to stretch mode: '"
+#, fuzzy, c-format
+msgid "Could not switch to stretch mode '%s'."
 msgstr "No se ha podido cambiar al modo de video: '"
 
-#: engines/engine.cpp:347
+#: engines/engine.cpp:345
 msgid "Could not apply aspect ratio setting."
 msgstr "No se ha podido aplicar el ajuste de corrección de aspecto."
 
-#: engines/engine.cpp:352
+#: engines/engine.cpp:350
 msgid "Could not apply fullscreen setting."
 msgstr "No se ha podido aplicar el ajuste de pantalla completa."
 
-#: engines/engine.cpp:357
+#: engines/engine.cpp:355
 msgid "Could not apply filtering setting."
 msgstr "No se puede aplicar la configuración de filtrado."
 
-#: engines/engine.cpp:465
+#: engines/engine.cpp:463
 msgid ""
 "You appear to be playing this game directly\n"
 "from the CD. This is known to cause problems,\n"
@@ -2132,7 +2143,7 @@ msgstr ""
 "copiar los archivos del juego al disco duro.\n"
 "Consulta el archivo README para más detalles."
 
-#: engines/engine.cpp:476
+#: engines/engine.cpp:474
 msgid ""
 "This game has audio tracks in its disk. These\n"
 "tracks need to be ripped from the disk using\n"
@@ -2146,7 +2157,7 @@ msgstr ""
 "poder escuchar la música del juego.\n"
 "Consulta el archivo README para más detalles."
 
-#: engines/engine.cpp:539
+#: engines/engine.cpp:537
 #, c-format
 msgid ""
 "Failed to load saved game (%s)! Please consult the README for basic "
@@ -2155,7 +2166,7 @@ msgstr ""
 "Hubo un fallo al cargar la partida (%s). Consulte el archivo README para "
 "información básica y cómo obtener más ayuda."
 
-#: engines/engine.cpp:555
+#: engines/engine.cpp:553
 msgid ""
 "WARNING: The game you are about to start is not yet fully supported by "
 "ScummVM. As such, it is likely to be unstable, and any saved game you make "
@@ -2165,7 +2176,7 @@ msgstr ""
 "ScummVM. Por lo tanto, puede que sea inestable, y que las partidas que "
 "guardes no funcionen en versiones futuras de ScummVM."
 
-#: engines/engine.cpp:558 engines/wintermute/wintermute.cpp:165
+#: engines/engine.cpp:556 engines/wintermute/wintermute.cpp:165
 msgid "Start anyway"
 msgstr "Jugar aun así"
 
@@ -2457,17 +2468,17 @@ msgstr "Enter"
 #: backends/graphics/opengl/opengl-graphics.cpp:236
 #: backends/graphics/surfacesdl/surfacesdl-graphics.cpp:79
 msgid "Pixel-perfect scaling"
-msgstr ""
+msgstr "Escala Pixel-perfecto"
 
 #: backends/graphics/opengl/opengl-graphics.cpp:237
 #: backends/graphics/surfacesdl/surfacesdl-graphics.cpp:80
 msgid "Fit to window"
-msgstr ""
+msgstr "Ajustar a la ventana"
 
 #: backends/graphics/opengl/opengl-graphics.cpp:238
 #: backends/graphics/surfacesdl/surfacesdl-graphics.cpp:81
 msgid "Stretch to window"
-msgstr ""
+msgstr "Estirar a la ventana"
 
 #: backends/graphics/openglsdl/openglsdl-graphics.cpp:603
 #, c-format
@@ -3278,29 +3289,29 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "No se ha encontrado el vídeo '%s'!"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:340
 msgid "Failed to initialize resources"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:985
+#: engines/bladerunner/bladerunner.cpp:991
 msgid "A required game resource was not found"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2135
+#: engines/bladerunner/bladerunner.cpp:2141
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
 "Content for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2137
+#: engines/bladerunner/bladerunner.cpp:2143
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
 "mode for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2139
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid "Continue"
 msgstr ""
 
