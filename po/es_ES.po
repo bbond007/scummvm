@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.4.0svn\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-14 02:42+0200\n"
-"PO-Revision-Date: 2019-09-14 12:07+0000\n"
-"Last-Translator: Eugene Sandulenko <sev@scummvm.org>\n"
+"POT-Creation-Date: 2019-09-17 01:14+0200\n"
+"PO-Revision-Date: 2019-09-18 00:55+0000\n"
+"Last-Translator: TomasM <truido@gmail.com>\n"
 "Language-Team: Spanish <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/es/>\n"
 "Language: es_ES\n"
@@ -861,7 +861,7 @@ msgstr "Intercambiar botones Menu y Volver"
 
 #: gui/options.cpp:1009
 msgid "Pointer Speed:"
-msgstr "Velocidad del puntero:"
+msgstr "Vel. del puntero:"
 
 #: gui/options.cpp:1009 gui/options.cpp:1011 gui/options.cpp:1012
 msgid "Speed for keyboard/joystick mouse pointer control"
@@ -870,7 +870,7 @@ msgstr "Velocidad del puntero para el control por teclado o joystick"
 #: gui/options.cpp:1011
 msgctxt "lowres"
 msgid "Pointer Speed:"
-msgstr "Velocidad del puntero:"
+msgstr "Vel. del puntero:"
 
 #: gui/options.cpp:1022
 msgid "Joy Deadzone:"
@@ -976,7 +976,6 @@ msgid "AdLib is used for music in many games"
 msgstr "AdLib se utiliza para reproducir la música en muchos juegos"
 
 #: gui/options.cpp:1153
-#, fuzzy
 msgid "GM device:"
 msgstr "Dispositivo GM:"
 
@@ -1049,9 +1048,8 @@ msgid "True Roland MT-32 (no GM emulation)"
 msgstr "Roland MT-32 real (sin emulación GM)"
 
 #: gui/options.cpp:1218
-#, fuzzy
 msgid "Roland GS device (enable MT-32 mappings)"
-msgstr "Dispositivo Roland GS (activar conversión MT-32)"
+msgstr "Roland GS (activar conversión MT-32)"
 
 #: gui/options.cpp:1218
 msgid ""
@@ -1243,7 +1241,7 @@ msgstr ""
 
 #: gui/options.cpp:1744 gui/updates-dialog.cpp:86
 msgid "Update check:"
-msgstr "Buscar actualizaciones:"
+msgstr "Actualizar:"
 
 #: gui/options.cpp:1744
 msgid "How often to check ScummVM updates"
@@ -1264,63 +1262,64 @@ msgstr "Nube"
 
 #: gui/options.cpp:1781
 msgid "LAN"
-msgstr ""
+msgstr "Red de Área Local"
 
 #: gui/options.cpp:1783
 msgctxt "lowres"
 msgid "LAN"
-msgstr ""
+msgstr "Red de Área Local"
 
 #: gui/options.cpp:1791
 msgid "Accessibility"
-msgstr ""
+msgstr "Accesibilidad"
 
 #: gui/options.cpp:1793
 msgctxt "lowres"
 msgid "Accessibility"
-msgstr ""
+msgstr "Accesibilidad"
 
 #: gui/options.cpp:1795
-#, fuzzy
 msgid "Use Text to speech"
-msgstr "Texto y voces:"
+msgstr "Usar Texto a voz"
 
 #: gui/options.cpp:1795
 msgid "Will read text in gui on mouse over."
-msgstr ""
+msgstr "Leerá el texto en la interfaz de usuario al pasar el ratón."
 
 #: gui/options.cpp:1826
 msgid "Apply"
 msgstr "Aplicar"
 
 #: gui/options.cpp:1915
-#, fuzzy
 msgid "Active storage:"
-msgstr "Almacenamiento activo"
+msgstr "Almacenamiento activo:"
 
 #: gui/options.cpp:1915
 msgid "Active cloud storage"
-msgstr "Almacenamiento activo"
+msgstr "Almacenamiento en la nube activo"
 
 #: gui/options.cpp:1923
 msgctxt "lowres"
 msgid ""
 "4. Storage is not yet enabled. Verify that username is correct and enable it:"
 msgstr ""
+"4. El almacenamiento no está activado todavía. Verifique que el nombre de "
+"usuario es correcto y actívelo:"
 
 #: gui/options.cpp:1925
 msgid ""
 "4. Storage is not yet enabled. Verify that username is correct and enable it:"
 msgstr ""
+"4. El almacenamiento no está activado todavía. Verifique que el nombre de "
+"usuario es correcto y actívelo:"
 
 #: gui/options.cpp:1926
-#, fuzzy
 msgid "Enable storage"
-msgstr "Activar las risas del público"
+msgstr "Activar almacenamiento"
 
 #: gui/options.cpp:1926
 msgid "Confirm you want to use this account for this storage"
-msgstr ""
+msgstr "Confirme que desea usar esta cuenta para este almacenamiento"
 
 #: gui/options.cpp:1928 backends/platform/wii/options.cpp:114
 msgid "Username:"
@@ -1340,17 +1339,19 @@ msgstr "Espacio utilizado:"
 
 #: gui/options.cpp:1931
 msgid "Space used by ScummVM's saved games on this storage"
-msgstr "Espacio utilizado para las partidas guardadas en este almacenamiento"
+msgstr ""
+"Espacio utilizado  para las partidas guardadas de ScummVM en este "
+"almacenamiento"
 
 #: gui/options.cpp:1934
-#, fuzzy
 msgid "Last sync:"
 msgstr "Última sincronización:"
 
 #: gui/options.cpp:1934
-#, fuzzy
 msgid "When was the last time saved games were synced with this storage"
-msgstr "Cuándo se ha producido la última sincronización de partidas guardadas"
+msgstr ""
+"Cuándo se ha producido la última sincronización de partidas guardadas con "
+"este almacenamiento"
 
 #: gui/options.cpp:1935 gui/options.cpp:2619
 msgid "<never>"
@@ -1360,33 +1361,37 @@ msgstr "<nunca>"
 msgctxt "lowres"
 msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
+"Las partidas guardadas se sincronizan automáticamente al iniciar, guardar y "
+"cargar."
 
 #: gui/options.cpp:1939
 msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
+"Las partidas guardadas se sincronizan automáticamente al iniciar, guardar y "
+"cargar."
 
 #: gui/options.cpp:1940
 msgid "Sync now"
-msgstr ""
+msgstr "Sincronizar ahora"
 
 #: gui/options.cpp:1940
-#, fuzzy
 msgid "Start saved games sync"
-msgstr "Jugar al juego seleccionado"
+msgstr "Sincronizar las partidas guardadas"
 
 #: gui/options.cpp:1943
 msgctxt "lowres"
 msgid "You can download game files from your cloud ScummVM folder:"
 msgstr ""
+"Puede descargar ficheros del juego desde tu carpeta en la nube de ScummVM:"
 
 #: gui/options.cpp:1945
 msgid "You can download game files from your cloud ScummVM folder:"
 msgstr ""
+"Puede descargar ficheros del juego desde tu carpeta en la nube de ScummVM:"
 
 #: gui/options.cpp:1946
-#, fuzzy
 msgid "Download game files"
-msgstr "La descarga ha fallado."
+msgstr "Descargar ficheros del juego"
 
 #: gui/options.cpp:1946
 msgid "Open downloads manager dialog"
@@ -1396,32 +1401,35 @@ msgstr "Abrir el gestor de descargas"
 msgctxt "lowres"
 msgid "To change account for this storage, disconnect and connect again:"
 msgstr ""
+"Para cambiar la cuenta para este almacenamiento, desconecta y conecta de "
+"nuevo:"
 
 #: gui/options.cpp:1951
 msgid "To change account for this storage, disconnect and connect again:"
 msgstr ""
+"Para cambiar la cuenta para este almacenamiento, desconecta y conecta de "
+"nuevo:"
 
 #: gui/options.cpp:1952
-#, fuzzy
 msgid "Disconnect"
-msgstr "Conectar"
+msgstr "Desconectar"
 
 #: gui/options.cpp:1952
 msgid "Stop using this storage on this device"
-msgstr ""
+msgstr "Dejar de usar este almacenamiento en este dispositivo"
 
 #: gui/options.cpp:1955
 msgctxt "lowres"
 msgid "This storage is not connected yet! To connect,"
-msgstr ""
+msgstr "¡Este almacenamiento no está conectado todavía! Para conectar,"
 
 #: gui/options.cpp:1957
 msgid "This storage is not connected yet! To connect,"
-msgstr ""
+msgstr "¡Este almacenamiento no está conectado todavía! Para conectar,"
 
 #: gui/options.cpp:1958
 msgid "1. Open this link:"
-msgstr ""
+msgstr "1. Abrir este enlace:"
 
 #: gui/options.cpp:1959
 msgid "Open URL"
@@ -1430,31 +1438,27 @@ msgstr "Abrir URL"
 #: gui/options.cpp:1961
 msgctxt "lowres"
 msgid "2. Get the code and enter it here:"
-msgstr ""
+msgstr "2.- Obtén el código e introdúcelo aquí:"
 
 #: gui/options.cpp:1963
 msgid "2. Get the code and enter it here:"
-msgstr ""
+msgstr "2.- Obtén el código e introdúcelo aquí:"
 
 #: gui/options.cpp:1965
 msgid "Paste"
 msgstr "Pegar"
 
 #: gui/options.cpp:1965
-#, fuzzy
 msgid "Paste code from clipboard"
-msgstr "Copiar al portapapeles"
+msgstr "Pegar código desde el portapapeles"
 
 #: gui/options.cpp:1966
-#, fuzzy
 msgid "3. Connect"
-msgstr "Conectar"
+msgstr "3. Conectar"
 
 #: gui/options.cpp:1966
-#, fuzzy
 msgid "Connect your cloud storage account"
-msgstr ""
-"Abrir el asistente de configuración para habilitar el almacenamiento en línea"
+msgstr "Conectar tu cuenta de almacenamiento en la nube"
 
 #: gui/options.cpp:1975
 msgid "Run server"
@@ -1474,9 +1478,9 @@ msgid "/root/ Path:"
 msgstr "/raíz/:"
 
 #: gui/options.cpp:1980 gui/options.cpp:1982 gui/options.cpp:1983
-#, fuzzy
 msgid "Select which directory will be shown as /root/ in the Files Manager"
-msgstr "Especifica los directorios accesibles para el gestor de archivos"
+msgstr ""
+"Selecciona el directorio que se mostrará como /raíz/ en el gestor de archivos"
 
 #: gui/options.cpp:1982
 msgid "/root/ Path:"
@@ -1488,7 +1492,7 @@ msgstr "Puerto del servidor:"
 
 #: gui/options.cpp:1988
 msgid "Port for server to use"
-msgstr ""
+msgstr "Puerto que usará el servidor"
 
 #: gui/options.cpp:1993
 msgctxt "lowres"
@@ -1579,7 +1583,7 @@ msgstr "Conectar"
 msgid "This Storage is working now. Do you want to interrupt it?"
 msgstr "Ya hay otro almacenamiento activo. ¿Quieres interrumpirlo?"
 
-#: gui/options.cpp:2617
+#: gui/options.cpp:2617 backends/cloud/cloudmanager.cpp:154
 msgid "<right now>"
 msgstr "<ahora>"
 
@@ -2320,6 +2324,11 @@ msgstr "Emulador de IBM PCjr"
 msgid "C64 Audio emulator"
 msgstr "Emulador de C64 Audio"
 
+#: backends/cloud/cloudmanager.cpp:153
+#, fuzzy
+msgid "<syncing...>"
+msgstr "Conectar"
+
 #: backends/cloud/storage.cpp:232
 msgid "Saved games sync complete."
 msgstr "Se ha completado la sincronización."
@@ -2560,6 +2569,196 @@ msgstr " (Juego)"
 #: backends/midi/windows.cpp:163
 msgid "Windows MIDI"
 msgstr "Windows MIDI"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:60
+#, fuzzy
+msgid "Can't create directory here!"
+msgstr "La ruta no es un directorio"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:66
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:73
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:80
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:63
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:63
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:137
+#, fuzzy
+msgid "Invalid path!"
+msgstr "Código inválido"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:84
+#, fuzzy
+msgid "Parent directory doesn't exists!"
+msgstr "La ruta no existe"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:88
+msgid "Can't create a directory within a file!"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:98
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:141
+msgid "There is a file with that name in the parent directory!"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:104
+#, fuzzy
+msgid "Failed to create the directory!"
+msgstr "Fallo al borrar el archivo."
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:111
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:120
+#, fuzzy
+msgid "Directory created successfully!"
+msgstr "DVD montado con éxito"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:122
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:204
+#, fuzzy
+msgid "Back to parent directory"
+msgstr "La ruta no es un directorio"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:67
+#, fuzzy
+msgid "The file doesn't exist!"
+msgstr "La ruta no existe"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:71
+#, fuzzy
+msgid "Can't download a directory!"
+msgstr "La ruta no es un directorio"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:76
+#, fuzzy
+msgid "Failed to read the file!"
+msgstr "Fallo al borrar el archivo."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:59
+msgid ""
+"The page is not available without the resources. Make sure file wwwroot.zip "
+"from ScummVM distribution is available in 'themepath'."
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:67
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:68
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:223
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:224
+#, fuzzy
+msgid "Create directory"
+msgstr "La ruta no es un directorio"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:69
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:70
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:227
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:228
+#, fuzzy
+msgid "Upload files"
+msgstr "Cargar partida"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:71
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:229
+msgid "Type new directory name:"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:72
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:230
+#, fuzzy
+msgid "Select a file to upload:"
+msgstr "Selecciona un juego para cargar"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:73
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:231
+#, fuzzy
+msgid "Or select a directory (works in Chrome only):"
+msgstr "Selecciona el directorio de temas"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:74
+msgid "Index of "
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
+#, fuzzy
+msgid "Loading..."
+msgstr "Cargando partida..."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
+msgid "Error occurred"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:81
+msgid "File system root"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:82
+#, fuzzy
+msgid "Saved games"
+msgstr "Guardar partida:"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:119
+#, fuzzy
+msgid "Parent directory"
+msgstr "La ruta no es un directorio"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:218
+#, fuzzy
+msgid "ScummVM couldn't list the directory you specified."
+msgstr "¡ScummVM no ha podido acceder al directorio!"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
+#, c-format
+msgid "Index of %s"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
+msgid "This is a local webserver index page."
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:43
+#, fuzzy
+msgid "Open Files manager"
+msgstr "Abrir el gestor de descargas"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:67
+msgid "The parent directory doesn't exist!"
+msgstr ""
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:71
+#, fuzzy
+msgid "Can't upload into a file!"
+msgstr "La ruta no es un archivo"
+
+#: backends/networking/sdl_net/handlerutils.cpp:197
+msgid "Back to the files manager"
+msgstr ""
+
+#: backends/networking/sdl_net/localwebserver.cpp:123
+msgid ""
+"Failed to start local webserver.\n"
+"Check whether selected port is not used by another application and try again."
+msgstr ""
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:69
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:111
+msgid "Invalid request: headers are too long!"
+msgstr ""
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:155
+#, fuzzy
+msgid "Failed to upload the file!"
+msgstr "Fallo al borrar el archivo."
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:184
+msgid "No file was passed!"
+msgstr ""
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:202
+#, fuzzy
+msgid "Uploaded successfully!"
+msgstr "DVD montado con éxito"
 
 #: backends/platform/ds/arm9/source/dsoptions.cpp:56
 #: engines/scumm/dialogs.cpp:287
@@ -3289,29 +3488,29 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "No se ha encontrado el vídeo '%s'!"
 
-#: engines/bladerunner/bladerunner.cpp:340
+#: engines/bladerunner/bladerunner.cpp:339
 msgid "Failed to initialize resources"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:991
+#: engines/bladerunner/bladerunner.cpp:995
 msgid "A required game resource was not found"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2141
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
 "Content for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2143
+#: engines/bladerunner/bladerunner.cpp:2147
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
 "mode for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2149
 msgid "Continue"
 msgstr ""
 
@@ -3331,6 +3530,16 @@ msgstr "Modo estirar:"
 
 #: engines/bladerunner/detection.cpp:58
 msgid "Game will shrink the actors and make their voices high pitched"
+msgstr ""
+
+#: engines/bladerunner/detection.cpp:66
+msgid "Frame limiter high performance mode"
+msgstr ""
+
+#: engines/bladerunner/detection.cpp:67
+msgid ""
+"This mode may result in high CPU usage! It avoids use of delayMillis() "
+"function."
 msgstr ""
 
 #: engines/cge/detection.cpp:105 engines/cge2/detection.cpp:111
@@ -5289,6 +5498,16 @@ msgstr ""
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr "No se puede localizar el archivo de datos del motor '%s'."
 
+#: engines/supernova/detection.cpp:40
+#, fuzzy
+msgid "Improved mode"
+msgstr "Modo ventana"
+
+#: engines/supernova/detection.cpp:41
+msgid ""
+"Removes some repetitive actions, adds possibility to change verbs by keyboard"
+msgstr ""
+
 #: engines/sword1/animation.cpp:524
 #, c-format
 msgid "PSX stream cutscene '%s' cannot be played in paletted mode"
@@ -5553,9 +5772,6 @@ msgstr ""
 
 #~ msgid "All OK!"
 #~ msgstr "¡Todo correcto!"
-
-#~ msgid "Invalid code"
-#~ msgstr "Código inválido"
 
 #, fuzzy
 #~ msgid "Unnamed savegame"

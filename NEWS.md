@@ -1,7 +1,7 @@
 For a more comprehensive changelog of the latest experimental code, see:
         https://github.com/scummvm/scummvm/commits/
 
-#### 2.1.0 (2019-??-??)
+#### 2.1.0 (2019-10-13)
 
  New games:
    - Added support for Blade Runner.
@@ -15,7 +15,8 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Added support for Might and Magic - World of Xeen.
    - Added support for Might and Magic - World of Xeen 2 CD Talkie.
    - Added support for Might and Magic - Swords of Xeen.
-   - Added support for Mission Supernova.
+   - Added support for Mission Supernova Part 1.
+   - Added support for Mission Supernova Part 2.
    - Added support for Quest for Glory: Shadows of Darkness.
    - Added support for The Prince and the Coward.
    - Added support for Versailles 1685.
@@ -30,6 +31,7 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Fixed incorrect cursor movement when it's controlled using the keyboard.
    - Updated the Roland MT-32 emulation code to Munt 2.3.0.
    - Improved unknown game variants reporting.
+   - Enabled cloud support.
 
  ADL:
    - Improved color accuracy.

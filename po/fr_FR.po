@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.8.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-14 02:42+0200\n"
-"PO-Revision-Date: 2019-09-14 00:48+0000\n"
+"POT-Creation-Date: 2019-09-17 01:14+0200\n"
+"PO-Revision-Date: 2019-09-15 21:18+0000\n"
 "Last-Translator: Thierry Crozat <criezy@scummvm.org>\n"
 "Language-Team: French <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/fr/>\n"
@@ -1589,7 +1589,7 @@ msgstr "Connection en cours..."
 msgid "This Storage is working now. Do you want to interrupt it?"
 msgstr "Ce service de stockage est actif. Voulez-vous l'interrompre ?"
 
-#: gui/options.cpp:2617
+#: gui/options.cpp:2617 backends/cloud/cloudmanager.cpp:154
 msgid "<right now>"
 msgstr "<maintenant>"
 
@@ -2318,6 +2318,10 @@ msgstr "Émulateur IBM PCjr"
 msgid "C64 Audio emulator"
 msgstr "Émulateur C64 Audio"
 
+#: backends/cloud/cloudmanager.cpp:153
+msgid "<syncing...>"
+msgstr "<synchronisation...>"
+
 #: backends/cloud/storage.cpp:232
 msgid "Saved games sync complete."
 msgstr "Synchronisation des sauvegardes terminée."
@@ -2557,6 +2561,182 @@ msgstr " (Jeu)"
 #: backends/midi/windows.cpp:163
 msgid "Windows MIDI"
 msgstr "MIDI Windows"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:60
+msgid "Can't create directory here!"
+msgstr "Impossible de créer un répertoire ici !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:66
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:73
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:80
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:63
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:63
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:137
+msgid "Invalid path!"
+msgstr "Chemin invalide !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:84
+msgid "Parent directory doesn't exists!"
+msgstr "Répertoire parent inexistant !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:88
+msgid "Can't create a directory within a file!"
+msgstr "Impossible de créer un répertoire dans un fichier !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:98
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:141
+msgid "There is a file with that name in the parent directory!"
+msgstr "Un fichier avec le même nom existe déjà dans le répertoire parent !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:104
+msgid "Failed to create the directory!"
+msgstr "Échec de la création du répertoire !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:111
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:120
+msgid "Directory created successfully!"
+msgstr "Répertoire créé avec succès !"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:122
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:204
+msgid "Back to parent directory"
+msgstr "Retour au répertoire parent"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:67
+msgid "The file doesn't exist!"
+msgstr "Ce fichier n'existe pas !"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:71
+msgid "Can't download a directory!"
+msgstr "Impossible de télécharger un répertoire !"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:76
+msgid "Failed to read the file!"
+msgstr "Échec de la lecture du fichier !"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:59
+msgid ""
+"The page is not available without the resources. Make sure file wwwroot.zip "
+"from ScummVM distribution is available in 'themepath'."
+msgstr ""
+"La page n'est pas disponible sans les ressources. Assurez-vous que le "
+"fichier wwwroot.zip de la distribution ScummVM est disponible dans le "
+"'themepath'."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:67
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:68
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:223
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:224
+msgid "Create directory"
+msgstr "Créer un répertoire"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:69
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:70
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:227
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:228
+msgid "Upload files"
+msgstr "Envoyer des fichiers"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:71
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:229
+msgid "Type new directory name:"
+msgstr "Entrez le nom du nouveau répertoire :"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:72
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:230
+msgid "Select a file to upload:"
+msgstr "Sélectionnez un fichier à envoyer :"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:73
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:231
+msgid "Or select a directory (works in Chrome only):"
+msgstr "Ou sélectionnez un répertoire (fonctionne uniquement avec Chrome) :"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:74
+msgid "Index of "
+msgstr "Index de "
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
+msgid "Loading..."
+msgstr "Chargement..."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
+msgid "Error occurred"
+msgstr "Une erreur s'est produite"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:81
+msgid "File system root"
+msgstr "Racine du système de fichiers"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:82
+msgid "Saved games"
+msgstr "Sauvegardes"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:119
+msgid "Parent directory"
+msgstr "Répertoire parent"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:218
+msgid "ScummVM couldn't list the directory you specified."
+msgstr ""
+"ScummVM n'a pas pu lister le contenu du répertoire que vous avez spécifié."
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
+#, c-format
+msgid "Index of %s"
+msgstr "Index de %s"
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
+msgid "This is a local webserver index page."
+msgstr "Ceci est une page d'index d'un serveur web local."
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:43
+msgid "Open Files manager"
+msgstr "Ouvrir le gestionnaire de fichiers"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:67
+msgid "The parent directory doesn't exist!"
+msgstr "Le répertoire parent n'existe pas !"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:71
+msgid "Can't upload into a file!"
+msgstr "Impossible d'envoyer vers un fichier !"
+
+#: backends/networking/sdl_net/handlerutils.cpp:197
+msgid "Back to the files manager"
+msgstr "Retour au gestionnaire de fichiers"
+
+#: backends/networking/sdl_net/localwebserver.cpp:123
+msgid ""
+"Failed to start local webserver.\n"
+"Check whether selected port is not used by another application and try again."
+msgstr ""
+"Échec du démarrage du serveur web local.\n"
+"Vérifiez si le port sélectionné n'est pas utilisé par une autre application "
+"et essayez de nouveau."
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:69
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:111
+msgid "Invalid request: headers are too long!"
+msgstr "Requête invalide : les en-têtes sont trop longs !"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:155
+msgid "Failed to upload the file!"
+msgstr "Échec de l'envoie du fichier !"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:184
+msgid "No file was passed!"
+msgstr "Aucun fichier n'a été spécifié !"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:202
+msgid "Uploaded successfully!"
+msgstr "Succès de l'envoi !"
 
 #: backends/platform/ds/arm9/source/dsoptions.cpp:56
 #: engines/scumm/dialogs.cpp:287
@@ -3287,15 +3467,15 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Fichier de séquence '%s' non trouvé !"
 
-#: engines/bladerunner/bladerunner.cpp:340
+#: engines/bladerunner/bladerunner.cpp:339
 msgid "Failed to initialize resources"
 msgstr "Échec de l'initialisation des ressources"
 
-#: engines/bladerunner/bladerunner.cpp:991
+#: engines/bladerunner/bladerunner.cpp:995
 msgid "A required game resource was not found"
 msgstr "Une ressource de jeu nécessaire n'a pas été trouvée"
 
-#: engines/bladerunner/bladerunner.cpp:2141
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
@@ -3305,7 +3485,7 @@ msgstr ""
 "vous jouez en mode Contenu Original. Le mode sera réglé sur Contenu Montage "
 "Restauré pour cette session jusqu'à ce que vous quittiez complètement le jeu."
 
-#: engines/bladerunner/bladerunner.cpp:2143
+#: engines/bladerunner/bladerunner.cpp:2147
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
@@ -3315,7 +3495,7 @@ msgstr ""
 "jouez en mode Contenu Montage Restauré. Le mode sera ajusté au mode Contenu "
 "Original pour cette session jusqu'à ce que vous quittiez complètement le jeu."
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2149
 msgid "Continue"
 msgstr "Continuer"
 
@@ -3334,6 +3514,16 @@ msgstr "Mode Minus"
 #: engines/bladerunner/detection.cpp:58
 msgid "Game will shrink the actors and make their voices high pitched"
 msgstr "Le jeu rétrécit les acteurs et rend leurs voix aiguës"
+
+#: engines/bladerunner/detection.cpp:66
+msgid "Frame limiter high performance mode"
+msgstr ""
+
+#: engines/bladerunner/detection.cpp:67
+msgid ""
+"This mode may result in high CPU usage! It avoids use of delayMillis() "
+"function."
+msgstr ""
 
 #: engines/cge/detection.cpp:105 engines/cge2/detection.cpp:111
 msgid "Color Blind Mode"
@@ -5359,6 +5549,16 @@ msgstr ""
 "Le fichier '%s' n'a pu être trouvé dans le dossier du jeu ou le fichier de "
 "donnée."
 
+#: engines/supernova/detection.cpp:40
+#, fuzzy
+msgid "Improved mode"
+msgstr "Mode Fenêtre"
+
+#: engines/supernova/detection.cpp:41
+msgid ""
+"Removes some repetitive actions, adds possibility to change verbs by keyboard"
+msgstr ""
+
 #: engines/sword1/animation.cpp:524
 #, c-format
 msgid "PSX stream cutscene '%s' cannot be played in paletted mode"
@@ -5633,9 +5833,6 @@ msgstr ""
 
 #~ msgid "All OK!"
 #~ msgstr "Tous OK !"
-
-#~ msgid "Invalid code"
-#~ msgstr "Code invalide"
 
 #~ msgid "Unnamed savegame"
 #~ msgstr "Sauvegarde sans nom"

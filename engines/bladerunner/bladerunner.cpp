@@ -111,9 +111,10 @@ BladeRunnerEngine::BladeRunnerEngine(OSystem *syst, const ADGameDescription *des
 
 	_subtitlesEnabled = false;
 
-	_sitcomMode       = false;
-	_shortyMode       = false;
-	_cutContent       = Common::String(desc->gameId).contains("bladerunner-final");
+	_sitcomMode                = false;
+	_shortyMode                = false;
+	_noDelayMillisFramelimiter = false;
+	_cutContent                = Common::String(desc->gameId).contains("bladerunner-final");
 
 	_playerLosesControlCounter = 0;
 
@@ -133,8 +134,6 @@ BladeRunnerEngine::BladeRunnerEngine(OSystem *syst, const ADGameDescription *des
 	_walkSoundId      = -1;
 	_walkSoundVolume  = 0;
 	_walkSoundPan     = 0;
-
-	_crimesDatabase = nullptr;
 
 	_language = desc->language;
 	switch (desc->language) {
@@ -561,8 +560,13 @@ bool BladeRunnerEngine::startup(bool hasSavegames) {
 	// get value from the ScummVM configuration manager
 	syncSoundSettings();
 
-	_sitcomMode = ConfMan.getBool("sitcom");
-	_shortyMode = ConfMan.getBool("shorty");
+	_sitcomMode                = ConfMan.getBool("sitcom");
+	_shortyMode                = ConfMan.getBool("shorty");
+
+	if (!ConfMan.hasKey("nodelaymillisfl")) {
+		ConfMan.setBool("nodelaymillisfl", false);
+	}
+	_noDelayMillisFramelimiter = ConfMan.getBool("nodelaymillisfl");
 	// BLADE.INI was read here, but it was replaced by ScummVM configuration
 
 	_chapters = new Chapters(this);

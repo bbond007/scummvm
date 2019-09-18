@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.9.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-14 02:42+0200\n"
-"PO-Revision-Date: 2019-09-12 20:59+0000\n"
+"POT-Creation-Date: 2019-09-17 01:14+0200\n"
+"PO-Revision-Date: 2019-09-17 06:31+0000\n"
 "Last-Translator: Ben Castricum <github@bencastricum.nl>\n"
 "Language-Team: Dutch <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/nl/>\n"
@@ -731,8 +731,8 @@ msgstr "Dit spel ondersteunt het laden van spelen vanaf het startmenu niet."
 #: gui/launcher.cpp:508
 msgid "ScummVM could not find any engine capable of running the selected game!"
 msgstr ""
-"ScummVM heeft geen engine gevonden die in staat was het geselecteerde spel "
-"te spelen!"
+"ScummVM kon geen engine vinden die in staat is het geselecteerde spel te "
+"spelen!"
 
 #: gui/launcher.cpp:573
 msgid "ScummVM could not find any game in the specified directory!"
@@ -916,7 +916,7 @@ msgstr "Speciale ditheringmodi die door sommige games ondersteund worden"
 
 #: gui/options.cpp:1085
 msgid "Stretch mode:"
-msgstr "uitrekmodus:"
+msgstr "Uitrekmodus:"
 
 #: gui/options.cpp:1096 backends/graphics/sdl/sdl-graphics.cpp:354
 msgid "Fullscreen mode"
@@ -1349,7 +1349,6 @@ msgid "<never>"
 msgstr "<nooit>"
 
 #: gui/options.cpp:1937
-#, fuzzy
 msgctxt "lowres"
 msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
@@ -1357,7 +1356,6 @@ msgstr ""
 "opslaan en bij laden."
 
 #: gui/options.cpp:1939
-#, fuzzy
 msgid "Saved games sync automatically on launch, after saving and on loading."
 msgstr ""
 "Opgeslagen spellen synchroniseren automatisch bij het starten, na het "
@@ -1368,7 +1366,6 @@ msgid "Sync now"
 msgstr "Synchroniseer nu"
 
 #: gui/options.cpp:1940
-#, fuzzy
 msgid "Start saved games sync"
 msgstr "Start de synchronisatie van opgeslagen spellen"
 
@@ -1570,7 +1567,7 @@ msgstr "Bezig met verbinden..."
 msgid "This Storage is working now. Do you want to interrupt it?"
 msgstr "Deze opslag is actief. Wilt u hem onderbreken?"
 
-#: gui/options.cpp:2617
+#: gui/options.cpp:2617 backends/cloud/cloudmanager.cpp:154
 msgid "<right now>"
 msgstr "<nu>"
 
@@ -2085,9 +2082,9 @@ msgstr "~T~oetsen"
 
 # can this be changed into "Could not switch to video mode '%s'"?
 #: engines/engine.cpp:312
-#, fuzzy, c-format
+#, c-format
 msgid "Could not switch to resolution '%dx%d'."
-msgstr "Kon niet schakelen naar videomodus: '"
+msgstr "Kon niet omschakelen naar resolutie '%dx%d'."
 
 #: engines/engine.cpp:321
 msgid "Could not initialize color format."
@@ -2095,19 +2092,19 @@ msgstr "Kon kleurformaat niet initialiseren."
 
 # can this be changed into "Could not switch to video mode '%s'"?
 #: engines/engine.cpp:330
-#, fuzzy, c-format
+#, c-format
 msgid "Could not switch to video mode '%s'."
-msgstr "Kon niet schakelen naar videomodus: '"
+msgstr "Kon niet omschakelen naar videomodus '%s'."
 
 # can this be changed into "Could not switch to video mode '%s'"?
 #: engines/engine.cpp:338
-#, fuzzy, c-format
+#, c-format
 msgid "Could not switch to stretch mode '%s'."
-msgstr "Kon niet schakelen naar videomodus: '"
+msgstr "Kon niet omschakelen naar uitrekmodus '%s'."
 
 #: engines/engine.cpp:345
 msgid "Could not apply aspect ratio setting."
-msgstr "Pixelverhoudinginstelling kon niet toegepast worden."
+msgstr "Kon pixelverhoudinginstelling niet toepassen."
 
 #: engines/engine.cpp:350
 msgid "Could not apply fullscreen setting."
@@ -2115,7 +2112,7 @@ msgstr "Kon volledig-scherminstelling niet toepassen."
 
 #: engines/engine.cpp:355
 msgid "Could not apply filtering setting."
-msgstr "Filterinstelling kon niet toegepast worden."
+msgstr "Kon filterinstelling niet toepassen."
 
 #: engines/engine.cpp:463
 msgid ""
@@ -2299,6 +2296,10 @@ msgstr "IBM PCjr emulator"
 #: audio/softsynth/sid.cpp:1430
 msgid "C64 Audio emulator"
 msgstr "C64 Geluid emulator"
+
+#: backends/cloud/cloudmanager.cpp:153
+msgid "<syncing...>"
+msgstr "<aan het synchroniseren...>"
 
 #: backends/cloud/storage.cpp:232
 msgid "Saved games sync complete."
@@ -2539,6 +2540,180 @@ msgstr " (Spel)"
 #: backends/midi/windows.cpp:163
 msgid "Windows MIDI"
 msgstr "Windows MIDI"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:60
+msgid "Can't create directory here!"
+msgstr "Kan hier geen map creëren!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:66
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:73
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:80
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:63
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:63
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:137
+msgid "Invalid path!"
+msgstr "Ongeldige pad!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:84
+msgid "Parent directory doesn't exists!"
+msgstr "Bovenliggende map bestaat niet!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:88
+msgid "Can't create a directory within a file!"
+msgstr "Kan geen map creëren in een file!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:98
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:141
+msgid "There is a file with that name in the parent directory!"
+msgstr "Er is een bestand met die naam in de bovenliggende map!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:104
+msgid "Failed to create the directory!"
+msgstr "Het creëren van de map is niet gelukt!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:111
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:120
+msgid "Directory created successfully!"
+msgstr "Map succesvol gecreëerd!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:122
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:204
+msgid "Back to parent directory"
+msgstr "Terug naar bovenloggende map"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:67
+msgid "The file doesn't exist!"
+msgstr "Het bestand bestaat niet!"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:71
+msgid "Can't download a directory!"
+msgstr "Kan geen map downloaden!"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:76
+msgid "Failed to read the file!"
+msgstr "Bestand lezen niet gelukt!"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:59
+msgid ""
+"The page is not available without the resources. Make sure file wwwroot.zip "
+"from ScummVM distribution is available in 'themepath'."
+msgstr ""
+"Deze pagina is niet beschikbaar zonder de bronnen. Zorg ervoor dat bestand "
+"wwwroot.zip uit de  ScummVM disctributie beschikbaar is in 'themapad'."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:67
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:68
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:223
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:224
+msgid "Create directory"
+msgstr "Creëer map"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:69
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:70
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:227
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:228
+msgid "Upload files"
+msgstr "Upload bestand"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:71
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:229
+msgid "Type new directory name:"
+msgstr "Geef de nieuwe mapnaam:"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:72
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:230
+msgid "Select a file to upload:"
+msgstr "Selecteer een bestand om te uploaden:"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:73
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:231
+msgid "Or select a directory (works in Chrome only):"
+msgstr "Of selecteer een map (werkt alleen in Chrome):"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:74
+msgid "Index of "
+msgstr "Index van "
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
+msgid "Loading..."
+msgstr "Laden..."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
+msgid "Error occurred"
+msgstr "Fout opgetreden"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:81
+msgid "File system root"
+msgstr "Bestand systeem root"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:82
+msgid "Saved games"
+msgstr "Opgeslagen spellen"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:119
+msgid "Parent directory"
+msgstr "Bovenliggende map"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:218
+msgid "ScummVM couldn't list the directory you specified."
+msgstr "ScummVM kon de opgegeven map niet indexeren."
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
+#, c-format
+msgid "Index of %s"
+msgstr "Index van %s"
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
+msgid "This is a local webserver index page."
+msgstr "Dit is een lokale webserver index pagina."
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:43
+msgid "Open Files manager"
+msgstr "Open Bestanden manager"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:67
+msgid "The parent directory doesn't exist!"
+msgstr "Bovenliggend pad bestaat niet!"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:71
+msgid "Can't upload into a file!"
+msgstr "Kan niet uploaden naar een file!"
+
+#: backends/networking/sdl_net/handlerutils.cpp:197
+msgid "Back to the files manager"
+msgstr "Terug naar de bestanden manager"
+
+#: backends/networking/sdl_net/localwebserver.cpp:123
+msgid ""
+"Failed to start local webserver.\n"
+"Check whether selected port is not used by another application and try again."
+msgstr ""
+"Starten van de lokale webserver mislukt.\n"
+"Controleer of de geselecteerde port niet in gebruik is door een andere "
+"applicatie en probeer het opnieuw."
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:69
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:111
+msgid "Invalid request: headers are too long!"
+msgstr "Ongeldig verzoek: headers zijn te lang!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:155
+msgid "Failed to upload the file!"
+msgstr "Bestand uploaden niet gelukt!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:184
+msgid "No file was passed!"
+msgstr "Geen file doorgegeven!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:202
+msgid "Uploaded successfully!"
+msgstr "Upload succesvol!"
 
 #: backends/platform/ds/arm9/source/dsoptions.cpp:56
 #: engines/scumm/dialogs.cpp:287
@@ -3128,6 +3303,7 @@ msgstr "Toon scanlines"
 #: engines/adl/detection.cpp:82
 msgid "Darken every other scanline to mimic the look of a CRT"
 msgstr ""
+"Maak om en om een scanline donker om zo het beeld van een CRT  na te bootsen"
 
 #: engines/adl/detection.cpp:91
 msgid "Always use sharp monochrome text"
@@ -3269,29 +3445,35 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Cutscene bestand '%s' niet gevonden!"
 
-#: engines/bladerunner/bladerunner.cpp:340
+#: engines/bladerunner/bladerunner.cpp:339
 msgid "Failed to initialize resources"
 msgstr "Initialisatie van bronnen mislukt"
 
-#: engines/bladerunner/bladerunner.cpp:991
+#: engines/bladerunner/bladerunner.cpp:995
 msgid "A required game resource was not found"
 msgstr "Een vereist spel bron was niet gevonden"
 
-#: engines/bladerunner/bladerunner.cpp:2141
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
 "Content for this session until you completely Quit the game."
 msgstr ""
+"WAARSCHUWING: Dit spel was opgeslagen in Restored Cut Content modus, maar u "
+"speelt in Original Content modus. De modus zal aangepast worden naar "
+"Restored Cut Content voor deze sessie totdat u het spel volledig verlaat."
 
-#: engines/bladerunner/bladerunner.cpp:2143
+#: engines/bladerunner/bladerunner.cpp:2147
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
 "mode for this session until you completely Quit the game."
 msgstr ""
+"WAARSCHUWING: Dit spel was opgeslagen in Original Content modus, maar u "
+"speelt in Restored Cut Content modus. De modus zal aangepast worden naar "
+"Original Content voor deze sessie totdat u het spel volledig verlaat."
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2149
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -3301,7 +3483,7 @@ msgstr "Sitcom modus"
 
 #: engines/bladerunner/detection.cpp:49
 msgid "Game will add laughter after actor's line or narration"
-msgstr ""
+msgstr "Spel voegt gelach toe na regels van personage of verhaal"
 
 #: engines/bladerunner/detection.cpp:57
 msgid "Shorty mode"
@@ -3310,6 +3492,19 @@ msgstr "Shorty modus"
 #: engines/bladerunner/detection.cpp:58
 msgid "Game will shrink the actors and make their voices high pitched"
 msgstr ""
+"Spel verkleint de hoofden van de personages en laat de stemmen hoger klinken"
+
+#: engines/bladerunner/detection.cpp:66
+msgid "Frame limiter high performance mode"
+msgstr "Framebeperker hoge performance modus"
+
+#: engines/bladerunner/detection.cpp:67
+msgid ""
+"This mode may result in high CPU usage! It avoids use of delayMillis() "
+"function."
+msgstr ""
+"Deze modus kan resulteren in hoog CPU gebruik! Het omzeilt gebruik van "
+"delayMillis() functie."
 
 #: engines/cge/detection.cpp:105 engines/cge2/detection.cpp:111
 msgid "Color Blind Mode"
@@ -3356,7 +3551,7 @@ msgstr "Naamloos opgeslagen spel"
 # can this be changed into "Could not switch to video mode '%s'"?
 #: engines/glk/advsys/advsys.cpp:35
 msgid "Could not start AdvSys game"
-msgstr "Starten van AdvSys spel mislukt"
+msgstr "Kon AdvSys spel niet starten"
 
 #: engines/glk/advsys/advsys.cpp:48 engines/glk/advsys/vm.cpp:319
 msgid "Sorry, the savegame couldn't be restored"
@@ -3368,12 +3563,12 @@ msgstr "Helaas, creëren van een opgeslagen spel is niet gelukt"
 
 #: engines/glk/advsys/vm.cpp:560
 msgid "Speak up! I can't hear you!\n"
-msgstr ""
+msgstr "Spreek luider! Ik kan je niet horen!\n"
 
 #: engines/glk/advsys/vm.cpp:596
 #, c-format
 msgid "I don't know the word \"%s\".\n"
-msgstr ""
+msgstr "Ik ken het woord \"%s\" niet.\n"
 
 #: engines/glk/advsys/vm.cpp:682
 msgid "I don't understand.\n"
@@ -3385,7 +3580,7 @@ msgstr "Dit is te kort voor een geldig Alan2 bestand."
 
 #: engines/glk/alan2/alan2.cpp:81
 msgid "This is not a valid Alan2 file."
-msgstr ""
+msgstr "Dit is geen geldig Alan2 bestand."
 
 #: engines/glk/frotz/frotz.cpp:126
 msgid "Error reading save file"
@@ -3397,39 +3592,41 @@ msgstr "Fout tijdens het opslaan van het spel\n"
 
 #: engines/glk/glulxe/glulxe.cpp:79 engines/glk/magnetic/magnetic.cpp:73
 msgid "This is too short to be a valid Glulx file."
-msgstr ""
+msgstr "Dit is te klein voor een valide Glulx bestand."
 
 #: engines/glk/glulxe/glulxe.cpp:84 engines/glk/magnetic/magnetic.cpp:78
 msgid "This is not a valid Glulx file."
-msgstr ""
+msgstr "Dit is geen geldig Glulx bestand."
 
 #: engines/glk/glulxe/glulxe.cpp:91 engines/glk/magnetic/magnetic.cpp:85
 msgid "This Glulx file is too old a version to execute."
 msgstr ""
+"Dit Glulx bestand is van een te oude versie om uitgevoerd te kunnen worden."
 
 #: engines/glk/glulxe/glulxe.cpp:95 engines/glk/magnetic/magnetic.cpp:89
 msgid "This Glulx file is too new a version to execute."
 msgstr ""
+"Dit Glulx bestand is van een te nieuwe versie om uitgevoerd te kunnen worden."
 
 #: engines/glk/scott/scott.cpp:99
 msgid "I don't understand your command. "
-msgstr ""
+msgstr "Ik begrijp je opdracht niet. "
 
 #: engines/glk/scott/scott.cpp:102
 msgid "I can't do that yet. "
-msgstr ""
+msgstr "Dat kan ik nog niet doen. "
 
 #: engines/glk/scott/scott.cpp:118
 msgid "Light has run out! "
-msgstr ""
+msgstr "Lamp is op! "
 
 #: engines/glk/scott/scott.cpp:120
 msgid "Your light has run out. "
-msgstr ""
+msgstr "Uw lamp is opgeraakt. "
 
 #: engines/glk/scott/scott.cpp:129
 msgid "Light runs out in "
-msgstr ""
+msgstr "Lamp raakt op in "
 
 #: engines/glk/scott/scott.cpp:131
 msgid " turns. "
@@ -3437,47 +3634,49 @@ msgstr " beurten. "
 
 #: engines/glk/scott/scott.cpp:134
 msgid "Your light is growing dim. "
-msgstr ""
+msgstr "Uw lamp wordt zwakker. "
 
 #: engines/glk/scott/scott.cpp:394
 msgid "North"
-msgstr ""
+msgstr "Noord"
 
 #: engines/glk/scott/scott.cpp:394
 msgid "South"
-msgstr ""
+msgstr "Zuid"
 
 #: engines/glk/scott/scott.cpp:394
 msgid "East"
-msgstr ""
+msgstr "Oost"
 
 #: engines/glk/scott/scott.cpp:394
 msgid "West"
-msgstr ""
+msgstr "West"
 
 #: engines/glk/scott/scott.cpp:406
 msgid "You can't see. It is too dark!\n"
-msgstr ""
+msgstr "U ziet niets. Het is te donker!\n"
 
 #: engines/glk/scott/scott.cpp:408
 msgid "I can't see. It is too dark!\n"
-msgstr ""
+msgstr "ik zie niets. Het is te donker!\n"
 
 #: engines/glk/scott/scott.cpp:418
 #, c-format
 msgid "You are in a %s\n"
-msgstr ""
+msgstr "U bent in een %s\n"
 
 #: engines/glk/scott/scott.cpp:420
 #, c-format
 msgid "I'm in a %s\n"
-msgstr ""
+msgstr "Ik ben in een %s\n"
 
 #: engines/glk/scott/scott.cpp:425
 msgid ""
 "\n"
 "Obvious exits: "
 msgstr ""
+"\n"
+"Duidelijke uitgangen: "
 
 #: engines/glk/scott/scott.cpp:438
 msgid "none"
@@ -3488,12 +3687,16 @@ msgid ""
 "\n"
 "You can also see: "
 msgstr ""
+"\n"
+"U kunt ook zien: "
 
 #: engines/glk/scott/scott.cpp:450
 msgid ""
 "\n"
 "I can also see: "
 msgstr ""
+"\n"
+"Ik kan ook zien: "
 
 #: engines/glk/scott/scott.cpp:533
 msgid "Saved.\n"
@@ -3501,24 +3704,24 @@ msgstr "Opgeslagen.\n"
 
 #: engines/glk/scott/scott.cpp:624
 msgid "You use word(s) I don't know! "
-msgstr ""
+msgstr "U gebruikt woord(en) die ik niet ken! "
 
 #: engines/glk/scott/scott.cpp:752 engines/glk/scott/scott.cpp:1075
 #: engines/glk/scott/scott.cpp:1097
 msgid "You are carrying too much. "
-msgstr ""
+msgstr "U draagt te veel. "
 
 #: engines/glk/scott/scott.cpp:754
 msgid "I've too much to carry! "
-msgstr ""
+msgstr "Ik draag te veel! "
 
 #: engines/glk/scott/scott.cpp:785
 msgid "You are dead.\n"
-msgstr ""
+msgstr "U bent dood.\n"
 
 #: engines/glk/scott/scott.cpp:787
 msgid "I am dead.\n"
-msgstr ""
+msgstr "Ik ben dood.\n"
 
 #: engines/glk/scott/scott.cpp:799
 msgid "The game is now over.\n"
@@ -3526,7 +3729,7 @@ msgstr "Het spel is nu over.\n"
 
 #: engines/glk/scott/scott.cpp:814
 msgid "You have stored "
-msgstr ""
+msgstr "U heeft opgeslagen "
 
 #: engines/glk/scott/scott.cpp:816
 msgid "I've stored "
@@ -3534,63 +3737,63 @@ msgstr "Ik heb opgeslagen "
 
 #: engines/glk/scott/scott.cpp:818
 msgid " treasures.  On a scale of 0 to 100, that rates "
-msgstr ""
+msgstr " schatten.  Op een schaal van 0 tot 100, komt dat op "
 
 #: engines/glk/scott/scott.cpp:822
 msgid "Well done.\n"
-msgstr ""
+msgstr "Goed gedaan.\n"
 
 #: engines/glk/scott/scott.cpp:831
 msgid "You are carrying:\n"
-msgstr ""
+msgstr "U draagt:\n"
 
 #: engines/glk/scott/scott.cpp:833
 msgid "I'm carrying:\n"
-msgstr ""
+msgstr "Ik draag:\n"
 
 #: engines/glk/scott/scott.cpp:848
 msgid "Nothing"
-msgstr ""
+msgstr "Niets"
 
 #: engines/glk/scott/scott.cpp:977
 msgid "Give me a direction too."
-msgstr ""
+msgstr "Geef me ook een richting."
 
 #: engines/glk/scott/scott.cpp:986
 msgid "Dangerous to move in the dark! "
-msgstr ""
+msgstr "Gevaarlijk om in het donker te bewegen! "
 
 #: engines/glk/scott/scott.cpp:994
 msgid "You fell down and broke your neck. "
-msgstr ""
+msgstr "U viel naar beneden en brak uw nek. "
 
 #: engines/glk/scott/scott.cpp:996
 msgid "I fell down and broke my neck. "
-msgstr ""
+msgstr "Ik viel naar beneden en brak mijn nek. "
 
 #: engines/glk/scott/scott.cpp:1001
 msgid "You can't go in that direction. "
-msgstr ""
+msgstr "U kunt die richting niet opgaan. "
 
 #: engines/glk/scott/scott.cpp:1003
 msgid "I can't go in that direction. "
-msgstr ""
+msgstr "Ik kan die richting niet opgaan. "
 
 #: engines/glk/scott/scott.cpp:1061
 msgid "It is dark.\n"
-msgstr ""
+msgstr "Het is donker.\n"
 
 #: engines/glk/scott/scott.cpp:1077 engines/glk/scott/scott.cpp:1099
 msgid "I've too much to carry. "
-msgstr ""
+msgstr "Ik heb te veel om te dragen. "
 
 #: engines/glk/scott/scott.cpp:1082 engines/glk/scott/scott.cpp:1130
 msgid ": O.K.\n"
-msgstr ""
+msgstr ": O.K.\n"
 
 #: engines/glk/scott/scott.cpp:1088
 msgid "Nothing taken."
-msgstr ""
+msgstr "Niets gepakt."
 
 #: engines/glk/scott/scott.cpp:1092 engines/glk/scott/scott.cpp:1140
 msgid "What ? "
@@ -3598,27 +3801,27 @@ msgstr "Wat ? "
 
 #: engines/glk/scott/scott.cpp:1105
 msgid "It is beyond your power to do that. "
-msgstr ""
+msgstr "Dat valt buiten uw mogelijkheden. "
 
 #: engines/glk/scott/scott.cpp:1107
 msgid "It's beyond my power to do that. "
-msgstr ""
+msgstr "Dat valt buiten mijn mogelijkheden. "
 
 #: engines/glk/scott/scott.cpp:1111
 msgid "O.K. "
-msgstr ""
+msgstr "O.K. "
 
 #: engines/glk/scott/scott.cpp:1136
 msgid "Nothing dropped.\n"
-msgstr ""
+msgstr "Niets laten vallen.\n"
 
 #: engines/glk/scott/scott.cpp:1146
 msgid "It's beyond your power to do that.\n"
-msgstr ""
+msgstr "Dat valt buiten uw mogelijkheden.\n"
 
 #: engines/glk/scott/scott.cpp:1148
 msgid "It's beyond my power to do that.\n"
-msgstr ""
+msgstr "Dat valt buiten mijn mogelijkheden.\n"
 
 #: engines/gob/inter_playtoons.cpp:255 engines/gob/inter_v2.cpp:1467
 #: engines/gob/inter_geisha.cpp:232 engines/tinsel/saveload.cpp:538
@@ -3652,7 +3855,7 @@ msgstr "Valsspeel modus aangezet"
 
 #: engines/hdb/detection.cpp:158
 msgid "Debug info and level selection becomes available"
-msgstr ""
+msgstr "Debug info en level selectie komen beschikbaar"
 
 #: engines/hopkins/detection.cpp:76 engines/hopkins/detection.cpp:86
 msgid "Gore Mode"
@@ -3723,11 +3926,11 @@ msgstr "Hitpoints balkgrafieken inschakelen"
 #. I18N: L/R stands for Left/Right
 #: engines/kyra/detection.cpp:138
 msgid "Fight Button L/R Swap"
-msgstr ""
+msgstr "Vechtknop L/R Omwisselen"
 
 #: engines/kyra/detection.cpp:139
 msgid "Left button to attack, right button to pick up items"
-msgstr ""
+msgstr "Linkerknop om aan te vallen, rechterknop om voorwerpen op te pakken"
 
 #: engines/kyra/engine/eobcommon.cpp:352 engines/kyra/engine/lol.cpp:481
 msgid "Move Forward"
@@ -3882,6 +4085,16 @@ msgid ""
 "should be located in the AmigaDOS system 'Fonts/' folder.\n"
 "Please copy them into the EOB game data directory.\n"
 msgstr ""
+"Deze AMIGA versie vereist de volgende lettertype bestanden:\n"
+"\n"
+"EOBF6.FONT\n"
+"EOBF6/6\n"
+"EOBF8.FONT\n"
+"EOBF8/8\n"
+"\n"
+"Als u de originele installer gebruikt heeft voor de installatie\n"
+"dan zouden deze moeten staan in het AmigaDOS systeem 'Fonts/'\n"
+"map. Kopieer ze a.u.b. naar de EOB spel data map.\n"
 
 #: engines/kyra/graphics/screen_eob.cpp:2262
 msgid ""
@@ -3904,6 +4117,24 @@ msgid ""
 "Please copy the correct font files into your EOB II game data directory.\n"
 "\n"
 msgstr ""
+"Deze AMIGA versie vereist de volgende lettertype bestanden:\n"
+"\n"
+"EOBF6.FONT\n"
+"EOBF6/6\n"
+"EOBF8.FONT\n"
+"EOBF8/8\n"
+"\n"
+"Dit is een gelokaliseerde (niet engelse) versie van EOB II welke "
+"taalspecifieke karakters gebuikt\n"
+"die alleen in de lettertype bestanden zitten die bij uw spel zit. U kunt "
+"niet de lettertype bestanden\n"
+"van de engelse versie of van een EOB I spel gebruiken wat u nu lijkt te "
+"doen.\n"
+"\n"
+"Het spel zal doorgaan, maar de taalspecifieke karakters zullen niet worden "
+"getoond.\n"
+"Kopieer a.u.b. de juiste lettertype bestanden naar uw EOB II spel data map.\n"
+"\n"
 
 #: engines/kyra/sound/sound_midi.cpp:72
 msgid ""
@@ -4420,6 +4651,8 @@ msgid ""
 "The selected audio driver requires the following file(s):\n"
 "\n"
 msgstr ""
+"De geselecteerde audio driver vereist de volgende bestand(en):\n"
+"\n"
 
 #: engines/sci/sound/music.cpp:164
 msgid ""
@@ -4436,6 +4669,18 @@ msgid ""
 "In that case you may need to apply the original Sierra patch.\n"
 "\n"
 msgstr ""
+"\n"
+"\n"
+"Sommige audio drivers (voor sommige spellen tenminste) waren\n"
+"gemaakt door Sierra als aftermarktet patches en zijn mogelijkerwijs\n"
+"niet geïnstalleerd als onderdeel van de originele spel installatie.\n"
+"\n"
+"Kopieer a.u.b. deze bestand(en) naar uw spel data map.\n"
+"\n"
+"Echter, de bestand(en) zouden niet los beschikbaar kunnen zijn\n"
+"maar alleen als onderdeel van (gepatchte) bron bundels.\n"
+"In dat geval zou u de originele Sierra patch moeten toepassen.\n"
+"\n"
 
 #: engines/scumm/detection.cpp:1123
 msgid ""
@@ -5173,6 +5418,8 @@ msgid ""
 "This AMIGA version is missing (at least) the following file(s):\n"
 "\n"
 msgstr ""
+"Deze AMIGA versie mist (op zijn minst) de volgende bestand(en):\n"
+"\n"
 
 #: engines/scumm/imuse/drivers/amiga.cpp:659
 msgid ""
@@ -5180,6 +5427,9 @@ msgid ""
 "Please copy these file(s) into the game data directory.\n"
 "\n"
 msgstr ""
+"\n"
+"Kopieer deze bestand(en) a.u.b. in de spel data map.\n"
+"\n"
 
 #: engines/sherlock/detection.cpp:81
 msgid "Pixellated scene transitions"
@@ -5254,12 +5504,23 @@ msgstr ""
 #: engines/supernova/supernova.cpp:483
 #, c-format
 msgid "Unable to find block for part %d"
-msgstr ""
+msgstr "Kon blok voor deel %d niet vinden"
 
 #: engines/supernova/supernova.cpp:525
 #, c-format
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr "Kon '%s' niet in de spelmap of engine databestand vinden."
+
+#: engines/supernova/detection.cpp:40
+msgid "Improved mode"
+msgstr "Verbeterde modus"
+
+#: engines/supernova/detection.cpp:41
+msgid ""
+"Removes some repetitive actions, adds possibility to change verbs by keyboard"
+msgstr ""
+"Verwijderd sommige repetitieve acties, voegt de mogelijkheid toe werkwoorden "
+"te veranderen via het toetstenbord"
 
 #: engines/sword1/animation.cpp:524
 #, c-format
@@ -5375,7 +5636,7 @@ msgstr "Opgeslagen spel #%d snel geladen"
 #: engines/toon/toon.cpp:243
 #, c-format
 msgid "Could not quick load the saved game #%d"
-msgstr "Snel laden van opgeslagen spel #%d mislukt"
+msgstr "Kon opgeslagen spel #%d niet snelladen"
 
 #: engines/wintermute/detection.cpp:59
 msgid "Show FPS-counter"
@@ -5395,7 +5656,7 @@ msgstr "Pas bilineair filteren toe op individuele sprites"
 
 #: engines/wintermute/wintermute.cpp:153
 msgid "This game requires PNG, JPEG and Vorbis support."
-msgstr ""
+msgstr "Dit spel vereist PNG, JPEG en Vorbis ondersteuning."
 
 #: engines/wintermute/wintermute.cpp:164
 msgid ""
@@ -5523,9 +5784,6 @@ msgstr ""
 
 #~ msgid "All OK!"
 #~ msgstr "Alles OK!"
-
-#~ msgid "Invalid code"
-#~ msgstr "Ongeldige code"
 
 #, fuzzy
 #~ msgid "Unnamed savegame"

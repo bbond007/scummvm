@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.6.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-14 02:42+0200\n"
-"PO-Revision-Date: 2019-09-14 12:06+0000\n"
-"Last-Translator: Timo Mikkolainen <tmikkola@gmail.com>\n"
+"POT-Creation-Date: 2019-09-17 01:14+0200\n"
+"PO-Revision-Date: 2019-09-18 00:55+0000\n"
+"Last-Translator: jepael <kermespersialainen@gmail.com>\n"
 "Language-Team: Finnish <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/fi/>\n"
 "Language: fi_FI\n"
@@ -1569,7 +1569,7 @@ msgstr "Yhdistetään..."
 msgid "This Storage is working now. Do you want to interrupt it?"
 msgstr "Tämä tallennustila on nyt aktiivinen. Haluatko keskeyttää sen?"
 
-#: gui/options.cpp:2617
+#: gui/options.cpp:2617 backends/cloud/cloudmanager.cpp:154
 msgid "<right now>"
 msgstr "<nyt>"
 
@@ -2288,6 +2288,10 @@ msgstr "IBM PCjr emulaattori"
 msgid "C64 Audio emulator"
 msgstr "C64 Audio emulaattori"
 
+#: backends/cloud/cloudmanager.cpp:153
+msgid "<syncing...>"
+msgstr "<synkronoidaan...>"
+
 #: backends/cloud/storage.cpp:232
 msgid "Saved games sync complete."
 msgstr "Pelitallennusten synkronointi valmis."
@@ -2527,6 +2531,180 @@ msgstr " (Peli)"
 #: backends/midi/windows.cpp:163
 msgid "Windows MIDI"
 msgstr "Windows MIDI"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:60
+msgid "Can't create directory here!"
+msgstr "Hakemistoa ei voi luoda tähän!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:66
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:73
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:80
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:63
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:43
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:49
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:56
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:63
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:137
+msgid "Invalid path!"
+msgstr "Polku ei kelpaa!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:84
+msgid "Parent directory doesn't exists!"
+msgstr "Päähakemistoa ei löydy!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:88
+msgid "Can't create a directory within a file!"
+msgstr "Hakemistoa ei voi luoda tiedoston sisään!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:98
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:141
+msgid "There is a file with that name in the parent directory!"
+msgstr "Päähakemistossa on jo samanniminen tiedosto!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:104
+msgid "Failed to create the directory!"
+msgstr "Hakemiston luonti epäonnistui!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:111
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:120
+msgid "Directory created successfully!"
+msgstr "Hakemiston luonti onnistui!"
+
+#: backends/networking/sdl_net/handlers/createdirectoryhandler.cpp:122
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:204
+msgid "Back to parent directory"
+msgstr "Takaisin päähakemistoon"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:67
+msgid "The file doesn't exist!"
+msgstr "Tiedostoa ei ole olemassa!"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:71
+msgid "Can't download a directory!"
+msgstr "Hakemistoa ei voi ladata!"
+
+#: backends/networking/sdl_net/handlers/downloadfilehandler.cpp:76
+msgid "Failed to read the file!"
+msgstr "Tiedoston lukeminen ei onnistunut!"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:59
+msgid ""
+"The page is not available without the resources. Make sure file wwwroot.zip "
+"from ScummVM distribution is available in 'themepath'."
+msgstr ""
+"Sivu ei ole saatavilla ilman resursseja. Varmista että tiedosto wwwroot.zip "
+"ScummVM -jakelusta on saatavilla 'themepath'-hakemistopolussa."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:67
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:68
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:223
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:224
+msgid "Create directory"
+msgstr "Luo hakemisto"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:69
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:70
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:227
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:228
+msgid "Upload files"
+msgstr "Lähetä tiedostoja"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:71
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:229
+msgid "Type new directory name:"
+msgstr "Anna uusi hakemiston nimi:"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:72
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:230
+msgid "Select a file to upload:"
+msgstr "Valitse lähetettävä tiedosto:"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:73
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:231
+msgid "Or select a directory (works in Chrome only):"
+msgstr "Tai valitse hakemisto (toimii vain Chromessa):"
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:74
+msgid "Index of "
+msgstr "Hakemistolista "
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
+msgid "Loading..."
+msgstr "Ladataan..."
+
+#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
+msgid "Error occurred"
+msgstr "Virhe havaittu"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:81
+msgid "File system root"
+msgstr "Tiedostojärjestelmän juurihakemisto"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:82
+msgid "Saved games"
+msgstr "Tallennetut pelit"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:119
+msgid "Parent directory"
+msgstr "Päähakemisto"
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:218
+msgid "ScummVM couldn't list the directory you specified."
+msgstr "ScummVM ei voi avata kyseistä hakemistoa."
+
+#: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
+#, c-format
+msgid "Index of %s"
+msgstr "Hakemiston %s sisältö"
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
+msgid "This is a local webserver index page."
+msgstr "Tämä on paikallisen WWW-palvelimen aloitussivu."
+
+#: backends/networking/sdl_net/handlers/indexpagehandler.cpp:43
+msgid "Open Files manager"
+msgstr "Avaa lataustenhallintadialogi"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:67
+msgid "The parent directory doesn't exist!"
+msgstr "Päähakemistoa ei löydy!"
+
+#: backends/networking/sdl_net/handlers/uploadfilehandler.cpp:71
+msgid "Can't upload into a file!"
+msgstr "Tiedostoon ei voi lähettää!"
+
+#: backends/networking/sdl_net/handlerutils.cpp:197
+msgid "Back to the files manager"
+msgstr "Takaisin lataustenhallintadialogiin"
+
+#: backends/networking/sdl_net/localwebserver.cpp:123
+msgid ""
+"Failed to start local webserver.\n"
+"Check whether selected port is not used by another application and try again."
+msgstr ""
+"Paikallisen WWW-palvelimen käynnistys epäonnistui.\n"
+"Tarkista ettei valittu portti ole toisen sovelluksen käytössä ja yritä "
+"uudelleen."
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:69
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:111
+msgid "Invalid request: headers are too long!"
+msgstr "Epäkelpo pyyntö: otsikko liian pitkä!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:155
+msgid "Failed to upload the file!"
+msgstr "Tiedoston lähettäminen ei onnistunut!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:184
+msgid "No file was passed!"
+msgstr "Yhtään tiedostoa ei siirretty!"
+
+#: backends/networking/sdl_net/uploadfileclienthandler.cpp:202
+msgid "Uploaded successfully!"
+msgstr "Lähetetty onnistuneesti!"
 
 #: backends/platform/ds/arm9/source/dsoptions.cpp:56
 #: engines/scumm/dialogs.cpp:287
@@ -3255,15 +3433,15 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Videotiedostoa '%s' ei löytynyt!"
 
-#: engines/bladerunner/bladerunner.cpp:340
+#: engines/bladerunner/bladerunner.cpp:339
 msgid "Failed to initialize resources"
 msgstr "Resurssien alustus epäonnistui"
 
-#: engines/bladerunner/bladerunner.cpp:991
+#: engines/bladerunner/bladerunner.cpp:995
 msgid "A required game resource was not found"
 msgstr "Pakollista pelin resurssia ei löydetty"
 
-#: engines/bladerunner/bladerunner.cpp:2141
+#: engines/bladerunner/bladerunner.cpp:2145
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
@@ -3274,7 +3452,7 @@ msgstr ""
 "Pelisessio muutetaan 'Leikatut kohtaukset palautettu'-tilaan ja se on "
 "voimassa kunnes poistut kokonaan pelistä."
 
-#: engines/bladerunner/bladerunner.cpp:2143
+#: engines/bladerunner/bladerunner.cpp:2147
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
@@ -3285,7 +3463,7 @@ msgstr ""
 "muutetaan 'Alkuperäinen sisältö'-tilaan ja se on voimassa kunnes poistut "
 "kokonaan pelistä."
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2149
 msgid "Continue"
 msgstr "Jatka"
 
@@ -3304,6 +3482,18 @@ msgstr "Pätkätila"
 #: engines/bladerunner/detection.cpp:58
 msgid "Game will shrink the actors and make their voices high pitched"
 msgstr "Hahmoja kutistetaan ja niiden ääntä nopeutetaan"
+
+#: engines/bladerunner/detection.cpp:66
+msgid "Frame limiter high performance mode"
+msgstr "Kuvanpäivitysnopeuden rajoittimen korkean suorituskyvyn tila"
+
+#: engines/bladerunner/detection.cpp:67
+msgid ""
+"This mode may result in high CPU usage! It avoids use of delayMillis() "
+"function."
+msgstr ""
+"Tämä tila saattaa käyttää paljon laskentatehoa! Se välttää delayMillis()-"
+"funktion käyttämistä."
 
 #: engines/cge/detection.cpp:105 engines/cge2/detection.cpp:111
 msgid "Color Blind Mode"
@@ -5290,6 +5480,17 @@ msgstr ""
 "Tiedostoa \"%s\" ei löydetty pelin kansiosta eikä pelimoottorin "
 "datatiedostosta."
 
+#: engines/supernova/detection.cpp:40
+msgid "Improved mode"
+msgstr "Parannettu tila"
+
+#: engines/supernova/detection.cpp:41
+msgid ""
+"Removes some repetitive actions, adds possibility to change verbs by keyboard"
+msgstr ""
+"Poistaa jotakin toistuvia toimintoja, lisää mahdollisuuden vaihtaa verbiä "
+"näppäimistöltä"
+
 #: engines/sword1/animation.cpp:524
 #, c-format
 msgid "PSX stream cutscene '%s' cannot be played in paletted mode"
@@ -5554,9 +5755,6 @@ msgstr ""
 
 #~ msgid "All OK!"
 #~ msgstr "Kaikki kunnossa!"
-
-#~ msgid "Invalid code"
-#~ msgstr "Viallinen koodi"
 
 #~ msgid "Unnamed savegame"
 #~ msgstr "Nimetön pelitallennus"

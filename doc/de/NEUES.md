@@ -2,7 +2,7 @@ Umfangreichere Informationen über die Änderungen des aktuellen experimentellen
 Programmcodes finden Sie auf Englisch unter:
         https://github.com/scummvm/scummvm/commits/
 
-#### 2.1.0 (??.??.2019)
+#### 2.1.0 (13.10.2019)
 
  Neue Spiele:
    - Unterstützung für Blade Runner hinzugefügt.
@@ -16,7 +16,8 @@ Programmcodes finden Sie auf Englisch unter:
    - Unterstützung für Might and Magic - World of Xeen hinzugefügt.
    - Unterstützung für Might and Magic - World of Xeen 2 CD Talkie (mit Sprachausgabe) hinzugefügt.
    - Unterstützung für Might and Magic - Swords of Xeen hinzugefügt.
-   - Unterstützung für Mission Supernova hinzugefügt.
+   - Unterstützung für Mission Supernova Teil 1: Das Schicksal des Horst Hummel hinzugefügt.
+   - Unterstützung für Mission Supernova Teil 2: Der Doppelgänger hinzugefügt.
    - Unterstützung für Quest for Glory: Shadows of Darkness hinzugefügt.
    - Unterstützung für The Prince and the Coward hinzugefügt.
    - Unterstützung für Versailles 1685 hinzugefügt.
@@ -32,6 +33,7 @@ Programmcodes finden Sie auf Englisch unter:
      gesteuert wird.
    - Code der Roland MT-32-Emulation auf Munt 2.3.0 aktualisiert.
    - Unbekannte Spiele-Versionen können nun einfacher gemeldet werden.
+   - Spielstände können nun in einer Cloud synchronisiert werden.
 
  ADL:
    - Verbesserung der Farbtreue.
