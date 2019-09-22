@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.6.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-17 01:14+0200\n"
-"PO-Revision-Date: 2019-09-14 12:05+0000\n"
-"Last-Translator: Eugene Sandulenko <sev@scummvm.org>\n"
+"POT-Creation-Date: 2019-09-21 21:15+0200\n"
+"PO-Revision-Date: 2019-09-21 10:54+0000\n"
+"Last-Translator: Andrea G <andreagswaterloo@gmail.com>\n"
 "Language-Team: Catalan <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/ca/>\n"
 "Language: ca_ES\n"
@@ -718,10 +718,9 @@ msgstr ""
 "una gran quantitat de jocs."
 
 #: gui/launcher.cpp:384
-#, fuzzy
 msgid "This directory cannot be used yet, it is being downloaded into!"
 msgstr ""
-"Aquest directori no pot ser utilitzat encara, d'està descarregant en ell!"
+"Aquest directori encara no pot ser utilitzat, s'està descarregant en ell!"
 
 #: gui/launcher.cpp:395
 msgid "Do you really want to remove this game configuration?"
@@ -745,9 +744,8 @@ msgid "ScummVM could not find any game in the specified directory!"
 msgstr "ScummVM no ha pogut trobar cap joc al directori especificat!"
 
 #: gui/launcher.cpp:588
-#, fuzzy
 msgid "Unknown variant"
-msgstr "Error desconegut"
+msgstr "Variant desconeguda"
 
 #: gui/launcher.cpp:594
 msgid "Pick the game:"
@@ -806,24 +804,20 @@ msgid "Never"
 msgstr "Mai"
 
 #: gui/options.cpp:127
-#, fuzzy
 msgid "Every 5 mins"
-msgstr "cada 5 minuts"
+msgstr "Cada 5 minuts"
 
 #: gui/options.cpp:127
-#, fuzzy
 msgid "Every 10 mins"
-msgstr "cada 10 minuts"
+msgstr "Cada 10 minuts"
 
 #: gui/options.cpp:127
-#, fuzzy
 msgid "Every 15 mins"
-msgstr "cada 15 minuts"
+msgstr "Cada 15 minuts"
 
 #: gui/options.cpp:127
-#, fuzzy
 msgid "Every 30 mins"
-msgstr "cada 30 minuts"
+msgstr "Cada 30 minuts"
 
 #: gui/options.cpp:366 gui/options.cpp:696 gui/options.cpp:834
 #: gui/options.cpp:917 gui/options.cpp:1190
@@ -836,14 +830,12 @@ msgid "Failed to apply some of the graphic options changes:"
 msgstr "No s'han pogut aplicar alguns canvis de les opcions gràfiques:"
 
 #: gui/options.cpp:569
-#, fuzzy
 msgid "the video mode could not be changed"
-msgstr "no s'ha pogut canviar el mode de vídeo."
+msgstr "no s'ha pogut canviar el mode de vídeo"
 
 #: gui/options.cpp:582
-#, fuzzy
 msgid "the stretch mode could not be changed"
-msgstr "no s'ha pogut canviar el mode de vídeo."
+msgstr "No s'ha pogut canviar el mode de redimensionament"
 
 #: gui/options.cpp:588
 msgid "the aspect ratio setting could not be changed"
@@ -862,9 +854,8 @@ msgid "Show On-screen control"
 msgstr "Mostra el control En-pantalla"
 
 #: gui/options.cpp:1000
-#, fuzzy
 msgid "Touchpad mouse mode"
-msgstr "Mode Touchpad desactivat."
+msgstr "Mode Panell Tàctil"
 
 #: gui/options.cpp:1004
 msgid "Swap Menu and Back buttons"
@@ -888,18 +879,17 @@ msgid "Joy Deadzone:"
 msgstr "Zona morta del controlador:"
 
 #: gui/options.cpp:1022 gui/options.cpp:1024 gui/options.cpp:1025
-#, fuzzy
 msgid "Analog joystick Deadzone"
 msgstr "Zona morta de joystick analògic"
 
 #: gui/options.cpp:1024
 msgctxt "lowres"
 msgid "Joy Deadzone:"
-msgstr ""
+msgstr "Zona morta del Joystick"
 
 #: gui/options.cpp:1038
 msgid "HW Shader:"
-msgstr ""
+msgstr "Ombrejador HW:"
 
 #: gui/options.cpp:1038 gui/options.cpp:1040
 msgid "Different hardware shaders give different visual effects"
@@ -908,7 +898,7 @@ msgstr ""
 #: gui/options.cpp:1040
 msgctxt "lowres"
 msgid "HW Shader:"
-msgstr ""
+msgstr "Ombrejador HW:"
 
 #: gui/options.cpp:1041
 msgid "Different shaders give different visual effects"
@@ -951,14 +941,12 @@ msgid "Correct aspect ratio for 320x200 games"
 msgstr "Corregeix la relació d'aspecte per jocs de 320x200"
 
 #: gui/options.cpp:1110
-#, fuzzy
 msgid "Preferred device:"
-msgstr "Disp. preferit:"
+msgstr "Dispositiu preferit:"
 
 #: gui/options.cpp:1110
-#, fuzzy
 msgid "Music device:"
-msgstr "Disp. de música:"
+msgstr "Dispositiu de música:"
 
 #: gui/options.cpp:1110 gui/options.cpp:1112
 msgid "Specifies preferred sound device or sound card emulator"
@@ -975,10 +963,9 @@ msgid "Preferred dev.:"
 msgstr "Disp. preferit:"
 
 #: gui/options.cpp:1112
-#, fuzzy
 msgctxt "lowres"
 msgid "Music device:"
-msgstr "Disp. de música:"
+msgstr "Dispositiu de música:"
 
 #: gui/options.cpp:1139
 msgid "AdLib emulator:"
@@ -1074,9 +1061,8 @@ msgid "Don't use Roland MT-32 music"
 msgstr "No utilitzis música de Roland MT-32"
 
 #: gui/options.cpp:1254
-#, fuzzy
 msgid "Text and speech:"
-msgstr "Text i Veus:"
+msgstr "Text i veus:"
 
 #: gui/options.cpp:1258 gui/options.cpp:1268
 msgid "Speech"
@@ -1095,10 +1081,9 @@ msgid "Subtitle speed:"
 msgstr "Velocitat de subt.:"
 
 #: gui/options.cpp:1264
-#, fuzzy
 msgctxt "lowres"
 msgid "Text and speech:"
-msgstr "Text i Veus:"
+msgstr "Text i veus:"
 
 #: gui/options.cpp:1268
 msgid "Spch"
@@ -1132,7 +1117,6 @@ msgid "Music volume:"
 msgstr "Volum de música:"
 
 #: gui/options.cpp:1297
-#, fuzzy
 msgid "Mute all"
 msgstr "Silenciar tot"
 
@@ -1163,9 +1147,8 @@ msgid "Shader"
 msgstr "Ombreig"
 
 #: gui/options.cpp:1574
-#, fuzzy
 msgid "Control"
-msgstr "Controla el ratolí"
+msgstr "Control"
 
 #: gui/options.cpp:1600
 msgid "FluidSynth Settings"
@@ -1232,9 +1215,8 @@ msgid "Language of ScummVM GUI"
 msgstr "Idioma de la interfície d'usuari de ScummVM"
 
 #: gui/options.cpp:1722
-#, fuzzy
 msgid "Switch the GUI language to the game language"
-msgstr "Canvia l'idioma del GUI a l'idioma del joc"
+msgstr "Canvia l'idioma de la  interfície a l'idioma del joc"
 
 #: gui/options.cpp:1723
 msgid ""
@@ -2662,11 +2644,6 @@ msgstr "Seleccioneu el directori dels temes"
 msgid "Index of "
 msgstr ""
 
-#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
-#, fuzzy
-msgid "Loading..."
-msgstr "Carregant la partida..."
-
 #: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
 msgid "Error occurred"
 msgstr ""
@@ -2691,8 +2668,7 @@ msgid "ScummVM couldn't list the directory you specified."
 msgstr "ScummVM no ha pogut accedir al directori especificat!"
 
 #: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
-#, c-format
-msgid "Index of %s"
+msgid "Index of"
 msgstr ""
 
 #: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
@@ -2712,7 +2688,7 @@ msgstr ""
 msgid "Can't upload into a file!"
 msgstr "El camí no és un fitxer"
 
-#: backends/networking/sdl_net/handlerutils.cpp:197
+#: backends/networking/sdl_net/handlerutils.cpp:213
 msgid "Back to the files manager"
 msgstr ""
 
@@ -3465,29 +3441,29 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "No s'ha trobat el fitxer d'escena '%s'!"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:349
 msgid "Failed to initialize resources"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:995
+#: engines/bladerunner/bladerunner.cpp:1005
 msgid "A required game resource was not found"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2155
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
 "Content for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2147
+#: engines/bladerunner/bladerunner.cpp:2157
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
 "mode for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2149
+#: engines/bladerunner/bladerunner.cpp:2159
 msgid "Continue"
 msgstr ""
 
@@ -5430,7 +5406,7 @@ msgstr ""
 msgid "Unable to find block for part %d"
 msgstr ""
 
-#: engines/supernova/supernova.cpp:525
+#: engines/supernova/supernova.cpp:526
 #, c-format
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr ""
@@ -5656,6 +5632,10 @@ msgid ""
 "This saved game uses version %u, but this engine only supports up to version "
 "%d. You will need an updated version of the engine to use this saved game."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Loading..."
+#~ msgstr "Carregant la partida..."
 
 #~ msgid "Color mode"
 #~ msgstr "Mode de color"

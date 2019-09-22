@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.9.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-17 01:14+0200\n"
+"POT-Creation-Date: 2019-09-21 21:15+0200\n"
 "PO-Revision-Date: 2018-08-06 21:28+0000\n"
 "Last-Translator: monkeymadness <ihave13redsox@hotmail.com>\n"
 "Language-Team: Chinese <https://translations.scummvm.org/projects/scummvm/"
@@ -2651,11 +2651,6 @@ msgstr "Xuanze Jiemian Zhuti de Mulu"
 msgid "Index of "
 msgstr ""
 
-#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
-#, fuzzy
-msgid "Loading..."
-msgstr "Zairu youxi..."
-
 #: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
 msgid "Error occurred"
 msgstr ""
@@ -2680,8 +2675,7 @@ msgid "ScummVM couldn't list the directory you specified."
 msgstr "ScummVM Wufa Dakai Zhiding Mulu!"
 
 #: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
-#, c-format
-msgid "Index of %s"
+msgid "Index of"
 msgstr ""
 
 #: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
@@ -2701,7 +2695,7 @@ msgstr ""
 msgid "Can't upload into a file!"
 msgstr "Lujing Bushi Wenjian"
 
-#: backends/networking/sdl_net/handlerutils.cpp:197
+#: backends/networking/sdl_net/handlerutils.cpp:213
 msgid "Back to the files manager"
 msgstr ""
 
@@ -3452,29 +3446,29 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Changjing Qiehuan Wenjian '%s' Wei Zhaodao!"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:349
 msgid "Failed to initialize resources"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:995
+#: engines/bladerunner/bladerunner.cpp:1005
 msgid "A required game resource was not found"
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2155
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
 "Content for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2147
+#: engines/bladerunner/bladerunner.cpp:2157
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
 "mode for this session until you completely Quit the game."
 msgstr ""
 
-#: engines/bladerunner/bladerunner.cpp:2149
+#: engines/bladerunner/bladerunner.cpp:2159
 msgid "Continue"
 msgstr ""
 
@@ -5410,7 +5404,7 @@ msgstr ""
 msgid "Unable to find block for part %d"
 msgstr ""
 
-#: engines/supernova/supernova.cpp:525
+#: engines/supernova/supernova.cpp:526
 #, c-format
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr ""
@@ -5624,6 +5618,10 @@ msgid ""
 "This saved game uses version %u, but this engine only supports up to version "
 "%d. You will need an updated version of the engine to use this saved game."
 msgstr ""
+
+#, fuzzy
+#~ msgid "Loading..."
+#~ msgstr "Zairu youxi..."
 
 #, fuzzy
 #~ msgid "Color mode"

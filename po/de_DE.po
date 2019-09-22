@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.10.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-17 01:14+0200\n"
-"PO-Revision-Date: 2019-09-16 23:17+0000\n"
+"POT-Creation-Date: 2019-09-21 21:15+0200\n"
+"PO-Revision-Date: 2019-09-21 19:20+0000\n"
 "Last-Translator: Lothar Serra Mari <serra@scummvm.org>\n"
 "Language-Team: German <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/de/>\n"
@@ -2652,10 +2652,6 @@ msgstr "Oder wählen Sie ein Verzeichnis (funktioniert nur in Chrome):"
 msgid "Index of "
 msgstr "Index von "
 
-#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
-msgid "Loading..."
-msgstr "Lade..."
-
 #: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
 msgid "Error occurred"
 msgstr "Ein Fehler ist aufgetreten"
@@ -2677,9 +2673,8 @@ msgid "ScummVM couldn't list the directory you specified."
 msgstr "ScummVM konnte auf das gewählte Verzeichnis nicht zugreifen."
 
 #: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
-#, c-format
-msgid "Index of %s"
-msgstr "Index von %s"
+msgid "Index of"
+msgstr "Index von"
 
 #: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
 msgid "This is a local webserver index page."
@@ -2697,7 +2692,7 @@ msgstr "Das übergeordnete Verzeichnis existiert nicht!"
 msgid "Can't upload into a file!"
 msgstr "Kann nicht in eine Datei hochladen!"
 
-#: backends/networking/sdl_net/handlerutils.cpp:197
+#: backends/networking/sdl_net/handlerutils.cpp:213
 msgid "Back to the files manager"
 msgstr "Zurück zum Datei-Manager"
 
@@ -3456,15 +3451,15 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Zwischensequenz \"%s\" nicht gefunden!"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:349
 msgid "Failed to initialize resources"
 msgstr "Konnte Ressourcen nicht initialisieren"
 
-#: engines/bladerunner/bladerunner.cpp:995
+#: engines/bladerunner/bladerunner.cpp:1005
 msgid "A required game resource was not found"
 msgstr "Eine benötigte Spiel-Ressource konnte nicht gefunden werden"
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2155
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
@@ -3475,7 +3470,7 @@ msgstr ""
 "Modus wird für diese Spielesitzung auf \"Entfernte Inhalte wiederherstellen"
 "\" gesetzt, bis Sie das Spiel komplett beenden."
 
-#: engines/bladerunner/bladerunner.cpp:2147
+#: engines/bladerunner/bladerunner.cpp:2157
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
@@ -3486,7 +3481,7 @@ msgstr ""
 "Der Modus wird für diese Spielesitzung auf \"Original-Inhalte\" gesetzt, bis "
 "Sie das Spiel komplett beenden."
 
-#: engines/bladerunner/bladerunner.cpp:2149
+#: engines/bladerunner/bladerunner.cpp:2159
 msgid "Continue"
 msgstr "Fortsetzen"
 
@@ -5537,7 +5532,7 @@ msgstr ""
 msgid "Unable to find block for part %d"
 msgstr "Block für Abschnitt %d konnte nicht gefunden werden"
 
-#: engines/supernova/supernova.cpp:525
+#: engines/supernova/supernova.cpp:526
 #, c-format
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr ""
@@ -5770,6 +5765,12 @@ msgstr ""
 "Dieser Spielstand verwendet Version %u, diese Engine unterstützt jedoch nur "
 "Spielstände bis zu Version %d. Sie benötigen eine aktualisierte Version der "
 "Engine, um diesen Spielstand zu verwenden."
+
+#~ msgid "Loading..."
+#~ msgstr "Lade..."
+
+#~ msgid "Index of %s"
+#~ msgstr "Index von %s"
 
 #~ msgid "Color mode"
 #~ msgstr "Farbmodus einschalten"

@@ -32,6 +32,7 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Updated the Roland MT-32 emulation code to Munt 2.3.0.
    - Improved unknown game variants reporting.
    - Enabled cloud support.
+   - Added Text to Speech capabilities for better accessibility on some platforms.
 
  ADL:
    - Improved color accuracy.
@@ -65,9 +66,19 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Fixed various crashes, graphics glitches, and sound imperfections in Myst
      and Riven.
 
+ Mortevielle:
+   - Add speech synthesis on some platforms.
+
  SCI:
-   - Fixed crash in Police Quest IV: Open Season.
-   - Improved visual effects in Quest for Glory I (VGA).
+   - Added LarryScale, a high quality cartoon scaler for Leisure Suit Larry 7.
+   - Fixed over 100 original game script bugs in CAMELOT, ECO1, ECO2,
+     FREDDYPHARKAS, GK1, HOYLE5, ICEMAN, KQ6, LB1, LB2, LONGBOW, LSL6,
+     MOTHERGOOSE256, PQ3, PQ4, QFG1VGA, QFG4, and SQ4.
+   - Fixed a bug in version 2.0.0 that prevented the Macintosh versions of
+     Freddy Pharkas, King's Quest 6, and Quest for Glory 1 (VGA) from loading.
+   - Fixed a crash in the Macintosh version of Freddy Pharkas when picking up
+     the shovel which makes the game completable.
+   - Fixed loading autosave games.
 
  SCUMM:
    - Implemented lipsync for v6 and v7+ games.
@@ -118,13 +129,21 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Fixed graphical glitch in Zork: Grand Inquisitor.
    - Packaged the required fonts with ScummVM.
 
+ Android port:
+   - Rewrote to make use of the OpenGL Graphics Manager
+   - Added a button to show the virtual keyboard.
+   - Implemented clipboard support.
+   - Use the dedicated GUI option for enabling the touchpad mode
+
  iOS port:
+   - Added support for Smart Keyboard.
    - Added three-fingers swipe gestures to simulate arrow keys.
    - Added pinch in and out gestures to show and hide the keyboard.
    - Added scrollable accessory bar above the keyboard with keys not present on the keyboard.
 
  macOS port:
    - Added option to use the ScummVM file browser instead of the system file browser.
+   - Added access to documentation from the Help menu.
 
  PS Vita port:
    - Implemented front touch and optional rear touch controls.

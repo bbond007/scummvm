@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ScummVM 1.8.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
-"POT-Creation-Date: 2019-09-17 01:14+0200\n"
-"PO-Revision-Date: 2019-09-15 21:18+0000\n"
+"POT-Creation-Date: 2019-09-21 21:15+0200\n"
+"PO-Revision-Date: 2019-09-21 21:27+0000\n"
 "Last-Translator: Thierry Crozat <criezy@scummvm.org>\n"
 "Language-Team: French <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/fr/>\n"
@@ -2662,10 +2662,6 @@ msgstr "Ou sélectionnez un répertoire (fonctionne uniquement avec Chrome) :"
 msgid "Index of "
 msgstr "Index de "
 
-#: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:75
-msgid "Loading..."
-msgstr "Chargement..."
-
 #: backends/networking/sdl_net/handlers/filesajaxpagehandler.cpp:76
 msgid "Error occurred"
 msgstr "Une erreur s'est produite"
@@ -2688,9 +2684,8 @@ msgstr ""
 "ScummVM n'a pas pu lister le contenu du répertoire que vous avez spécifié."
 
 #: backends/networking/sdl_net/handlers/filespagehandler.cpp:232
-#, c-format
-msgid "Index of %s"
-msgstr "Index de %s"
+msgid "Index of"
+msgstr "Index de"
 
 #: backends/networking/sdl_net/handlers/indexpagehandler.cpp:42
 msgid "This is a local webserver index page."
@@ -2708,7 +2703,7 @@ msgstr "Le répertoire parent n'existe pas !"
 msgid "Can't upload into a file!"
 msgstr "Impossible d'envoyer vers un fichier !"
 
-#: backends/networking/sdl_net/handlerutils.cpp:197
+#: backends/networking/sdl_net/handlerutils.cpp:213
 msgid "Back to the files manager"
 msgstr "Retour au gestionnaire de fichiers"
 
@@ -3467,15 +3462,15 @@ msgstr ""
 msgid "Cutscene file '%s' not found!"
 msgstr "Fichier de séquence '%s' non trouvé !"
 
-#: engines/bladerunner/bladerunner.cpp:339
+#: engines/bladerunner/bladerunner.cpp:349
 msgid "Failed to initialize resources"
 msgstr "Échec de l'initialisation des ressources"
 
-#: engines/bladerunner/bladerunner.cpp:995
+#: engines/bladerunner/bladerunner.cpp:1005
 msgid "A required game resource was not found"
 msgstr "Une ressource de jeu nécessaire n'a pas été trouvée"
 
-#: engines/bladerunner/bladerunner.cpp:2145
+#: engines/bladerunner/bladerunner.cpp:2155
 msgid ""
 "WARNING: This game was saved in Restored Cut Content mode, but you are "
 "playing in Original Content mode. The mode will be adjusted to Restored Cut "
@@ -3485,7 +3480,7 @@ msgstr ""
 "vous jouez en mode Contenu Original. Le mode sera réglé sur Contenu Montage "
 "Restauré pour cette session jusqu'à ce que vous quittiez complètement le jeu."
 
-#: engines/bladerunner/bladerunner.cpp:2147
+#: engines/bladerunner/bladerunner.cpp:2157
 msgid ""
 "WARNING: This game was saved in Original Content mode, but you are playing "
 "in Restored Cut Content mode. The mode will be adjusted to Original Content "
@@ -3495,7 +3490,7 @@ msgstr ""
 "jouez en mode Contenu Montage Restauré. Le mode sera ajusté au mode Contenu "
 "Original pour cette session jusqu'à ce que vous quittiez complètement le jeu."
 
-#: engines/bladerunner/bladerunner.cpp:2149
+#: engines/bladerunner/bladerunner.cpp:2159
 msgid "Continue"
 msgstr "Continuer"
 
@@ -3517,13 +3512,15 @@ msgstr "Le jeu rétrécit les acteurs et rend leurs voix aiguës"
 
 #: engines/bladerunner/detection.cpp:66
 msgid "Frame limiter high performance mode"
-msgstr ""
+msgstr "Mode haute performance du limiteur de trame"
 
 #: engines/bladerunner/detection.cpp:67
 msgid ""
 "This mode may result in high CPU usage! It avoids use of delayMillis() "
 "function."
 msgstr ""
+"Ce mode peut entraîner une utilisation intensive du CPU ! Il évite "
+"l'utilisation de la fonction delayMillis()."
 
 #: engines/cge/detection.cpp:105 engines/cge2/detection.cpp:111
 msgid "Color Blind Mode"
@@ -5542,7 +5539,7 @@ msgstr ""
 msgid "Unable to find block for part %d"
 msgstr "Impossible de trouver le bloc de données pour l'épisode %d"
 
-#: engines/supernova/supernova.cpp:525
+#: engines/supernova/supernova.cpp:526
 #, c-format
 msgid "Unable to find '%s' in game folder or the engine data file."
 msgstr ""
@@ -5550,14 +5547,15 @@ msgstr ""
 "donnée."
 
 #: engines/supernova/detection.cpp:40
-#, fuzzy
 msgid "Improved mode"
-msgstr "Mode Fenêtre"
+msgstr "Mode jeu amélioré"
 
 #: engines/supernova/detection.cpp:41
 msgid ""
 "Removes some repetitive actions, adds possibility to change verbs by keyboard"
 msgstr ""
+"Supprime certaines actions répétitives, ajoute la possibilité de "
+"sélectionner les verbes au clavier"
 
 #: engines/sword1/animation.cpp:524
 #, c-format
@@ -5775,6 +5773,12 @@ msgstr ""
 "Ce fichier de sauvegarde est en version %u, mais ce moteur ne supporte que "
 "les versions %d ou inférieures. Vous devez utiliser une version plus récente "
 "de ScummVM pour pouvoir charger cette sauvegarde."
+
+#~ msgid "Loading..."
+#~ msgstr "Chargement..."
+
+#~ msgid "Index of %s"
+#~ msgstr "Index de %s"
 
 #~ msgid "Color mode"
 #~ msgstr "Mode Couleurs"
