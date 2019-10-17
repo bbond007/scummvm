@@ -114,6 +114,8 @@ static const char *const selectorNameTable[] = {
 	"say",          // Quest For Glory 1 VGA, QFG4
 	"script",       // Quest For Glory 1 VGA
 	"solvePuzzle",  // Quest For Glory 3
+	"curIcon",      // Quest For Glory 3, QFG4
+	"curInvIcon",   // Quest For Glory 3, QFG4
 	"timesShownID", // Space Quest 1 VGA
 	"startText",    // King's Quest 6 CD / Laura Bow 2 CD for audio+text support
 	"startAudio",   // King's Quest 6 CD / Laura Bow 2 CD for audio+text support
@@ -177,9 +179,8 @@ static const char *const selectorNameTable[] = {
 	"advanceCurIcon", // QFG4
 	"amount",       // QFG4
 	"approachVerbs", // QFG4
+	"claimed",      // QFG4
 	"cue",          // QFG4
-	"curIcon",      // QFG4
-	"curInvIcon",   // QFG4
 	"getCursor",    // QFG4
 	"heading",      // QFG4
 	"moveSpeed",    // QFG4
@@ -227,6 +228,8 @@ enum ScriptPatcherSelectors {
 	SELECTOR_say,
 	SELECTOR_script,
 	SELECTOR_solvePuzzle,
+	SELECTOR_curIcon,
+	SELECTOR_curInvIcon,
 	SELECTOR_timesShownID,
 	SELECTOR_startText,
 	SELECTOR_startAudio,
@@ -291,9 +294,8 @@ enum ScriptPatcherSelectors {
 	SELECTOR_advanceCurIcon,
 	SELECTOR_amount,
 	SELECTOR_approachVerbs,
+	SELECTOR_claimed,
 	SELECTOR_cue,
-	SELECTOR_curIcon,
-	SELECTOR_curInvIcon,
 	SELECTOR_getCursor,
 	SELECTOR_heading,
 	SELECTOR_moveSpeed,
@@ -1329,7 +1331,7 @@ static const uint16 ecoquest2SignatureIconBarTutorial[] = {
 	SIG_MAGICDWORD,
 	0x8d, 0x01,                         // lst 01  [ uninitialized ]
 	0x4a, 0x08,                         // send 08 [ EventHandler firstTrue: handleEvent temp1 ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 ecoquest2PatchIconBarTutorial[] = {
@@ -1387,7 +1389,7 @@ static const uint16 ecoquest2SignatureRoom500Items[] = {
 	0x4a, 0x06,                         // send 06 [ ego has: 11 ]
 	0x18,                               // not
 	0x30, SIG_UINT16(0x0058),           // bnt 0058 [ don't initialize paper ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 ecoquest2PatchRoom500Items[] = {
@@ -1845,6 +1847,66 @@ static const SciScriptPatcherEntry freddypharkasSignatures[] = {
 	SCI_SIGNATUREENTRY_TERMINATOR
 };
 
+// ===========================================================================
+
+// During Bridge, Declarer_Second_NT:think performs a bitwise or against an
+//  object due to a script typo. This operation is supposed to be against
+//  (bridgeHand:highCard):rank but instead it's against bridgeHand:highCard.
+//  ThirdSeat_Trump:think has a correct version of this. Declarer_Second_NT must
+//  have just been missing the word "rank" in the original script.
+//
+// We fix this by inserting the missing rank code. To make room we remove the
+//  call to self:checkFinCard. It's called immediately before this patch and its
+//  result is stored in local1 so we just use that. Hoyle5 also has this bug.
+//
+// Applies to at least: English PC
+// Responsible method: Declarer_Second_NT:think
+// Fixes bug #11163
+static const uint16 hoyle4SignatureBridgeArithmetic[] = {
+	0x36,                               // push [ bridgeHand:highCard ]
+	0x34, SIG_UINT16(0x0f00),           // ldi 0f00
+	0x14,                               // or [ error: bridgeHand:highCard is an object ]
+	0x36,                               // push
+	0x63, 0x42,                         // pToa pard
+	0x4a, 0x08,                         // send 08 [ pard hasCard: theSuitLead (bridgeHand:highCard | 0f00) ]
+	SIG_MAGICDWORD,
+	0x2f, 0x1d,                         // bt 1d
+	0x83, 0x03,                         // lal 03
+	0x2f, 0x19,                         // bt 19
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi rank
+	0x76,                               // push0
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi checkFinCard
+	0x78,                               // push1
+	0x67, 0x48,                         // pTos theSuitLead
+	0x54, 0x06,                         // self 06 [ self checkFinCard: theSuitLead ]
+	SIG_END
+};
+
+static const uint16 hoyle4PatchBridgeArithmetic[] = {
+	0x38, PATCH_GETORIGINALUINT16(+17), // pushi rank
+	0x76,                               // push0
+	0x4a, 0x04,                         // send 04 [ bridgeHand:highCard rank? ]
+	0x36,                               // push
+	0x34, PATCH_UINT16(0x0f00),         // ldi 0f00
+	0x14,                               // or
+	0x36,                               // push
+	0x63, 0x42,                         // pToa pard
+	0x4a, 0x08,                         // send 08 [ pard hasCard: theSuitLead ((bridgeHand:highCard):rank | 0f00) ]
+	0x2f, 0x17,                         // bt 17
+	0x83, 0x03,                         // lal 03
+	0x2f, 0x13,                         // bt 13
+	0x38, PATCH_GETORIGINALUINT16(+17), // pushi rank
+	0x76,                               // push0
+	0x83, 0x01,                         // lal 01 [ set to "self checkFinCard: theSuitLead" earlier ]
+	PATCH_END
+};
+
+//          script, description,                                      signature                         patch
+static const SciScriptPatcherEntry hoyle4Signatures[] = {
+	{  true,   733, "bridge arithmetic against object ",           1, hoyle4SignatureBridgeArithmetic,  hoyle4PatchBridgeArithmetic },
+	SCI_SIGNATUREENTRY_TERMINATOR
+};
+
 #ifdef ENABLE_SCI32
 #pragma mark -
 #pragma mark Hoyle 5
@@ -2037,6 +2099,45 @@ static const uint16 hoyle5PatchDisableGame[] = {
 	PATCH_END
 };
 
+// During Bridge, Declarer_Second_NT:think performs a bitwise or against an
+//  object due to a script typo. This script bug is also in Hoyle4, see its
+//  patch notes above for more detail.
+//
+// Applies to at least: English PC
+// Responsible method: Declarer_Second_NT:think
+// Fixes bug #11173
+static const uint16 hoyle5SignatureBridgeArithmetic[] = {
+	0x36,                               // push [ bridgeHand:highCard ]
+	0x34, SIG_UINT16(0x0f00),           // ldi 0f00
+	0x14,                               // or [ error: bridgeHand:highCard is an object ]
+	0x36,                               // push
+	0x63, 0x44,                         // pToa pard
+	0x4a, SIG_UINT16(0x0008),           // send 08 [ pard hasCard: theSuitLead (bridgeHand:highCard | 0f00) ]
+	0x2f, 0x26,                         // bt 26
+	0x7e, SIG_ADDTOOFFSET(+2),          // line
+	SIG_MAGICDWORD,
+	0x83, 0x03,                         // lal 03
+	0x2f, 0x1f,                         // bt 1f
+	0x7e, SIG_ADDTOOFFSET(+2),          // line
+	0x38,                               // pushi rank
+	SIG_END
+};
+
+static const uint16 hoyle5PatchBridgeArithmetic[] = {
+	0x38, PATCH_GETORIGINALUINT16(+24), // pushi rank
+	0x76,                               // push0
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ bridgeHand:highCard rank? ]
+	0x38, PATCH_UINT16(0x0f00),         // pushi 0f00
+	0x14,                               // or
+	0x36,                               // push
+	0x63, 0x44,                         // pToa pard
+	0x4a, PATCH_UINT16(0x0008),         // send 08 [ pard hasCard: theSuitLead ((bridgeHand:highCard):rank | 0f00) ]
+	0x2f, 0x20,                         // bt 20
+	0x83, 0x03,                         // lal 03
+	0x2f, 0x1c,                         // bt 1c
+	PATCH_END
+};
+
 //          script, description,                                      signature                         patch
 static const SciScriptPatcherEntry hoyle5Signatures[] = {
 	{  true,     3, "remove kGetTime spin",                        1, hoyle5SignatureSpinLoop,          hoyle5PatchSpinLoop },
@@ -2045,10 +2146,10 @@ static const SciScriptPatcherEntry hoyle5Signatures[] = {
 	{  true,   500, "remove kGetTime spin",                        1, hoyle5SignatureSpinLoop,          hoyle5PatchSpinLoop },
 	{  true, 64937, "remove kGetTime spin",                        1, hoyle5SignatureSpinLoop,          hoyle5PatchSpinLoop },
 	{  true, 64908, "disable video benchmarking",                  1, sci2BenchmarkSignature,           sci2BenchmarkPatch },
-	// This entry has been placed so that the broken Poker game is disabled. This game uses an external DLL, PENGIN16.DLL,
-	// which is invoked via kWinDLL. We need to reverse the logic in PENGIN16.DLL and call it directly, in order to get this
-	// game to work properly. Until then, this game entry will be disabled.
-	{  true,   975, "disable Poker",                               1, hoyle5SignaturePoker,             hoyle5PatchDisableGame },
+	{  true,   733, "bridge arithmetic against object ",           1, hoyle5SignatureBridgeArithmetic,  hoyle5PatchBridgeArithmetic },
+	{  true, 64990, "increase number of save games (1/2)",         1, sci2NumSavesSignature1,           sci2NumSavesPatch1 },
+	{  true, 64990, "increase number of save games (2/2)",         1, sci2NumSavesSignature2,           sci2NumSavesPatch2 },
+	{  true, 64990, "disable change directory button",             1, sci2ChangeDirSignature,           sci2ChangeDirPatch },
 	SCI_SIGNATUREENTRY_TERMINATOR
 };
 
@@ -2077,6 +2178,7 @@ static const SciScriptPatcherEntry hoyle5BridgeSignatures[] = {
 	{  true,   500, "remove kGetTime spin",                        1, hoyle5SignatureSpinLoop,          hoyle5PatchSpinLoop },
 	{  true, 64937, "remove kGetTime spin",                        1, hoyle5SignatureSpinLoop,          hoyle5PatchSpinLoop },
 	{  true, 64908, "disable video benchmarking",                  1, sci2BenchmarkSignature,           sci2BenchmarkPatch },
+	{  true,   733, "bridge arithmetic against object ",           1, hoyle5SignatureBridgeArithmetic,  hoyle5PatchBridgeArithmetic },
 	{  true,   975, "disable Gin Rummy",                           1, hoyle5SignatureGinRummy,          hoyle5PatchDisableGame },
 	{  true,   975, "disable Cribbage",                            1, hoyle5SignatureCribbage,          hoyle5PatchDisableGame },
 	{  true,   975, "disable Klondike",                            1, hoyle5SignatureKlondike,          hoyle5PatchDisableGame },
@@ -2086,6 +2188,9 @@ static const SciScriptPatcherEntry hoyle5BridgeSignatures[] = {
 	{  true,   975, "disable Crazy Eights",                        1, hoyle5SignatureCrazyEights,       hoyle5PatchDisableGame },
 	{  true,   975, "disable Old Maid",                            1, hoyle5SignatureOldMaid,           hoyle5PatchDisableGame },
 	{  true,   975, "disable Checkers",                            1, hoyle5SignatureCheckers,          hoyle5PatchDisableGame },
+	{  true, 64990, "increase number of save games (1/2)",         1, sci2NumSavesSignature1,           sci2NumSavesPatch1 },
+	{  true, 64990, "increase number of save games (2/2)",         1, sci2NumSavesSignature2,           sci2NumSavesPatch2 },
+	{  true, 64990, "disable change directory button",             1, sci2ChangeDirSignature,           sci2ChangeDirPatch },
 	SCI_SIGNATUREENTRY_TERMINATOR
 };
 
@@ -3200,7 +3305,7 @@ static const uint16 icemanDestroyerTimer2Signature[] = {
 	0x38, SIG_UINT16(0x0187),           // pushi 0187
 	0x39, 0x05,                         // pushi 05
 	0x47, 0xff, 0x00, 0x04,             // calle proc255_0 [ print 391 5 ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 icemanDestroyerTimer2Patch[] = {
@@ -3255,7 +3360,7 @@ static const uint16 icemanClimbDownHatchSignature[] = {
 	0x39, SIG_SELECTOR8(setScript),     // pushi setScript
 	0x78,                               // push1
 	0x72, SIG_UINT16(0xfc24),           // lofsa downTheHatchScript
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 icemanClimbDownHatchPatch[] = {
@@ -7931,14 +8036,14 @@ static const uint16 pq3SignatureDoctorMouthSpeed[] = {
 	0x78,                                // push1
 	SIG_ADDTOOFFSET(+13),
 	0x4a, 0x1c,                          // send 1c [ doctorMouth ... cycleSpeed: 1 ... ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 pq3PatchDoctorMouthSpeed[] = {
 	0x32, PATCH_UINT16(0x0002),          // jmp 0002
 	PATCH_ADDTOOFFSET(+15),
 	0x4a, 0x16,                          // send 16 [ don't set cycleSpeed, use default (6) ]
-	PATCH_END,
+	PATCH_END
 };
 
 // The house fire on day six reoccurs if you return to the hospital. Flag 66
@@ -7972,7 +8077,7 @@ static const uint16 pq3SignatureHouseFireRepeats[] = {
 	0x35, 0x01,                          // ldi 01
 	0x65, 0x10,                          // aTop cycles
 	0x32, SIG_UINT16(0x003e),            // jmp 003e [ end of method ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 pq3PatchHouseFireRepeats[] = {
@@ -7997,7 +8102,7 @@ static const uint16 pq3PatchHouseFireRepeats[] = {
 	0x31, 0x04,                          // bnt 04 [ state 8 ]
 	0x35, 0x01,                          // ldi 01
 	0x65, 0x10,                          // aTop cycles
-	PATCH_END,
+	PATCH_END
 };
 
 //          script, description,                                 signature                     patch
@@ -9891,6 +9996,66 @@ static const uint16 qfg3PatchRoom750Bounds3[] = {
 	PATCH_END
 };
 
+// When putting the last instance of an item in the chest in room 310 or 430,
+//  holding the enter key causes a message to be sent to a non-object.
+//
+// This bug is similar to the Dag-Nab-It bug in QFG1VGA Mac. A script tries to
+//  clear the inventory cursor by setting mainIconBar:curInvIcon to zero without
+//  updating curIcon. This briefly places the icon bar in an illegal state which
+//  causes mainIconBar:handleEvent to error when enter is pressed.
+//
+// We fix this by setting mainIconBar:curIcon to theWalkIcon to prevent the
+//  illegal state where curInvIcon is zero while curIcon equals useIconItem.
+//  useCode:init has two similar code paths with this bug.
+//
+// Applies to: All versions
+// Responsible method: useCode:init
+// Fixes bug: #11196
+static const uint16 qfg3SignatureChestIconBar[] = {
+	0x38, SIG_SELECTOR16(say),          // pushi say [ "You put it in the chest." ]
+	0x39, 0x06,                         // pushi 06
+	0x78,                               // push1
+	0x39, 0x06,                         // pushi 06
+	0x39, 0x04,                         // pushi 04
+	0x78,                               // push1
+	0x76,                               // push0
+	0x39, 0x1d,                         // pushi 1d
+	0x81, 0x5b,                         // lag 5b
+	0x4a, 0x10,                         // send 10 [ qg3Messager say: 1 6 4 1 0 29 ]
+	0x38, SIG_SELECTOR16(curInvIcon),   // pushi curInvIcon
+	0x78,                               // push1
+	0x76,                               // push0
+	0x81, 0x45,                         // lag 45
+	SIG_ADDTOOFFSET(+0x8b),
+	0x38, SIG_SELECTOR16(curInvIcon),   // pushi curInvIcon
+	0x78,                               // push1
+	0x76,                               // push0
+	0x81, 0x45,                         // lag 45
+	0x4a, SIG_MAGICDWORD, 0x06,         // send 06 [ mainIconBar curInvIcon: 0 ]
+	0x38, SIG_SELECTOR16(say),          // pushi say [ "You put it in the chest." ]
+	SIG_END
+};
+
+static const uint16 qfg3PatchChestIconBar[] = {
+	0x39, PATCH_SELECTOR8(at),          // pushi at
+	0x78,                               // push1
+	0x78,                               // push1
+	0x81, 0x45,                         // lag 45
+	0x4a, 0x06,                         // send 06 [ mainIconBar at: 1 ]
+	0x38, PATCH_SELECTOR16(curInvIcon), // pushi curInvIcon
+	0x78,                               // push1
+	0x76,                               // push0
+	0x38, PATCH_SELECTOR16(curIcon),    // pushi curIcon
+	0x78,                               // push1
+	0x36,                               // push
+	0x81, 0x45,                         // lag 45
+	0x4a, 0x0c,                         // send 0c [ mainIconBar curInvIcon: 0 curIcon: theWalkIcon ]
+	0x32, PATCH_UINT16(0x0094),         // jmp 0094 [ "You put it in the chest." ]
+	PATCH_ADDTOOFFSET(+0x8b),
+	0x32, PATCH_UINT16(0xff59),         // jmp ff59 [ mainIconBar curInvIcon: 0 curIcon: theWalkIcon ]
+	PATCH_END
+};
+
 //          script, description,                                      signature                    patch
 static const SciScriptPatcherEntry qfg3Signatures[] = {
 	{  true,   944, "import dialog continuous calls",                     1, qfg3SignatureImportDialog,           qfg3PatchImportDialog },
@@ -9907,6 +10072,7 @@ static const SciScriptPatcherEntry qfg3Signatures[] = {
 	{  true,   750, "hero goes out of bounds in room 750",                2, qfg3SignatureRoom750Bounds1,         qfg3PatchRoom750Bounds1 },
 	{  true,   750, "hero goes out of bounds in room 750",                2, qfg3SignatureRoom750Bounds2,         qfg3PatchRoom750Bounds2 },
 	{  true,   750, "hero goes out of bounds in room 750",                2, qfg3SignatureRoom750Bounds3,         qfg3PatchRoom750Bounds3 },
+	{  true,    29, "icon bar crash when using chest",                    1, qfg3SignatureChestIconBar,           qfg3PatchChestIconBar },
 	SCI_SIGNATUREENTRY_TERMINATOR
 };
 
@@ -9960,27 +10126,6 @@ static const uint16 qfg4BenchmarkPatch[] = {
 	0x35, 0x01,                         // ldi 1
 	0xa1, 0xbf,                         // sag global[191]
 	0x48,                               // ret
-	PATCH_END
-};
-
-// Disable the Change Directory button on the character import screen as we
-//  don't allow the game engine to change the directory where character files
-//  are placed. Character files are only read from our save game directory.
-//
-// Applies to: All versions
-// Responsible method: Heap in script 54
-static const uint16 qfg4ChangeDirectorySignature[] = {
-	// changeButton
-	SIG_UINT16(0x0003),                 // state = 3 [ enabled ]
-	SIG_ADDTOOFFSET(+38),
-	SIG_MAGICDWORD,
-	SIG_UINT16(0xfdde),                 // view = 64990
-	SIG_UINT16(0x0001),                 // loop = 1
-	SIG_END,
-};
-
-static const uint16 qfg4ChangeDirectoryPatch[] = {
-	PATCH_UINT16(0x0000),               // state = 0 [ disabled ]
 	PATCH_END
 };
 
@@ -12341,7 +12486,9 @@ static const uint16 qfg4RunesPuzzleSignature2[] = {
 	0x76,                               // push0
 	0x87, 0x01,                         // lap 01
 	0x4a, SIG_UINT16(0x0004),           // send 04 [ event type? ]
-	SIG_ADDTOOFFSET(+1349),
+	SIG_ADDTOOFFSET(+495),
+	0x39, SIG_SELECTOR8(claimed),       // pushi claimed
+	SIG_ADDTOOFFSET(+852),
 	// sTurnTheDial:changeState
 	0x30, SIG_UINT16(0x0112),           // bnt 0112 [ state 2 ]
 	SIG_ADDTOOFFSET(+268),
@@ -12373,7 +12520,7 @@ static const uint16 qfg4RunesPuzzlePatch2[] = {
 	0x38, PATCH_UINT16(0x0163),         // pushi 0163
 	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_3 [ is puzzle solved? ]
 	0x31, 0x1b,                         // bnt 1b   [ handle mouse/key down events ]
-	0x32, PATCH_UINT16(0x01ec),         // jmp 01ec [ ignore events if puzzle is solved ]
+	0x32, PATCH_UINT16(0x01f0),         // jmp 01f0 [ ignore events if puzzle is solved ]
 	PATCH_ADDTOOFFSET(+1350),
 	// sTurnTheDial:changeState
 	0x30, PATCH_UINT16(0x0123),         // bnt 0123 [ state 2 ]
@@ -12731,7 +12878,7 @@ static const uint16 qfg4InnDoorCDSignature[] = {
 	0x81, 0x00,                         // lag 00
 	0x4a, SIG_UINT16(0x0008),           // send 08  [ hero setHeading: 0 self ]
 	0x32, SIG_UINT16(0x00c3),           // jmp 00c3 [ end of method ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4InnDoorCDPatch[] = {
@@ -12768,7 +12915,7 @@ static const uint16 qfg4WalkUpSlopeCDSignature[] = {
 	0x76,                               // push0
 	SIG_ADDTOOFFSET(+8),
 	0x4a, SIG_UINT16(0x000e),           // send 0e [ hero setMotion: 0 ... ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4WalkUpSlopeCDPatch[] = {
@@ -12787,7 +12934,7 @@ static const uint16 qfg4WalkDownSlopeCDSignature[] = {
 	0x38, SIG_UINT16(0x0218),           // pushi handsOff [ hard-coded for CD ]
 	SIG_ADDTOOFFSET(+15),
 	0x4a, SIG_UINT16(0x0008),           // send 08 [ hero setStep: ... ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4WalkDownSlopeCDPatch[] = {
@@ -12807,7 +12954,7 @@ static const uint16 qfg4WalkDownSlopeNrsSignature[] = {
 	0x38, SIG_UINT16(0x0218),           // pushi handsOff [ hard-coded for CD ]
 	SIG_ADDTOOFFSET(+15),
 	0x4a, SIG_UINT16(0x0008),           // send 08 [ hero setStep: ... ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4WalkDownSlopeNrsPatch[] = {
@@ -13098,7 +13245,7 @@ static const uint16 qfg4ArgumentMessageFloppySignature[] = {
 	0x76,                               // push0
 	0x54, SIG_UINT16(0x0004),           // self 04  [ self dispose: ]
 	0x32, SIG_UINT16(0x0049),           // jmp 0049 [ end of method ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4ArgumentMessageFloppyPatch[] = {
@@ -13113,7 +13260,7 @@ static const uint16 qfg4ArgumentMessageFloppyPatch[] = {
 	0x81, 0x01,                         // lag 01
 	0x4a, PATCH_UINT16(0x0004),         // send 04 [ Glory handsOn: ]
 	0x33, 0x26,                         // jmp 26 [ self dispose:, end of method ]
-	PATCH_END,
+	PATCH_END
 };
 
 // The great hall door options in room 627 are incorrect at night after Katrina
@@ -13375,7 +13522,7 @@ static const uint16 qfg4Room627SqueakFloppySignature[] = {
 	0x78,                               // push1
 	0x39, 0x71,                         // pushi 71 [ flag 113 ]
 	0x45, 0x02, SIG_UINT16(0x0002),     // callb proc0_2 02 [ set flag 113 (incorrect, removed from CD) ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4Room627SqueakFloppyPatch[] = {
@@ -13384,7 +13531,7 @@ static const uint16 qfg4Room627SqueakFloppyPatch[] = {
 	0x32, PATCH_UINT16(0x0039),         // jmp 0039 [ skip squeak message if door has been oiled ]
 	PATCH_ADDTOOFFSET(+26),
 	0x32, PATCH_UINT16(0x0004),         // jmp 0004 [ don't set flag 113 ]
-	PATCH_END,
+	PATCH_END
 };
 
 static const uint16 qfg4Room627SqueakCDSignature[] = {
@@ -13398,13 +13545,13 @@ static const uint16 qfg4Room627SqueakCDSignature[] = {
 	0x39, 0x71,                         // pushi 71 [ flag 113 ]
 	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ selected action other than listening? (incorrect) ]
 	0x31, 0x2c,                         // bnt 2c [ skip squeak message ]
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4Room627SqueakCDPatch[] = {
 	PATCH_ADDTOOFFSET(+10),
 	0x32, PATCH_UINT16(0x0032),         // jmp 0032 [ skip squeak message if door has been oiled ]
-	PATCH_END,
+	PATCH_END
 };
 
 // Looking through the keyhole in room 627 into the great hall responds with a
@@ -13543,7 +13690,7 @@ static const uint16 qfg4ChaseRepeatsSignature[] = {
 	0x46, SIG_UINT16(0xfde7),           // calle proc64999_5 0a
 	      SIG_UINT16(0x0005),
 	      SIG_UINT16(0x000a),
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4ChaseRepeatsPatch[] = {
@@ -13561,7 +13708,7 @@ static const uint16 qfg4ChaseRepeatsPatch[] = {
 	0x38, PATCH_UINT16(0x00a4),         // pushi 00a4 [ flag 164 ]
 	0x45, 0x03, PATCH_UINT16(0x0002),   // callb proc0_3 02 [ clear chase flag 164 ]
 	0x33, 0x31,                         // jmp 31 [ continue room init ]
-	PATCH_END,
+	PATCH_END
 };
 
 // When the necrotaurs catch hero in the woods to take him to the dungeon, two
@@ -13781,7 +13928,7 @@ static const uint16 qfg4GateOptionsSignature[] = {
 	0x39, SIG_MAGICDWORD, 0xe2,         // pushi e2
 	0x39, 0x69,                         // pushi 69
 	0x72,                               // lofsa aGate
-	SIG_END,
+	SIG_END
 };
 
 static const uint16 qfg4GateOptionsPatch[] = {
@@ -13790,6 +13937,277 @@ static const uint16 qfg4GateOptionsPatch[] = {
 	0x35, 0x01,                         // ldi 01
 	0xa1, 0x79,                         // sag 79 [ night = 1 ]
 	0x33, PATCH_GETORIGINALBYTEADJUST(+4, -6), // jmp [ gateTeller init ]
+	PATCH_END
+};
+
+// Six castle rooms contain a bug where oiling one door in the room effectively
+//  oils the rest when picking locks. sPickLock doesn't test which door is being
+//  opened, only their oil flags, and if any are set then it doesn't squeak.
+//
+// We fix this by adding code to test hero's position to determine which door is
+//  being opened and then test the correct flag. Ideally we should only need two
+//  versions of this patch: a two-door version and a three-door. Unfortunately,
+//  each two-door sPickLock is different. Script 634 adds an unnecessary room
+//  test, 643 and 644 transpose the left and right door flags, and script 661
+//  tests a flag lower than 128 which changes a key instruction size. Room 631's
+//  sPickLock is in script 634 and it is the only room that uses it.
+//
+// Applies to: All versions
+// Responsible method: sPickLock:changeState(1) in scripts 634, 640, 642, 643, 644, 661
+// Fixes bug: #10832
+static const uint16 qfg4Room631LockSqueakSignature[] = {
+	0x89, 0x0b,                         // lsg 0b
+	0x34, SIG_UINT16(0x0277),           // ldi 0277
+	0x1a,                               // eq? [ is room 631? (always true) ]
+	0x31, SIG_MAGICDWORD, 0x14,         // bnt 14 [ right flag test ]
+	0x78,                               // push1
+	0x38, SIG_UINT16(0x00d1),           // pushi 00d1 [ flag 209 ]
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x0a,                         // bnt 0a [ right flag test ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	SIG_ADDTOOFFSET(+21),
+	0x38, SIG_SELECTOR16(cue),          // pushi cue [ no squeak ]
+	SIG_ADDTOOFFSET(+7),
+	0x39, SIG_SELECTOR8(play),          // pushi play [ squeak ]
+	SIG_END
+};
+
+static const uint16 qfg4Room631LockSqueakPatch[] = {
+	0x38, PATCH_UINT16(0x00a0),         // pushi 00a0
+	0x78,                               // push1 [ x ]
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero x? ]
+	0x1e,                               // gt? [ 160 > hero:x ]
+	0x31, 0x0f,                         // bnt 0f [ right flag test ]
+	0x78,                               // push1
+	0x38, PATCH_UINT16(0x00d1),         // pushi 00d1 [ flag 209 ]
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x21,                         // bnt 21 [ squeak ]
+	0x33, 0x15,                         // jmp 15 [ no squeak ]
+	PATCH_END
+};
+
+// rooms 640 and 642 have three doors
+static const uint16 qfg4Room640LockSqueakSignature[] = {
+	0x78,                               // push1
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi middle flag
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is middle door oiled? ]
+	SIG_MAGICDWORD,
+	0x31, 0x0a,                         // bnt 0a [ left door flag test ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	0x32, SIG_ADDTOOFFSET(+2),          // jmp [ end of method ]
+	0x78,                               // push1
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi left flag
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x0a,                         // bnt 0a [ right door flag test ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	0x32, SIG_ADDTOOFFSET(+2),          // jmp [ end of method ]
+	0x78,                               // push1
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi right flag
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x0a,                         // bnt 0a [ squeak ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	SIG_ADDTOOFFSET(+3),
+	0x39, SIG_SELECTOR8(play),          // pushi play [ squeak ]
+	SIG_ADDTOOFFSET(+28),
+	0x38, SIG_SELECTOR16(cue),          // pushi cue [ no squeak ]
+	SIG_END
+};
+
+static const uint16 qfg4Room640LockSqueakPatch[] = {
+	0x39, 0x2e,                         // pushi 2e
+	0x78,                               // push1 [ x ]
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero x? ]
+	0x1e,                               // gt? [ 46 > hero:x ]
+	0x31, 0x0c,                         // bnt 0c [ middle door test ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+22), // pushi left flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x26,                         // bnt 26 [ squeak ]
+	0x33, 0x42,                         // jmp 42 [ no squeak ]
+	0x60,                               // pprev [ hero:x ]
+	0x34, PATCH_UINT16(0x00e6),         // ldi 00e6
+	0x22,                               // lt? [ hero:x < 230 ]
+	0x31, 0x0c,                         // bnt 0c [ right flag test ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+2),  // pushi middle flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is middle door oiled? ]
+	0x31, 0x13,                         // bnt 13 [ squeak ]
+	0x33, 0x2f,                         // jmp 2f [ no squeak ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+42), // pushi right flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x07,                         // bnt 07 [ squeak ]
+	0x33, 0x23,                         // jmp 23 [ no squeak ]
+	PATCH_END
+};
+
+// room 643 has two doors but no room test as in script 634
+static const uint16 qfg4Room643LockSqueakSignature[] = {
+	0x78,                               // push1
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi flag
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is door oiled? ]
+	SIG_MAGICDWORD,
+	0x31, 0x0a,                         // bnt 0a [ other door flag test ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	0x32, SIG_ADDTOOFFSET(+2),          // jmp [ end of method ]
+	0x78,                               // push1
+	0x38, SIG_ADDTOOFFSET(+2),          // pushi flag
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is other door oiled? ]
+	0x31, 0x0a,                         // bnt 0a [ squeak ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	SIG_ADDTOOFFSET(+3),
+	0x39, SIG_SELECTOR8(play),          // pushi play [ squeak ]
+	SIG_ADDTOOFFSET(+28),
+	0x38, SIG_SELECTOR16(cue),          // pushi cue [ no squeak ]
+	SIG_END
+};
+
+static const uint16 qfg4Room643LockSqueakPatch[] = {
+	0x38, PATCH_UINT16(0x00a0),         // pushi 00a0
+	0x78,                               // push1 [ x ]
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero x? ]
+	0x1e,                               // gt? [ 160 > hero:x ]
+	0x31, 0x0c,                         // bnt 0c [ right flag test ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+22), // pushi left flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x11,                         // bnt 11 [ squeak ]
+	0x33, 0x2d,                         // jmp 2d [ no squeak ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+2),  // pushi right flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x05,                         // bnt 05 [ squeak ]
+	0x33, 0x21,                         // jmp 21 [ no squeak ]
+	PATCH_END
+};
+
+// room 644 is the same as 643 except the left and right door flags
+//  were transposed, so at least the 643 signature can be reused
+static const uint16 qfg4Room644LockSqueakPatch[] = {
+	0x38, PATCH_UINT16(0x00a0),         // pushi 00a0
+	0x78,                               // push1 [ x ]
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero x? ]
+	0x1e,                               // gt? [ 160 > hero:x ]
+	0x31, 0x0c,                         // bnt 0c [ right flag test ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+2),  // pushi left flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x11,                         // bnt 11 [ squeak ]
+	0x33, 0x2d,                         // jmp 2d [ no squeak ]
+	0x78,                               // push1
+	0x38, PATCH_GETORIGINALUINT16(+22), // pushi right flag
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x05,                         // bnt 05 [ squeak ]
+	0x33, 0x21,                         // jmp 21 [ no squeak ]
+	PATCH_END
+};
+
+// room 661 is the same as 644 but has a different instruction size in the middle
+static const uint16 qfg4Room661LockSqueakSignature[] = {
+	0x78,                               // push1
+	0x38, SIG_UINT16(0x00e0),           // pushi 00e0 [ left flag ]
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is left door oiled? ]
+	SIG_MAGICDWORD,
+	0x31, 0x0a,                         // bnt 0a [ other door flag test ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	0x32, SIG_ADDTOOFFSET(+2),          // jmp [ end of method ]
+	0x78,                               // push1
+	0x39, 0x76,                         // pushi 76 [ right flag ]
+	0x45, 0x04, SIG_UINT16(0x0002),     // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x0a,                         // bnt 0a [ squeak ]
+	0x38, SIG_SELECTOR16(cue),          // pushi cue
+	0x76,                               // push0
+	0x54, SIG_UINT16(0x0004),           // self 04 [ self cue: ]
+	SIG_ADDTOOFFSET(+3),
+	0x39, SIG_SELECTOR8(play),          // pushi play [ squeak ]
+	SIG_ADDTOOFFSET(+28),
+	0x38, SIG_SELECTOR16(cue),          // pushi cue [ no squeak ]
+	SIG_END
+};
+
+static const uint16 qfg4Room661LockSqueakPatch[] = {
+	0x38, PATCH_UINT16(0x00a0),         // pushi 00a0
+	0x78,                               // push1 [ x ]
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero x? ]
+	0x1e,                               // gt? [ 160 > hero:x ]
+	0x31, 0x0c,                         // bnt 0c [ right flag test ]
+	0x78,                               // push1
+	0x38, PATCH_UINT16(0x00e0),         // pushi 00e0 [ left flag ]
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is left door oiled? ]
+	0x31, 0x10,                         // bnt 10 [ squeak ]
+	0x33, 0x2c,                         // jmp 2c [ no squeak ]
+	0x78,                               // push1
+	0x39, 0x76,                         // pushi 76 [ right flag ]
+	0x45, 0x04, PATCH_UINT16(0x0002),   // callb proc0_4 02 [ is right door oiled? ]
+	0x31, 0x05,                         // bnt 05 [ squeak ]
+	0x33, 0x21,                         // jmp 21 [ no squeak ]
+	PATCH_END
+};
+
+// When exiting the Thieves' Guild secret passage (room 340) to the town bridge
+//  (room 290), hero appears in an out of bounds area on the far right of the
+//  screen for 120 ticks and then abruptly teleports to the bridge secret exit.
+//  This is due to not initializing hero until after the 120 tick delay, causing
+//  him to be initially visible in his position from the previous room.
+//
+// We fix this by hiding hero initially so that he appears when emerging from
+//  the secret exit under the bridge after the delay.
+//
+// Applies to: All versions
+// Responsible method: sThiefEnter:changeState
+// Fixes bug: #10774
+static const uint16 qfg4BridgeSecretExitSignature[] = {
+	0x3c,                               // dup
+	0x35, 0x00,                         // ldi 00
+	0x1a,                               // eq?
+	SIG_MAGICDWORD,
+	0x31, 0x07,                         // bnt 07 [ state 1 ]
+	0x35, 0x78,                         // ldi 78
+	0x65, SIG_ADDTOOFFSET(+1),          // aTop ticks [ ticks = 120 ]
+	0x32, SIG_UINT16(0x00dd),           // jmp 00dd [ end of method ]
+	0x3c,                               // dup
+	0x35, 0x01,                         // ldi 01
+	0x1a,                               // eq?
+	0x30, SIG_UINT16(0x0020),           // bnt 0020 [ state 2 ]
+	SIG_END
+};
+
+static const uint16 qfg4BridgeSecretExitPatch[] = {
+	0x2f, 0x0c,                         // bt 0c [ state 1 ]
+	0x39, PATCH_SELECTOR8(hide),        // pushi hide
+	0x76,                               // push0
+	0x81, 0x00,                         // lag 00
+	0x4a, PATCH_UINT16(0x0004),         // send 04 [ hero hide: ]
+	0x35, 0x78,                         // ldi 78
+	0x65, PATCH_GETORIGINALBYTE(+9),    // aTop ticks [ ticks = 120 ]
+	0x3c,                               // dup
+	0x35, 0x01,                         // ldi 01
+	0x1a,                               // eq?
+	0x31, 0x20,                         // bnt 20 [ state 2 ]
 	PATCH_END
 };
 
@@ -13813,7 +14231,6 @@ static const SciScriptPatcherEntry qfg4Signatures[] = {
 	{  true,    51, "fix necrotaur blackout",                      1, qfg4NecrotaurBlackoutSignature,qfg4NecrotaurBlackoutPatch },
 	{  true,    51, "CD: fix necrotaur capture",                   3, qfg4NecrotaurCaptureSignature, qfg4NecrotaurCapturePatch },
 	{  true,    53, "NRS: fix wraith lockup",                      1, qfg4WraithLockupNrsSignature,  qfg4WraithLockupNrsPatch },
-	{  true,    54, "disable import change directory button",      1, qfg4ChangeDirectorySignature,  qfg4ChangeDirectoryPatch },
 	{  true,    83, "fix incorrect array type",                    1, qfg4TrapArrayTypeSignature,    qfg4TrapArrayTypePatch },
 	{  true,   140, "fix character selection",                     1, qfg4CharacterSelectSignature,  qfg4CharacterSelectPatch },
 	{  true,   250, "fix hectapus death lockup",                   1, qfg4HectapusDeathSignature,    qfg4HectapusDeathPatch },
@@ -13821,6 +14238,7 @@ static const SciScriptPatcherEntry qfg4Signatures[] = {
 	{  true,   270, "fix town gate after a staff dream",           1, qfg4DreamGateSignature,        qfg4DreamGatePatch },
 	{  true,   270, "fix town gate doormat at night",              1, qfg4TownGateDoormatSignature,  qfg4TownGateDoormatPatch },
 	{  true,   290, "fix chase repeating",                         1, qfg4ChaseRepeatsSignature,     qfg4ChaseRepeatsPatch },
+	{  true,   290, "fix bridge secret exit",                      1, qfg4BridgeSecretExitSignature, qfg4BridgeSecretExitPatch },
 	{  true,   300, "fix empty burgomeister room teller",          1, qfg4EmptyBurgoRoomSignature,   qfg4EmptyBurgoRoomPatch },
 	{  true,   320, "fix pathfinding at the inn",                  1, qfg4InnPathfindingSignature,   qfg4InnPathfindingPatch },
 	{  true,   320, "fix talking to absent innkeeper",             1, qfg4AbsentInnkeeperSignature,  qfg4AbsentInnkeeperPatch },
@@ -13858,11 +14276,17 @@ static const SciScriptPatcherEntry qfg4Signatures[] = {
 	{  true,   633, "Floppy: fix room 627 door squeak",            1, qfg4Room627SqueakFloppySignature,  qfg4Room627SqueakFloppyPatch },
 	{  true,   633, "CD: fix room 627 door squeak",                2, qfg4Room627SqueakCDSignature,  qfg4Room627SqueakCDPatch },
 	{  true,   633, "fix great hall keyhole message",              1, qfg4GreatHallKeyholeSignature, qfg4GreatHallKeyholePatch },
+	{  true,   634, "fix room 631 pick lock squeak",               1, qfg4Room631LockSqueakSignature,qfg4Room631LockSqueakPatch },
+	{  true,   640, "fix room 640 pick lock squeak",               1, qfg4Room640LockSqueakSignature,qfg4Room640LockSqueakPatch },
+	{  true,   642, "fix room 642 pick lock squeak",               1, qfg4Room640LockSqueakSignature,qfg4Room640LockSqueakPatch },
+	{  true,   643, "fix room 643 pick lock squeak",               1, qfg4Room643LockSqueakSignature,qfg4Room643LockSqueakPatch },
 	{  true,   643, "fix iron safe's east door sending hero west", 1, qfg4SafeDoorEastSignature,     qfg4SafeDoorEastPatch },
 	{  true,   643, "fix iron safe's door oil flags",              1, qfg4SafeDoorOilSignature,      qfg4SafeDoorOilPatch },
 	{  true,   644, "fix castle door open message for rogue",      2, qfg4StuckDoorSignature,        qfg4StuckDoorPatch },
 	{  true,   644, "fix peer bats, lower door",                   1, qfg4LowerPeerBatsSignature,    qfg4LowerPeerBatsPatch },
+	{  true,   644, "fix room 644 pick lock squeak",               1, qfg4Room643LockSqueakSignature,qfg4Room644LockSqueakPatch },
 	{  true,   645, "fix extraneous door sound in the castle",     1, qfg4DoubleDoorSoundSignature,  qfg4DoubleDoorSoundPatch },
+	{  true,   661, "fix room 661 pick lock squeak",               1, qfg4Room661LockSqueakSignature,qfg4Room661LockSqueakPatch },
 	{  false,  663, "CD: fix crest bookshelf",                     1, qfg4CrestBookshelfCDSignature,     qfg4CrestBookshelfCDPatch },
 	{  false,  663, "Floppy: fix crest bookshelf",                 1, qfg4CrestBookshelfFloppySignature, qfg4CrestBookshelfFloppyPatch },
 	{  true,   663, "CD/Floppy: fix crest bookshelf motion",       1, qfg4CrestBookshelfMotionSignature, qfg4CrestBookshelfMotionPatch },
@@ -16724,6 +17148,9 @@ void ScriptPatcher::processScript(uint16 scriptNr, SciSpan<byte> scriptData) {
 		break;
 	case GID_FREDDYPHARKAS:
 		signatureTable = freddypharkasSignatures;
+		break;
+	case GID_HOYLE4:
+		signatureTable = hoyle4Signatures;
 		break;
 #ifdef ENABLE_SCI32
 	case GID_HOYLE5:

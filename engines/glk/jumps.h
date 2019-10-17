@@ -20,17 +20,16 @@
  *
  */
 
-#ifndef GLK_ALAN2_JUMPS
-#define GLK_ALAN2_JUMPS
+#ifndef GLK_JUMPS
+#define GLK_JUMPS
+
+#include "common/str.h"
 
 /* This provides a simplified version of the ScummVM coroutines to allow for automated
  * breakouts to the main game loop from subroutinese rather than using unportable setjmps
  */
 
-#include "common/str.h"
-
 namespace Glk {
-namespace Alan3 {
 
 /**
  * Context used for flagging when a break to the outer game loop
@@ -38,14 +37,11 @@ namespace Alan3 {
 struct Context {
 	bool _break;
 	Common::String _label;
-	
-	/**
-	 * Constructor
-	 */
+
 	Context() : _break(false) {}
 
 	/**
-	 * Clear
+	 * Clear the context
 	 */
 	void clear() {
 		_break = false;
@@ -76,12 +72,11 @@ struct Context {
 #define R0FUNC4(METHOD, RET, P1, P2, P3, P4) { RET = METHOD(context, P1, P2, P3, P4); if (context._break) return 0; }
 
 #define CONTEXT Context &context
-#define LONG_JUMP { context._break = true; context._label = "turn"; return; }
+#define LONG_JUMP { context._break = true; return; }
 #define LONG_JUMP0 { context._break = true; return 0; }
 #define LONG_JUMP_LABEL(LBL) { context._break = true; context._label = LBL; return; }
 #define LONG_JUMP_LABEL0(LBL) { context._break = true; context._label = LBL; return 0; }
 
-} // End of namespace Alan2
 } // End of namespace Glk
 
 #endif

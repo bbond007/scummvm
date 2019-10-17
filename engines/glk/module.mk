@@ -27,6 +27,34 @@ MODULE_OBJS := \
 	window_pair.o \
 	window_text_buffer.o \
 	window_text_grid.o \
+	adrift/adrift.o \
+	adrift/detection.o \
+	adrift/os_glk.o \
+	adrift/scdebug.o \
+	adrift/scevents.o \
+	adrift/scexpr.o \
+	adrift/scgamest.o \
+	adrift/scinterf.o \
+	adrift/sclibrar.o \
+	adrift/sclocale.o \
+	adrift/scmemos.o \
+	adrift/scnpcs.o \
+	adrift/scobjcts.o \
+	adrift/scparser.o \
+	adrift/scprintf.o \
+	adrift/scprops.o \
+	adrift/scresour.o \
+	adrift/screstrs.o \
+	adrift/scrunner.o \
+	adrift/sctaffil.o \
+	adrift/sctafpar.o \
+	adrift/sctasks.o \
+	adrift/scutils.o \
+	adrift/scvars.o \
+	adrift/serialization.o \
+	adrift/sxfile.o \
+	adrift/sxglob.o \
+	adrift/sxutils.o \
 	advsys/advsys.o \
 	advsys/detection.o \
 	advsys/game.o \
@@ -149,11 +177,37 @@ MODULE_OBJS := \
 	hugo/htokens.o \
 	hugo/hugo.o \
 	hugo/stringfn.o \
+	jacl/detection.o \
+	jacl/display.o \
+	jacl/encapsulate.o \
+	jacl/errors.o \
+	jacl/findroute.o \
+	jacl/glk_saver.o \
+	jacl/interpreter.o \
+	jacl/jacl.o \
+	jacl/jacl_main.o \
+	jacl/jpp.o \
+	jacl/libcsv.o \
+	jacl/loader.o \
+	jacl/logging.o \
+	jacl/parser.o \
+	jacl/resolvers.o \
+	jacl/utils.o \
 	magnetic/detection.o \
 	magnetic/emu.o \
 	magnetic/graphics.o \
 	magnetic/magnetic.o \
 	magnetic/sound.o \
+	quest/detection.o \
+	quest/geas_file.o \
+	quest/geas_glk.o \
+	quest/geas_runner.o \
+	quest/geas_state.o \
+	quest/geas_util.o \
+	quest/quest.o \
+	quest/read_file.o \
+	quest/string.o \
+	quest/streams.o \
 	scott/detection.o \
 	scott/scott.o \
 	tads/detection.o \

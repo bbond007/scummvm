@@ -1194,12 +1194,20 @@ static const struct ADGameDescription SciGameDescriptions[] = {
                           GUIO_LINKSPEECHTOSFX, \
                           GUIO_NOASPECT)
 
+// versions with bridge or poker have save/load screens
+#define GUIO_HOYLE5_SAVELOAD GUIO6(GUIO_NOMIDI, \
+                                   GUIO_NOLAUNCHLOAD, \
+                                   GUIO_LINKMUSICTOSFX, \
+                                   GUIO_LINKSPEECHTOSFX, \
+                                   GUIO_NOASPECT, \
+                                   GAMEOPTION_ORIGINAL_SAVELOAD )
+
 	// Hoyle 5 (Hoyle Classic Games) - Windows demo
 	{"hoyle5", "Demo", {
 		{"ressci.000", 0, "98a39ae535dd01714ac313f8ba925045", 7260363},
 		{"resmap.000", 0, "10267a1542a73d527e50f0340549088b", 4900},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_DEMO | ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DEMO | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
 
 	// Hoyle 5 (Hoyle Classic Games) - Windows
 	{"hoyle5", "", {
@@ -1207,7 +1215,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "55ae04012a73abc15b93debf60a7df71", 16909704},
 		{"resmap.000", 0, "daf64a91344a7934fe4374765267c2af", 5767},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5_SAVELOAD },
 
 	// Hoyle 5 (Hoyle Classic Games for Laptops) - Windows
 	// SCI 2.100.002
@@ -1216,7 +1224,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "ca50cf09f80a5f982a965afea852cc42", 3278849},
 		{"resmap.000", 0, "d5eef6f2529313e950c4d78251a95b1e", 4213},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5_SAVELOAD },
 
 	// Hoyle Bridge - Windows
 	{"hoyle5bridge", "", {
@@ -1224,7 +1232,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "b83cba09229d3003df9e0c864843f962", 16842499},
 		{"resmap.000", 0, "7b3e3030b0ad5f341053c18afce7d176", 5647},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5_SAVELOAD },
 
 	// Hoyle Children's Collection - Windows
 	{"hoyle5children", "", {
@@ -1232,7 +1240,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "fd1f7dbeebd4510cd37e171a72f2b6ad", 16824349},
 		{"resmap.000", 0, "b0fe1bcc69596e10fe5caa11d0b55b23", 5671},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5 },
 
 	// Hoyle Solitaire (CD version) - Windows
 	{"hoyle5solitaire", "CD", {
@@ -1240,7 +1248,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "fa4eeb24b1fbf6f33739995360554485", 11628203},
 		{"resmap.000", 0, "3f63df73a49800f080775d2a9ad0e949", 3079},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5 },
 
 	// Hoyle Solitaire (Hard Drive version) - Windows
 	{"hoyle5solitaire", "Hard Drive", {
@@ -1248,9 +1256,10 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "da180c67d54d4208c84a48fcd8709671", 8582335},
 		{"resmap.000", 0, "e2feb47ab16f9e22a9b6a8580d1da3f0", 3055},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_TESTING | ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5 },
 
 #undef GUIO_HOYLE5
+#undef GUIO_HOYLE5_SAVELOAD
 
 #endif // ENABLE_SCI32
 
@@ -3738,6 +3747,20 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformDOS, ADGF_UNSTABLE, GUIO_PQSWAT },
 
+	// Police Quest: SWAT - French 1.100 DOS/Windows
+	// Reported by e-Scarlatti in bug #11100
+	{"pqswat", "", {
+		{"resmap.001", 0, "10abf5d5571f23685604e6d833250ddf", 10066},
+		{"ressci.001", 0, "b2bd962abeb3c1239773fdf7a530231c", 29529649},
+		{"resmap.002", 0, "89c20793199107e78354c6ce7a284b07", 9490},
+		{"ressci.002", 0, "b2bd962abeb3c1239773fdf7a530231c", 31853152},
+		{"resmap.003", 0, "4f4ba573934b1d27d3e4f31116d1d6d9", 9880},
+		{"ressci.003", 0, "b2bd962abeb3c1239773fdf7a530231c", 46769998},
+		{"resmap.004", 0, "93c7638e131b28a251985c5114b14838", 10162},
+		{"ressci.004", 0, "b2bd962abeb3c1239773fdf7a530231c", 50998883},
+		AD_LISTEND},
+		Common::FR_FRA, Common::kPlatformDOS, ADGF_UNSTABLE, GUIO_PQSWAT },
+
 #undef GUIO_PQSWAT_DEMO
 #undef GUIO_PQSWAT
 
@@ -4129,7 +4152,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "685bdb1ed47bbbb0e5e25db392da83ce", 9301},
 		{"resource.000", 0, "f64fd6aa3977939a86ff30783dd677e1", 11004993},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformDOS, ADGF_TESTING, GUIO_QFG4_FLOPPY },
+		Common::EN_ANY, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_QFG4_FLOPPY },
 
 	// Quest for Glory 4 1.1 Floppy - English DOS (supplied by abevi in bug report #2612718)
 	// SCI interpreter version 2.000.000
@@ -4137,7 +4160,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "d10a4cc177d2091d744e2ad8c049b0ae", 9295},
 		{"resource.000", 0, "f64fd6aa3977939a86ff30783dd677e1", 11003589},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformDOS, ADGF_TESTING, GUIO_QFG4_FLOPPY },
+		Common::EN_ANY, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_QFG4_FLOPPY },
 
 	// Quest for Glory 4 1.1 Floppy - German DOS (supplied by markcool in bug report #2723850)
 	// Executable scanning reports "2.000.000", VERSION file reports "1.1"
@@ -4145,7 +4168,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "9e0abba8746f40565bc7eb5720522ecd", 9301},
 		{"resource.000", 0, "57f22cdc54eeb35fce1f26b31b5c3ee1", 11076197},
 		AD_LISTEND},
-		Common::DE_DEU, Common::kPlatformDOS, ADGF_TESTING, GUIO_QFG4_FLOPPY },
+		Common::DE_DEU, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_QFG4_FLOPPY },
 
 	// Quest for Glory 4 CD - English DOS/Windows (from jvprat)
 	// Executable scanning reports "2.100.002", VERSION file reports "1.0"
@@ -4153,7 +4176,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "aba367f2102e81782d961b14fbe3d630", 10246},
 		{"resource.000", 0, "263dce4aa34c49d3ad29bec889007b1c", 11571394},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformDOS, ADGF_CD | ADGF_TESTING, GUIO_QFG4_CD	},
+		Common::EN_ANY, Common::kPlatformDOS, ADGF_CD, GUIO_QFG4_CD	},
 
 	// Quest for Glory 4 CD - English DOS/Windows (from jvprat)
 	// Executable scanning reports "2.100.002", VERSION file reports "1.0"
@@ -4161,7 +4184,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "aba367f2102e81782d961b14fbe3d630", 10246},
 		{"resource.000", 0, "263dce4aa34c49d3ad29bec889007b1c", 11571394},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformWindows, ADGF_CD | ADGF_TESTING, GUIO_QFG4_CD	},
+		Common::EN_ANY, Common::kPlatformWindows, ADGF_CD, GUIO_QFG4_CD	},
 
 #undef GUIO_QFG4_FLOPPY
 #undef GUIO_QFG4_CD
@@ -5199,7 +5222,9 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 	FANMADE("The Farm Nightmare", "fb6cbfddaa7c055e2c3d8cf4c683a7db", 906, "50655e8b8925f717e698e08f006f40be", 338303),
 	FANMADE("The Gem Scenario", "ef5f61f4d2c6d31122d3e2baf89ad976", 642, "2f16be390dd90c3d7ca1c8a594ac0bfa", 244794),
 	FANMADE("The Legend of the Lost Jewel", "ba1bca315e3818c5626eda51bcfbcccf", 636, "9b0736d69924af0cff32a0f78db96855", 300398),
+	FANMADE("The Sect of Achturan", "130ee6a9137005cdd4a26c38fa21576a", 1626, "1faf42afbfdb782f61ceaa1ee6243b76", 961705),
 	FANMADE("Winter Wonderland", "c1ffaf8327462effd4ad21eeed9eea59", 504, "5d48666dc62f90d852a1d0de6e69195f", 305076),
+	FANMADE11("Zork: The Great Underground Empire", "65f0731485faca4ee568b74e2f59d850", 3518, "e5d4790b6e8fa1b9a9691b22d541012b", 2460903),
 
 	// FIXME: The vga demo does not have a resource.000/001 file.
 	//FANMADE_V("SCI VGA Demo", "00b1abd87bad356b90fcdfcb6132c26f", 8, "", 0, 0),

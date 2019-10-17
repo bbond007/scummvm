@@ -1996,7 +1996,7 @@ void GlobalOptionsDialog::addNetworkControls(GuiObject *boss, const Common::Stri
 		_featureDescriptionLine1 = new StaticTextWidget(boss, prefix + "FeatureDescriptionLine1", _("Run server to manage files with browser (in the same network)."), "", ThemeEngine::kFontStyleNormal);
 		_featureDescriptionLine2 = new StaticTextWidget(boss, prefix + "FeatureDescriptionLine2", _("Closing options dialog will stop the server."), "", ThemeEngine::kFontStyleNormal);
 	}
-	
+
 	reflowNetworkTabLayout();
 
 }
@@ -2158,9 +2158,7 @@ void GlobalOptionsDialog::apply() {
 		if (newLang == "C")
 			ttsMan->setLanguage("en");
 		else {
-			Common::String guiLang = newLang;
-			guiLang.setChar('\0', 2);
-			ttsMan->setLanguage(guiLang);
+			ttsMan->setLanguage(newLang);
 		}
 		_ttsVoiceSelectionPopUp->setSelectedTag(0);
 	}
@@ -2349,6 +2347,8 @@ void GlobalOptionsDialog::handleCommand(CommandSender *sender, uint32 cmd, uint3
 			break;
 		case Cloud::kStorageBoxId:
 			url += "box";
+			break;
+		default:
 			break;
 		}
 
@@ -2734,7 +2734,7 @@ void GlobalOptionsDialog::reflowNetworkTabLayout() {
 			_serverInfoLabel->setLabel(_("Not running"));
 	}
 	if (_rootPathButton) _rootPathButton->setVisible(true);
-	if (_rootPath) _rootPath->setVisible(true);	
+	if (_rootPath) _rootPath->setVisible(true);
 	if (_rootPathClearButton) _rootPathClearButton->setVisible(true);
 #ifdef NETWORKING_LOCALWEBSERVER_ENABLE_PORT_OVERRIDE
 	if (_serverPortDesc) {

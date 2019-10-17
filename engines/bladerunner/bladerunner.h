@@ -91,7 +91,7 @@ class SceneObjects;
 class SceneScript;
 class Scores;
 class Settings;
-class Shape;
+class Shapes;
 class SliceAnimations;
 class SliceRenderer;
 class Spinner;
@@ -99,7 +99,6 @@ class Subtitles;
 class SuspectsDatabase;
 class TextResource;
 class Time;
-class KIAShapes;
 class Vector3;
 class View;
 class VK;
@@ -180,7 +179,7 @@ public:
 	TextResource       *_textVK;
 	TextResource       *_textOptions;
 
-	Common::Array<Shape*> _shapes;
+	Shapes *_shapes;
 
 	Actor *_actors[kActorCount];
 	Actor *_playerActor;
@@ -356,6 +355,8 @@ static inline void drawPixel(Graphics::Surface &surface, void* dst, uint32 value
 			break;
 		case 4:
 			*(uint32*)dst = (uint32)value;
+			break;
+		default:
 			break;
 	}
 }

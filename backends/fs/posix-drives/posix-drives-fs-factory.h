@@ -20,53 +20,35 @@
  *
  */
 
-#include "bladerunner/ui/kia_shapes.h"
+#ifndef POSIX_DRIVES_FILESYSTEM_FACTORY_H
+#define POSIX_DRIVES_FILESYSTEM_FACTORY_H
 
-#include "bladerunner/bladerunner.h"
+#include "backends/fs/fs-factory.h"
 
-namespace BladeRunner {
+/**
+ * A FilesystemFactory implementation for filesystems with a special
+ * top-level directory with hard-coded entries but that otherwise
+ * implement the POSIX APIs.
+ *
+ * For used with paths like these:
+ * - 'sdcard:/games/scummvm.ini'
+ * - 'hdd1:/usr/bin'
+ */
+class DrivesPOSIXFilesystemFactory : public FilesystemFactory {
+public:
+	/**
+	 * Add a drive to the top-level directory
+	 */
+	void addDrive(const Common::String &name);
 
-KIAShapes::KIAShapes(BladeRunnerEngine *vm) {
-	_vm = vm;
-	_isLoaded = false;
-	for (uint i = 0; i < kShapeCount; ++i) {
-		_shapes[i] = nullptr;
-	}
-}
+protected:
+	// FilesystemFactory API
+	AbstractFSNode *makeRootFileNode() const override;
+	AbstractFSNode *makeCurrentDirectoryFileNode() const override;
+	AbstractFSNode *makeFileNodePath(const Common::String &path) const override;
 
-KIAShapes::~KIAShapes() {
-	unload();
-}
+private:
+	Common::Array<Common::String> _drives;
+};
 
-void KIAShapes::load() {
-	if (_isLoaded) {
-		return;
-	}
-
-	for (uint i = 0; i < kShapeCount; ++i) {
-		Shape *shape = new Shape(_vm);
-		shape->open("kiaopt.shp", i);
-		_shapes[i] = shape;
-	}
-
-	_isLoaded = true;
-}
-
-void KIAShapes::unload() {
-	if (!_isLoaded) {
-		return;
-	}
-
-	for (uint i = 0; i < kShapeCount; ++i) {
-		delete _shapes[i];
-		_shapes[i] = nullptr;
-	}
-
-	_isLoaded = false;
-}
-
-const Shape *KIAShapes::get(int shapeId) const {
-	return _shapes[shapeId];
-}
-
-} // End of namespace BladeRunner
+#endif

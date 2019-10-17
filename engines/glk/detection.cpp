@@ -23,6 +23,8 @@
 #include "glk/glk.h"
 #include "glk/detection.h"
 #include "glk/quetzal.h"
+#include "glk/adrift/detection.h"
+#include "glk/adrift/adrift.h"
 #include "glk/advsys/detection.h"
 #include "glk/advsys/advsys.h"
 #include "glk/alan2/detection.h"
@@ -35,8 +37,12 @@
 #include "glk/glulxe/glulxe.h"
 #include "glk/hugo/detection.h"
 #include "glk/hugo/hugo.h"
+#include "glk/jacl/detection.h"
+#include "glk/jacl/jacl.h"
 #include "glk/magnetic/detection.h"
 #include "glk/magnetic/magnetic.h"
+#include "glk/quest/detection.h"
+#include "glk/quest/quest.h"
 #include "glk/scott/detection.h"
 #include "glk/scott/scott.h"
 #include "glk/tads/detection.h"
@@ -64,6 +70,13 @@ GlkDetectedGame::GlkDetectedGame(const char *id, const char *desc, const Common:
 
 GlkDetectedGame::GlkDetectedGame(const char *id, const char *desc, const Common::String &filename,
 		Common::Language lang) : DetectedGame(id, desc, lang, Common::kPlatformUnknown) {
+	setGUIOptions(GUIO3(GUIO_NOSPEECH, GUIO_NOMUSIC, GUIO_NOSUBTITLES));
+	addExtraEntry("filename", filename);
+}
+
+GlkDetectedGame::GlkDetectedGame(const char *id, const char *desc, const char *xtra,
+		const Common::String &filename, Common::Language lang) :
+		DetectedGame(id, desc, lang, Common::kPlatformUnknown, xtra) {
 	setGUIOptions(GUIO3(GUIO_NOSPEECH, GUIO_NOMUSIC, GUIO_NOSUBTITLES));
 	addExtraEntry("filename", filename);
 }
@@ -147,12 +160,15 @@ Common::Error GlkMetaEngine::createInstance(OSystem *syst, Engine **engine) cons
 
 	// Create the correct engine
 	*engine = nullptr;
-	if ((*engine = create<Glk::AdvSys::AdvSysMetaEngine, Glk::AdvSys::AdvSys>(syst, gameDesc)) != nullptr) {}
+	if ((*engine = create<Glk::Adrift::AdriftMetaEngine, Glk::Adrift::Adrift>(syst, gameDesc)) != nullptr) {}
+	else if ((*engine = create<Glk::AdvSys::AdvSysMetaEngine, Glk::AdvSys::AdvSys>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Alan2::Alan2MetaEngine, Glk::Alan2::Alan2>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Alan3::Alan3MetaEngine, Glk::Alan3::Alan3>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Frotz::FrotzMetaEngine, Glk::Frotz::Frotz>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Glulxe::GlulxeMetaEngine, Glk::Glulxe::Glulxe>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Hugo::HugoMetaEngine, Glk::Hugo::Hugo>(syst, gameDesc)) != nullptr) {}
+	else if ((*engine = create<Glk::JACL::JACLMetaEngine, Glk::JACL::JACL>(syst, gameDesc)) != nullptr) {}
+	else if ((*engine = create<Glk::Quest::QuestMetaEngine, Glk::Quest::Quest>(syst, gameDesc)) != nullptr) {}
 	else if ((*engine = create<Glk::Scott::ScottMetaEngine, Glk::Scott::Scott>(syst, gameDesc)) != nullptr) {}
 #ifndef RELEASE_BUILD
 	else if ((*engine = create<Glk::Magnetic::MagneticMetaEngine, Glk::Magnetic::Magnetic>(syst, gameDesc)) != nullptr) {}
@@ -194,12 +210,15 @@ Common::String GlkMetaEngine::findFileByGameId(const Common::String &gameId) con
 
 PlainGameList GlkMetaEngine::getSupportedGames() const {
 	PlainGameList list;
+	Glk::Adrift::AdriftMetaEngine::getSupportedGames(list);
 	Glk::AdvSys::AdvSysMetaEngine::getSupportedGames(list);
 	Glk::Alan2::Alan2MetaEngine::getSupportedGames(list);
 	Glk::Alan3::Alan3MetaEngine::getSupportedGames(list);
 	Glk::Frotz::FrotzMetaEngine::getSupportedGames(list);
 	Glk::Glulxe::GlulxeMetaEngine::getSupportedGames(list);
 	Glk::Hugo::HugoMetaEngine::getSupportedGames(list);
+	Glk::JACL::JACLMetaEngine::getSupportedGames(list);
+	Glk::Quest::QuestMetaEngine::getSupportedGames(list);
 	Glk::Scott::ScottMetaEngine::getSupportedGames(list);
 #ifndef RELEASE_BUILD
 	Glk::Magnetic::MagneticMetaEngine::getSupportedGames(list);
@@ -210,7 +229,10 @@ PlainGameList GlkMetaEngine::getSupportedGames() const {
 }
 
 PlainGameDescriptor GlkMetaEngine::findGame(const char *gameId) const {
-	Glk::GameDescriptor gd = Glk::AdvSys::AdvSysMetaEngine::findGame(gameId);
+	Glk::GameDescriptor gd = Glk::Adrift::AdriftMetaEngine::findGame(gameId);
+	if (gd._description) return gd;
+
+	gd = Glk::AdvSys::AdvSysMetaEngine::findGame(gameId);
 	if (gd._description) return gd;
 
 	gd = Glk::Alan2::Alan2MetaEngine::findGame(gameId);
@@ -226,6 +248,12 @@ PlainGameDescriptor GlkMetaEngine::findGame(const char *gameId) const {
 	if (gd._description) return gd;
 
 	gd = Glk::Hugo::HugoMetaEngine::findGame(gameId);
+	if (gd._description) return gd;
+
+	gd = Glk::JACL::JACLMetaEngine::findGame(gameId);
+	if (gd._description) return gd;
+
+	gd = Glk::Quest::QuestMetaEngine::findGame(gameId);
 	if (gd._description) return gd;
 
 	gd = Glk::Scott::ScottMetaEngine::findGame(gameId);
@@ -246,12 +274,15 @@ DetectedGames GlkMetaEngine::detectGames(const Common::FSList &fslist) const {
 	detectClashes();
 
 	DetectedGames detectedGames;
+	Glk::Adrift::AdriftMetaEngine::detectGames(fslist, detectedGames);
 	Glk::AdvSys::AdvSysMetaEngine::detectGames(fslist, detectedGames);
 	Glk::Alan2::Alan2MetaEngine::detectGames(fslist, detectedGames);
 	Glk::Alan3::Alan3MetaEngine::detectGames(fslist, detectedGames);
 	Glk::Frotz::FrotzMetaEngine::detectGames(fslist, detectedGames);
 	Glk::Glulxe::GlulxeMetaEngine::detectGames(fslist, detectedGames);
 	Glk::Hugo::HugoMetaEngine::detectGames(fslist, detectedGames);
+	Glk::JACL::JACLMetaEngine::detectGames(fslist, detectedGames);
+	Glk::Quest::QuestMetaEngine::detectGames(fslist, detectedGames);
 	Glk::Scott::ScottMetaEngine::detectGames(fslist, detectedGames);
 
 #ifndef RELEASE_BUILD
@@ -264,12 +295,15 @@ DetectedGames GlkMetaEngine::detectGames(const Common::FSList &fslist) const {
 
 void GlkMetaEngine::detectClashes() const {
 	Common::StringMap map;
+	Glk::Adrift::AdriftMetaEngine::detectClashes(map);
 	Glk::AdvSys::AdvSysMetaEngine::detectClashes(map);
 	Glk::Alan2::Alan2MetaEngine::detectClashes(map);
 	Glk::Alan3::Alan3MetaEngine::detectClashes(map);
 	Glk::Frotz::FrotzMetaEngine::detectClashes(map);
 	Glk::Glulxe::GlulxeMetaEngine::detectClashes(map);
 	Glk::Hugo::HugoMetaEngine::detectClashes(map);
+	Glk::JACL::JACLMetaEngine::detectClashes(map);
+	Glk::Quest::QuestMetaEngine::detectClashes(map);
 	Glk::Scott::ScottMetaEngine::detectClashes(map);
 
 #ifndef RELEASE_BUILD

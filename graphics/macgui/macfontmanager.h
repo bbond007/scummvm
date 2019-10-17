@@ -102,7 +102,7 @@ private:
 
 class MacFontManager {
 public:
-	MacFontManager();
+	MacFontManager(uint32 mode);
 
 	/**
 	 * Accessor method to check the presence of built-in fonts.
@@ -134,6 +134,8 @@ public:
 	void registerFontMapping(uint16 id, Common::String name);
 	void clearFontMapping();
 
+	void forceBuiltinFonts() { _builtInFonts = true; }
+
 private:
 	void loadFontsBDF();
 	void loadFonts();
@@ -143,6 +145,7 @@ private:
 
 private:
 	bool _builtInFonts;
+	uint32 _mode;
 	Common::HashMap<Common::String, MacFont *> _fontRegistry;
 
 	Common::HashMap<Common::String, int> _fontIds;

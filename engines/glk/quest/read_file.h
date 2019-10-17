@@ -20,33 +20,30 @@
  *
  */
 
-#ifndef BLADERUNNER_UI_SHAPES_H
-#define BLADERUNNER_UI_SHAPES_H
+#ifndef GLK_QUEST_READ_FILE
+#define GLK_QUEST_READ_FILE
 
-#include "bladerunner/shape.h"
-
+#include "glk/quest/geas_file.h"
+#include "glk/quest/string.h"
 #include "common/array.h"
 
-namespace BladeRunner {
+namespace Glk {
+namespace Quest {
 
-class BladeRunnerEngine;
+extern Common::Array<String> tokenize(String s);
+extern String next_token(String full, uint &tok_start, uint &tok_end, bool cvt_paren = false);
+extern String first_token(String s, uint &t_start, uint &t_end);
+extern String nth_token(String s, int n);
+extern String get_token(String s, bool cvt_paren = false);
+extern bool find_token(String s, String tok, int &tok_start, int &tok_end, bool cvt_paren = false);
+extern GeasFile read_geas_file(GeasInterface *gi, const String &filename);
 
-class KIAShapes {
-	static const uint kShapeCount = 132;
+enum trim_modes { TRIM_SPACES, TRIM_UNDERSCORE, TRIM_BRACE };
+extern String trim(String, trim_modes mode = TRIM_SPACES);
 
-	BladeRunnerEngine *_vm;
-	const Shape       *_shapes[kShapeCount];
-	bool               _isLoaded;
+//Common::WriteStream &operator<< (Common::WriteStream &o, const Common::Array<String> &v);
 
-public:
-	KIAShapes(BladeRunnerEngine *vm);
-	~KIAShapes();
-
-	void load();
-	void unload();
-	const Shape *get(int shapeId) const;
-};
-
-} // End of namespace BladeRunner
+} // End of namespace Quest
+} // End of namespace Glk
 
 #endif

@@ -36,7 +36,6 @@
 #include "bladerunner/ui/kia.h"
 #include "bladerunner/ui/kia_log.h"
 #include "bladerunner/ui/kia_section_suspects.h"
-#include "bladerunner/ui/kia_shapes.h"
 #include "bladerunner/ui/ui_container.h"
 #include "bladerunner/ui/ui_image_picker.h"
 #include "bladerunner/ui/ui_scroll_box.h"
@@ -71,14 +70,14 @@ KIASectionCrimes::KIASectionCrimes(BladeRunnerEngine *vm, ActorClues *clues) : K
 	_suspectSelected = -1;
 	_suspectPhotoShapeId = -1;
 	_suspectPhotoNotUsed = -1;
-	_suspectPhotoShape = nullptr;
+	_suspectPhotoShapes = new Shapes(vm);
 	_suspectsFoundCount = 0;
 	_suspectsFound.resize(_vm->_gameInfo->getSuspectCount());
 	_suspectsWithIdentity.resize(_vm->_gameInfo->getSuspectCount());
 }
 
 KIASectionCrimes::~KIASectionCrimes() {
-	delete _suspectPhotoShape;
+	delete _suspectPhotoShapes;
 
 	_uiContainer->clear();
 
@@ -101,6 +100,8 @@ void KIASectionCrimes::reset() {
 
 void KIASectionCrimes::open() {
 	_scheduledSwitch = false;
+
+	_suspectPhotoShapes->load("photos.shp");
 
 	_buttons->resetImages();
 	_buttons->defineImage(0, Common::Rect(136, 326, 185, 342), nullptr, _vm->_kia->_shapes->get(32), _vm->_kia->_shapes->get(36), _vm->_textKIA->getText(32));
@@ -128,17 +129,14 @@ void KIASectionCrimes::close() {
 	_isOpen = false;
 	_buttons->deactivate();
 	_cluesScrollBox->hide();
-	if (_suspectPhotoShapeId != -1) {
-		delete _suspectPhotoShape;
-		_suspectPhotoShape = nullptr;
-		_suspectPhotoShapeId = -1;
-	}
+	_suspectPhotoShapes->unload();
 }
 
 void KIASectionCrimes::draw(Graphics::Surface &surface) {
 	const char *text = nullptr;
 	if (_suspectPhotoShapeId != -1) {
-		_suspectPhotoShape->draw(surface, 201 - _suspectPhotoShape->getWidth() / 2, 223 - _suspectPhotoShape->getHeight() / 2);
+		const Shape *shape = _suspectPhotoShapes->get(_suspectPhotoShapeId);
+		shape->draw(surface, 201 - shape->getWidth() / 2, 223 - shape->getHeight() / 2);
 	}
 	if (_suspectPhotoShapeId == 14 || _suspectPhotoShapeId == 13) {
 		text = _vm->_textKIA->getText(49);
@@ -167,7 +165,7 @@ void KIASectionCrimes::draw(Graphics::Surface &surface) {
 	surface.vLine(267, 304, 315, surface.format.RGBToColor(88, 80, 96));
 	surface.hLine(267, 316, 267, surface.format.RGBToColor(72, 64, 72));
 
-	char generatedText[64];
+	Common::String generatedText;
 	if (_suspectSelected == -1) {
 		text = _vm->_textKIA->getText(22);
 	} else {
@@ -175,11 +173,11 @@ void KIASectionCrimes::draw(Graphics::Surface &surface) {
 		if (_suspectsWithIdentity[_suspectSelected]) {
 			text = suspectName;
 		} else if (_vm->_suspectsDatabase->get(_suspectSelected)->getSex()) {
-			sprintf(generatedText, "%s %s", _vm->_textKIA->getText(20), _vm->_kia->scrambleSuspectsName(suspectName));
-			text = generatedText;
+			generatedText = Common::String::format("%s %s", _vm->_textKIA->getText(20), _vm->_kia->scrambleSuspectsName(suspectName));
+			text = generatedText.c_str();
 		} else {
-			sprintf(generatedText, "%s %s", _vm->_textKIA->getText(21), _vm->_kia->scrambleSuspectsName(suspectName));
-			text = generatedText;
+			generatedText = Common::String::format("%s %s", _vm->_textKIA->getText(21), _vm->_kia->scrambleSuspectsName(suspectName));
+			text = generatedText.c_str();
 		}
 	}
 	_vm->_mainFont->drawString(&surface, text, 201 - _vm->_mainFont->getStringWidth(text) / 2, 306, surface.w, surface.format.RGBToColor(136, 168, 255));
@@ -396,11 +394,6 @@ void KIASectionCrimes::populateVisibleClues() {
 }
 
 void KIASectionCrimes::updateSuspectPhoto() {
-	if (_suspectPhotoShapeId != -1) {
-		delete _suspectPhotoShape;
-		_suspectPhotoShape = nullptr;
-	}
-
 	if (_suspectSelected == -1) {
 		_suspectPhotoShapeId = -1;
 		return;
@@ -428,11 +421,6 @@ void KIASectionCrimes::updateSuspectPhoto() {
 		} else {
 			_suspectPhotoShapeId = 13;
 		}
-	}
-
-	if (_suspectPhotoShapeId != -1) {
-		_suspectPhotoShape = new Shape(_vm);
-		_suspectPhotoShape->open("photos.shp", _suspectPhotoShapeId);
 	}
 }
 

@@ -4,14 +4,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 		package="org.scummvm.scummvm"
 		android:versionCode="@ANDROID_VERSIONCODE@"
-		android:versionName="2.1.0git"
+		android:versionName="2.2.0git"
 		android:sharedUserId="org.scummvm.scummvm">
 
 	<uses-sdk android:minSdkVersion="3"
-			android:targetSdkVersion="14"/>
+			android:targetSdkVersion="26"/>
 
 	<uses-permission
 			android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+	<uses-permission
+			android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 	<uses-permission
 			android:name="android.permission.ACCESS_WIFI_STATE"/>

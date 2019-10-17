@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
 	// Initialize basic libctru stuff
 	gfxInitDefault();
 	cfguInit();
+	romfsInit();
 	osSetSpeedupEnable(true);
 // 	consoleInit(GFX_TOP, NULL);
 
@@ -50,6 +51,7 @@ int main(int argc, char *argv[]) {
 		gspLcdExit();
 	}
 
+	romfsExit();
 	cfguExit();
 	gfxExit();
 	return res;

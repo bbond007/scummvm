@@ -23,6 +23,8 @@
 #include "common/debug.h"
 #include "common/substream.h"
 
+#include "graphics/transparent_surface.h"
+
 #include "pink/archive.h"
 #include "pink/director.h"
 #include "pink/pink.h"
@@ -73,6 +75,12 @@ void ActionText::toConsole() {
 		  _name.c_str(), _fileName.c_str(), _xLeft, _yTop, _xRight, _yBottom, _centered, _scrollBar, _textRGB, _backgroundRGB);
 }
 
+static const byte noborderData[3][3] = {
+	{ 0, 1, 0 },
+	{ 1, 0, 1 },
+	{ 0, 1, 0 },
+};
+
 void ActionText::start() {
 	findColorsInPalette();
 	Director *director = _actor->getPage()->getGame()->getDirector();
@@ -89,6 +97,22 @@ void ActionText::start() {
 														  _xRight - _xLeft, align, nullptr, false);
 		_txtWnd->move(_xLeft, _yTop);
 		_txtWnd->resize(_xRight - _xLeft, _yBottom - _yTop);
+		_txtWnd->setEditable(false);
+		_txtWnd->setSelectable(false);
+
+		Graphics::TransparentSurface *noborder = new Graphics::TransparentSurface();
+		noborder->create(3, 3, noborder->getSupportedPixelFormat());
+		uint32 colorBlack = noborder->getSupportedPixelFormat().RGBToColor(0, 0, 0);
+		uint32 colorPink = noborder->getSupportedPixelFormat().RGBToColor(255, 0, 255);
+
+		for (int y = 0; y < 3; y++)
+			for (int x = 0; x < 3; x++)
+				*((uint32 *)noborder->getBasePtr(x, y)) = noborderData[y][x] ? colorBlack : colorPink;
+
+		_txtWnd->setBorder(noborder, true);
+
+		Graphics::TransparentSurface *noborder2 = new Graphics::TransparentSurface(*noborder, true);
+		_txtWnd->setBorder(noborder2, false);
 
 		if (_actor->getPage()->getGame()->getLanguage() == Common::EN_ANY)
 			_txtWnd->appendText(str, font);
@@ -142,7 +166,7 @@ static uint findBestColor(byte *palette, uint32 rgb) {
 
 void ActionText::findColorsInPalette() {
 	byte palette[256 * 3];
-	g_system->getPaletteManager()->grabPalette(palette, 0, 255);
+	g_system->getPaletteManager()->grabPalette(palette, 0, 256);
 
 	_textColorIndex = findBestColor(palette, _textRGB);
 	_backgroundColorIndex = findBestColor(palette, _backgroundRGB);
