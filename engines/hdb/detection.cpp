@@ -167,23 +167,26 @@ static const ADExtraGuiOptionsMap optionsList[] = {
 class HDBMetaEngine : public AdvancedMetaEngine {
 public:
 	HDBMetaEngine() : AdvancedMetaEngine(HDB::gameDescriptions, sizeof(ADGameDescription), hdbGames, optionsList) {
-		_singleId = "hdb";
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineId() const override {
+		return "hdb";
+	}
+
+	const char *getName() const override {
 		return "Hyperspace Delivery Boy!";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const override {
 		return "Hyperspace Delivery Boy! (C) 2001 Monkeystone Games";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual int getMaximumSaveSlot() const;
-	virtual void removeSaveState(const char *target, int slot) const;
-	virtual SaveStateList listSaves(const char *target) const;
-	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool hasFeature(MetaEngineFeature f) const override;
+	int getMaximumSaveSlot() const override;
+	void removeSaveState(const char *target, int slot) const override;
+	SaveStateList listSaves(const char *target) const override;
+	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const override;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const override;
 };
 
 bool HDBMetaEngine::hasFeature(MetaEngineFeature f) const {

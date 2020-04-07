@@ -368,6 +368,10 @@ public:
 		return "ADL";
 	}
 
+	const char *getEngineId() const override {
+		return "adl";
+	}
+
 	const char *getOriginalCopyright() const override {
 		return "Copyright (C) Sierra On-Line";
 	}

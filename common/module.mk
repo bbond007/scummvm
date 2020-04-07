@@ -7,8 +7,7 @@ MODULE_OBJS := \
 	dcl.o \
 	debug.o \
 	error.o \
-	EventDispatcher.o \
-	EventMapper.o \
+	events.o \
 	file.o \
 	fs.o \
 	gui_options.o \
@@ -30,6 +29,7 @@ MODULE_OBJS := \
 	rational.o \
 	rendermode.o \
 	str.o \
+	str-enc.o \
 	stream.o \
 	system.o \
 	textconsole.o \

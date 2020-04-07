@@ -20,7 +20,6 @@
  */
 
 #include "common/array.h"
-#include "common/events.h"
 #include "common/list.h"
 #include "common/system.h"
 #include "common/timer.h"
@@ -53,23 +52,28 @@ static byte fillPatterns[][8] = { { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x
 								  { 0x77, 0xdd, 0x77, 0xdd, 0x77, 0xdd, 0x77, 0xdd }  // kPatternDarkGray
 };
 
+static const byte cursorPalette[] = {
+	0, 0, 0,
+	0xff, 0xff, 0xff
+};
+
 static const byte macCursorArrow[] = {
-	2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	2, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3,
-	2, 0, 0, 2, 3, 3, 3, 3, 3, 3, 3,
-	2, 0, 0, 0, 2, 3, 3, 3, 3, 3, 3,
-	2, 0, 0, 0, 0, 2, 3, 3, 3, 3, 3,
-	2, 0, 0, 0, 0, 0, 2, 3, 3, 3, 3,
-	2, 0, 0, 0, 0, 0, 0, 2, 3, 3, 3,
-	2, 0, 0, 0, 0, 0, 0, 0, 2, 3, 3,
-	2, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3,
-	2, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2,
-	2, 0, 0, 2, 0, 0, 2, 3, 3, 3, 3,
-	2, 0, 2, 3, 2, 0, 0, 2, 3, 3, 3,
-	2, 2, 3, 3, 2, 0, 0, 2, 3, 3, 3,
-	2, 3, 3, 3, 3, 2, 0, 0, 2, 3, 3,
-	3, 3, 3, 3, 3, 2, 0, 0, 2, 3, 3,
-	3, 3, 3, 3, 3, 3, 2, 2, 2, 3, 3
+	1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	1, 0, 1, 3, 3, 3, 3, 3, 3, 3, 3,
+	1, 0, 0, 1, 3, 3, 3, 3, 3, 3, 3,
+	1, 0, 0, 0, 1, 3, 3, 3, 3, 3, 3,
+	1, 0, 0, 0, 0, 1, 3, 3, 3, 3, 3,
+	1, 0, 0, 0, 0, 0, 1, 3, 3, 3, 3,
+	1, 0, 0, 0, 0, 0, 0, 1, 3, 3, 3,
+	1, 0, 0, 0, 0, 0, 0, 0, 1, 3, 3,
+	1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 3,
+	1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+	1, 0, 0, 1, 0, 0, 1, 3, 3, 3, 3,
+	1, 0, 1, 3, 1, 0, 0, 1, 3, 3, 3,
+	1, 1, 3, 3, 1, 0, 0, 1, 3, 3, 3,
+	1, 3, 3, 3, 3, 1, 0, 0, 1, 3, 3,
+	3, 3, 3, 3, 3, 1, 0, 0, 1, 3, 3,
+	3, 3, 3, 3, 3, 3, 1, 1, 1, 3, 3
 };
 
 static const byte macCursorBeam[] = {
@@ -91,65 +95,65 @@ static const byte macCursorBeam[] = {
 	0, 0, 3, 3, 3, 0, 0, 3, 3, 3, 3,
 };
 static const byte macCursorCrossHair[] = {
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 };
 static const byte macCursorWatch[] = {
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-	1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-	1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1,
-	1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-	1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-	0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 0, 1, 1, 1, 1, 1, 1, 0, 1, 3,
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3,
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 3,
+	0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+	0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0,
+	0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 3,
+	0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 3,
+	3, 0, 1, 1, 1, 1, 1, 1, 0, 1, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 0, 0, 0, 0, 0, 0, 3, 3, 3,
 };
 static const byte macCursorCrossBar[] = {
-	0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0,
-	0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
-	0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
-	0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
-	1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0,
-	1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
-	1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
-	1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
-	0, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1,
-	0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
-	0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0,
-	0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	3, 3, 3, 0, 0, 0, 0, 3, 3, 3, 3,
+	3, 3, 3, 0, 1, 1, 0, 0, 3, 3, 3,
+	3, 3, 3, 0, 1, 1, 0, 0, 3, 3, 3,
+	3, 3, 3, 0, 1, 1, 0, 0, 3, 3, 3,
+	0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 3,
+	0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+	0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0,
+	0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+	3, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+	3, 3, 3, 0, 1, 1, 0, 0, 3, 3, 3,
+	3, 3, 3, 0, 1, 1, 0, 0, 3, 3, 3,
+	3, 3, 3, 0, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 3, 3, 0, 0, 0, 0, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
 };
 
 static void menuTimerHandler(void *refCon);
 
 MacWindowManager::MacWindowManager(uint32 mode) {
 	_screen = 0;
-	_screenCopy = 0;
+	_screenCopy = nullptr;
 	_lastId = 0;
 	_activeWindow = -1;
 	_needsRemoval = false;
@@ -170,6 +174,9 @@ MacWindowManager::MacWindowManager(uint32 mode) {
 
 	_fullRefresh = true;
 
+	_palette = nullptr;
+	_paletteSize = 0;
+
 	for (int i = 0; i < ARRAYSIZE(fillPatterns); i++)
 		_patterns.push_back(fillPatterns[i]);
 
@@ -186,6 +193,9 @@ MacWindowManager::MacWindowManager(uint32 mode) {
 MacWindowManager::~MacWindowManager() {
 	for (Common::HashMap<uint, BaseMacWindow *>::iterator it = _windows.begin(); it != _windows.end(); it++)
 		delete it->_value;
+
+	if (_palette)
+		free(_palette);
 
 	delete _fontMan;
 	delete _screenCopy;
@@ -228,6 +238,11 @@ void MacWindowManager::addWindowInitialized(MacWindow *macwindow) {
 }
 
 MacMenu *MacWindowManager::addMenu() {
+	if (_menu) {
+		_windows[_menu->getId()] = nullptr;
+		delete _menu;
+	}
+
 	_menu = new MacMenu(getNextId(), _screen->getBounds(), this);
 
 	_windows[_menu->getId()] = _menu;
@@ -238,6 +253,14 @@ MacMenu *MacWindowManager::addMenu() {
 void MacWindowManager::activateMenu() {
 	if (!_menu)
 		return;
+
+	if (_mode & kWMModalMenuMode) {
+		if (!_screenCopy)
+			_screenCopy = new ManagedSurface(*_screen);	// Create a copy
+		else
+			*_screenCopy = *_screen;
+		pauseEngine(true);
+	}
 
 	_menu->setVisible(true);
 }
@@ -274,7 +297,7 @@ void MacWindowManager::removeWindow(MacWindow *target) {
 void macDrawPixel(int x, int y, int color, void *data) {
 	MacPlotData *p = (MacPlotData *)data;
 
-	if (p->fillType > p->patterns->size())
+	if (p->fillType > p->patterns->size() || !p->fillType)
 		return;
 
 	byte *pat = p->patterns->operator[](p->fillType - 1);
@@ -285,7 +308,7 @@ void macDrawPixel(int x, int y, int color, void *data) {
 			uint yu = (uint)y;
 
 			*((byte *)p->surface->getBasePtr(xu, yu)) =
-				(pat[yu % 8] & (1 << (7 - xu % 8))) ?
+				(pat[(yu - p->fillOriginY) % 8] & (1 << (7 - (xu - p->fillOriginX) % 8))) ?
 					color : p->bgColor;
 		}
 	} else {
@@ -300,7 +323,7 @@ void macDrawPixel(int x, int y, int color, void *data) {
 					uint xu = (uint)x; // for letting compiler optimize it
 					uint yu = (uint)y;
 					*((byte *)p->surface->getBasePtr(xu, yu)) =
-						(pat[yu % 8] & (1 << (7 - xu % 8))) ?
+						(pat[(yu - p->fillOriginY) % 8] & (1 << (7 - (xu - p->fillOriginX) % 8))) ?
 							color : p->bgColor;
 				}
 	}
@@ -309,7 +332,7 @@ void macDrawPixel(int x, int y, int color, void *data) {
 void MacWindowManager::drawDesktop() {
 	Common::Rect r(_screen->getBounds());
 
-	MacPlotData pd(_screen, &_patterns, kPatternCheckers, 1, _colorWhite);
+	MacPlotData pd(_screen, &_patterns, kPatternCheckers, 0, 0, 1, _colorWhite);
 
 	Graphics::drawRoundRect(r, kDesktopArc, _colorBlack, true, macDrawPixel, &pd);
 
@@ -355,13 +378,6 @@ static void menuTimerHandler(void *refCon) {
 
 	if (wm->_menuHotzone.contains(wm->_lastMousePos)) {
 		wm->activateMenu();
-		if (wm->_mode & kWMModalMenuMode) {
-			if (!wm->_screenCopy)
-				wm->_screenCopy = new ManagedSurface(*wm->_screen);	// Create a copy
-			else
-				*wm->_screenCopy = *wm->_screen;
-			wm->pauseEngine(true);
-		}
 	}
 
 	wm->_menuTimerActive = false;
@@ -435,7 +451,7 @@ void MacWindowManager::removeMarked() {
 	// Do we need compact lastid?
 	_lastId = 0;
 	for (Common::HashMap<uint, BaseMacWindow *>::iterator lit = _windows.begin(); lit != _windows.end(); lit++) {
-		if (lit->_key > (uint)_lastId)
+		if (lit->_key >= (uint)_lastId)
 			_lastId = lit->_key + 1;
 	}
 }
@@ -465,26 +481,37 @@ void MacWindowManager::removeFromWindowList(BaseMacWindow *target) {
 /////////////////
 void MacWindowManager::pushArrowCursor() {
 	CursorMan.pushCursor(macCursorArrow, 11, 16, 1, 1, 3);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::pushBeamCursor() {
 	CursorMan.pushCursor(macCursorBeam, 11, 16, 1, 1, 3);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::pushCrossHairCursor() {
 	CursorMan.pushCursor(macCursorCrossHair, 11, 16, 1, 1, 3);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::pushCrossBarCursor() {
 	CursorMan.pushCursor(macCursorCrossBar, 11, 16, 1, 1, 3);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::pushWatchCursor() {
 	CursorMan.pushCursor(macCursorWatch, 11, 16, 1, 1, 3);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
+}
+
+void MacWindowManager::pushCustomCursor(const byte *data, int w, int h, int hx, int hy, int transcolor) {
+	CursorMan.pushCursor(data, w, h, hx, hy, transcolor);
+	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::popCursor() {
 	CursorMan.popCursor();
+	CursorMan.popCursorPalette();
 }
 
 ///////////////////
@@ -492,6 +519,12 @@ void MacWindowManager::popCursor() {
 ///////////////////
 void MacWindowManager::passPalette(const byte *pal, uint size) {
 	const byte *p = pal;
+
+	if (_palette)
+		free(_palette);
+
+	_palette = (byte *)malloc(size * 3);
+	_paletteSize = size;
 
 	_colorWhite = -1;
 	_colorBlack = -1;
@@ -505,7 +538,9 @@ void MacWindowManager::passPalette(const byte *pal, uint size) {
 		if (_colorBlack == -1 && p[0] == 0x00 && p[1] == 0x00 && p[2] == 0x00)
 			_colorBlack = i;
 
-		p += 3;
+		_palette[i * 3 + 0] = *p++;
+		_palette[i * 3 + 1] = *p++;
+		_palette[i * 3 + 2] = *p++;
 	}
 
 	if (_colorWhite != -1 && _colorBlack != -1)
@@ -536,9 +571,31 @@ void MacWindowManager::passPalette(const byte *pal, uint size) {
 	_colorBlack = di;
 }
 
+uint MacWindowManager::findBestColor(byte cr, byte cg, byte cb) {
+	uint bestColor = 0;
+	double min = 0xFFFFFFFF;
+
+	for (uint i = 0; i < _paletteSize; ++i) {
+		int rmean = (*(_palette + 3 * i + 0) + cr) / 2;
+		int r = *(_palette + 3 * i + 0) - cr;
+		int g = *(_palette + 3 * i + 1) - cg;
+		int b = *(_palette + 3 * i + 2) - cb;
+
+		double dist = sqrt((((512 + rmean) * r * r) >> 8) + 4 * g * g + (((767 - rmean) * b * b) >> 8));
+		if (min > dist) {
+			bestColor = i;
+			min = dist;
+		}
+	}
+
+	return bestColor;
+}
+
 void MacWindowManager::pauseEngine(bool pause) {
 	if (_engineP && _pauseEngineCallback) {
 		_pauseEngineCallback(_engineP, pause);
+	} else {
+		warning("MacWindowManager::pauseEngine(): no pauseEngineCallback is set");
 	}
 }
 

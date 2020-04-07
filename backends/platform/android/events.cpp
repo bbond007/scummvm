@@ -42,7 +42,7 @@
 #include "backends/platform/android/android.h"
 #include "backends/platform/android/graphics.h"
 #include "backends/platform/android/events.h"
-#include "backends/platform/android/jni.h"
+#include "backends/platform/android/jni-android.h"
 
 // floating point. use sparingly
 template<class T>
@@ -52,104 +52,12 @@ static inline T scalef(T in, float numerator, float denominator) {
 
 static const int kQueuedInputEventDelay = 50;
 
-void OSystem_Android::setupKeymapper() {
-#ifdef ENABLE_KEYMAPPER
-	using namespace Common;
-
-	Keymapper *mapper = getEventManager()->getKeymapper();
-
-	HardwareInputSet *inputSet = new HardwareInputSet();
-
-	keySet->addHardwareInput(
-		new HardwareInput("n", KeyState(KEYCODE_n), "n (vk)"));
-
-	mapper->registerHardwareInputSet(inputSet);
-
-	Keymap *globalMap = new Keymap(kGlobalKeymapName);
-	Action *act;
-
-	act = new Action(globalMap, "VIRT", "Display keyboard");
-	act->addKeyEvent(KeyState(KEYCODE_F7, ASCII_F7, KBD_CTRL));
-
-	mapper->addGlobalKeymap(globalMap);
-
-	mapper->pushKeymap(kGlobalKeymapName);
-#endif
-}
-
 void OSystem_Android::pushEvent(int type, int arg1, int arg2, int arg3,
 								int arg4, int arg5, int arg6) {
 	Common::Event e;
 
 	switch (type) {
 	case JE_SYS_KEY:
-		switch (arg1) {
-		case JACTION_DOWN:
-			e.type = Common::EVENT_KEYDOWN;
-			break;
-		case JACTION_UP:
-			e.type = Common::EVENT_KEYUP;
-			break;
-		default:
-			LOGE("unhandled jaction on system key: %d", arg1);
-			return;
-		}
-
-		switch (arg2) {
-
-		// special case. we'll only get it's up event
-		case JKEYCODE_BACK:
-			e.kbd.keycode = Common::KEYCODE_ESCAPE;
-			e.kbd.ascii = Common::ASCII_ESCAPE;
-
-			lockMutex(_event_queue_lock);
-			e.type = Common::EVENT_KEYDOWN;
-			_event_queue.push(e);
-			e.type = Common::EVENT_KEYUP;
-			_event_queue.push(e);
-			unlockMutex(_event_queue_lock);
-
-			return;
-
-		// special case. we'll only get it's up event
-		case JKEYCODE_MENU:
-			e.type = Common::EVENT_MAINMENU;
-
-			pushEvent(e);
-
-			return;
-
-		case JKEYCODE_MEDIA_PAUSE:
-		case JKEYCODE_MEDIA_PLAY:
-		case JKEYCODE_MEDIA_PLAY_PAUSE:
-			if (arg1 == JACTION_DOWN) {
-				e.type = Common::EVENT_MAINMENU;
-
-				pushEvent(e);
-			}
-
-			return;
-
-		case JKEYCODE_CAMERA:
-		case JKEYCODE_SEARCH:
-			if (arg1 == JACTION_DOWN)
-				e.type = Common::EVENT_RBUTTONDOWN;
-			else
-				e.type = Common::EVENT_RBUTTONUP;
-
-			e.mouse = dynamic_cast<AndroidGraphicsManager *>(_graphicsManager)->getMousePosition();
-
-			pushEvent(e);
-
-			return;
-
-		default:
-			LOGW("unmapped system key: %d", arg2);
-			return;
-		}
-
-		break;
-
 	case JE_KEY:
 		switch (arg1) {
 		case JACTION_DOWN:
@@ -236,15 +144,15 @@ void OSystem_Android::pushEvent(int type, int arg1, int arg2, int arg3,
 			break;
 		}
 
-		if (arg4 & JMETA_SHIFT)
+		if (arg4 & JMETA_SHIFT_MASK)
 			e.kbd.flags |= Common::KBD_SHIFT;
 		// JMETA_ALT is Fn on physical keyboards!
 		// when mapping this to ALT - as we know it from PC keyboards - all
 		// Fn combos will be broken (like Fn+q, which needs to end as 1 and
 		// not ALT+1). Do not want.
-		//if (arg4 & JMETA_ALT)
+		//if (arg4 & JMETA_ALT_MASK)
 		//	e.kbd.flags |= Common::KBD_ALT;
-		if (arg4 & (JMETA_SYM | JMETA_CTRL))
+		if (arg4 & (JMETA_SYM_ON | JMETA_CTRL_MASK))
 			e.kbd.flags |= Common::KBD_CTRL;
 
 		pushEvent(e);
@@ -278,7 +186,7 @@ void OSystem_Android::pushEvent(int type, int arg1, int arg2, int arg3,
 
 				// the longer the button held, the faster the pointer is
 				// TODO put these values in some option dlg?
-				int f = CLIP(arg4, 1, 8) * _dpad_scale * 100 / s;
+				int f = CLIP(arg5, 1, 8) * _dpad_scale * 100 / s;
 
 				if (arg2 == JKEYCODE_DPAD_UP || arg2 == JKEYCODE_DPAD_LEFT)
 					*c -= f;
@@ -567,6 +475,60 @@ void OSystem_Android::pushEvent(int type, int arg1, int arg2, int arg3,
 
 		return;
 
+	case JE_MMB_DOWN:
+		e.type = Common::EVENT_MBUTTONDOWN;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
+	case JE_MMB_UP:
+		e.type = Common::EVENT_MBUTTONUP;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
+	case JE_BMB_DOWN:
+		e.type = Common::EVENT_X1BUTTONDOWN;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
+	case JE_BMB_UP:
+		e.type = Common::EVENT_X1BUTTONUP;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
+	case JE_FMB_DOWN:
+		e.type = Common::EVENT_X2BUTTONDOWN;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
+	case JE_FMB_UP:
+		e.type = Common::EVENT_X2BUTTONUP;
+		e.mouse.x = arg1;
+		e.mouse.y = arg2;
+
+		pushEvent(e);
+
+		return;
+
 	case JE_GAMEPAD:
 		switch (arg1) {
 		case JACTION_DOWN:
@@ -639,18 +601,6 @@ void OSystem_Android::pushEvent(int type, int arg1, int arg2, int arg3,
 
 		return;
 
-	case JE_MMB_DOWN:
-		e.type = Common::EVENT_MAINMENU;
-
-		pushEvent(e);
-
-		return;
-
-	case JE_MMB_UP:
-		// No action
-
-		return;
-
 	case JE_QUIT:
 		e.type = Common::EVENT_QUIT;
 
@@ -709,17 +659,9 @@ bool OSystem_Android::pollEvent(Common::Event &event) {
 
 	unlockMutex(_event_queue_lock);
 
-	switch (event.type) {
-	case Common::EVENT_MOUSEMOVE:
-	case Common::EVENT_LBUTTONDOWN:
-	case Common::EVENT_LBUTTONUP:
-	case Common::EVENT_RBUTTONDOWN:
-	case Common::EVENT_RBUTTONUP:
+	if (Common::isMouseEvent(event)) {
 		if (_graphicsManager)
 			return dynamic_cast<AndroidGraphicsManager *>(_graphicsManager)->notifyMousePosition(event.mouse);
-		break;
-	default:
-		break;
 	}
 
 	return true;

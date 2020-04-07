@@ -69,8 +69,8 @@ class Font;
 class MacFont {
 public:
 	MacFont(int id = kMacFontChicago, int size = 12, int slant = kMacFontRegular, FontManager::FontUsage fallback = Graphics::FontManager::kBigGUIFont) {
-		_id = id;
-		_size = size;
+		_id = id == 3 ? 1 : id;	// Substitude duplicate "Geneva"
+		_size = size ? size : 12;
 		_slant = slant;
 		_fallback = fallback;
 		_generated = false;
@@ -81,8 +81,8 @@ public:
 	int getSize() const { return _size; }
 	int getSlant() const { return _slant; }
 	Common::String getName() { return _name; }
-	void setName(Common::String &name) { _name = name; }
-	void setName(const char *name) { _name = name; }
+	void setName(Common::String &name) { setName(name.c_str()); }
+	void setName(const char *name);
 	FontManager::FontUsage getFallback() { return _fallback; }
 	bool isGenerated() { return _generated; }
 	void setGenerated(bool gen) { _generated = gen; }
@@ -103,6 +103,7 @@ private:
 class MacFontManager {
 public:
 	MacFontManager(uint32 mode);
+	~MacFontManager();
 
 	/**
 	 * Accessor method to check the presence of built-in fonts.
@@ -154,6 +155,9 @@ private:
 	Common::HashMap<Common::String, int> _extraFontIds;
 
 	int parseFontSlant(Common::String slant);
+
+	/* Unicode font */
+	Common::HashMap<int, const Graphics::Font *> _uniFonts;
 };
 
 } // End of namespace Graphics

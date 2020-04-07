@@ -126,9 +126,16 @@ static const DrawDataInfo kDrawDataDefaults[] = {
 	{kDDWidgetBackgroundSlider,     "widget_slider",    kDrawLayerBackground,   kDDNone},
 
 	{kDDButtonIdle,                 "button_idle",      kDrawLayerBackground,   kDDNone},
-	{kDDButtonHover,                "button_hover",     kDrawLayerForeground,  kDDButtonIdle},
+	{kDDButtonHover,                "button_hover",     kDrawLayerForeground,   kDDButtonIdle},
 	{kDDButtonDisabled,             "button_disabled",  kDrawLayerBackground,   kDDNone},
-	{kDDButtonPressed,              "button_pressed",   kDrawLayerForeground,  kDDButtonIdle},
+	{kDDButtonPressed,              "button_pressed",   kDrawLayerForeground,   kDDButtonIdle},
+
+	{kDDDropDownButtonIdle,         "dropdown_button_idle",          kDrawLayerBackground, kDDNone},
+	{kDDDropDownButtonHoverLeft,    "dropdown_button_hover_left",    kDrawLayerForeground, kDDDropDownButtonIdle},
+	{kDDDropDownButtonHoverRight,   "dropdown_button_hover_right",   kDrawLayerForeground, kDDDropDownButtonIdle},
+	{kDDDropDownButtonDisabled,     "dropdown_button_disabled",      kDrawLayerForeground, kDDNone},
+	{kDDDropDownButtonPressedLeft,  "dropdown_button_pressed_left",  kDrawLayerForeground, kDDDropDownButtonIdle},
+	{kDDDropDownButtonPressedRight, "dropdown_button_pressed_right", kDrawLayerForeground, kDDDropDownButtonIdle},
 
 	{kDDSliderFull,                 "slider_full",      kDrawLayerForeground,  kDDNone},
 	{kDDSliderHover,                "slider_hover",     kDrawLayerForeground,  kDDNone},
@@ -166,10 +173,10 @@ static const DrawDataInfo kDrawDataDefaults[] = {
  * ThemeEngine class
  *********************************************************/
 ThemeEngine::ThemeEngine(Common::String id, GraphicsMode mode) :
-	_system(0), _vectorRenderer(0),
+	_system(nullptr), _vectorRenderer(nullptr),
 	_layerToDraw(kDrawLayerBackground), _bytesPerPixel(0),  _graphicsMode(kGfxDisabled),
-	_font(0), _initOk(false), _themeOk(false), _enabled(false), _themeFiles(),
-	_cursor(0) {
+	_font(nullptr), _initOk(false), _themeOk(false), _enabled(false), _themeFiles(),
+	_cursor(nullptr) {
 
 	_system = g_system;
 	_parser = new ThemeParser(this);
@@ -178,15 +185,15 @@ ThemeEngine::ThemeEngine(Common::String id, GraphicsMode mode) :
 	_useCursor = false;
 
 	for (int i = 0; i < kDrawDataMAX; ++i) {
-		_widgets[i] = 0;
+		_widgets[i] = nullptr;
 	}
 
 	for (int i = 0; i < kTextDataMAX; ++i) {
-		_texts[i] = 0;
+		_texts[i] = nullptr;
 	}
 
 	for (int i = 0; i < kTextColorMAX; ++i) {
-		_textColors[i] = 0;
+		_textColors[i] = nullptr;
 	}
 
 	// We currently allow two different ways of theme selection in our config file:
@@ -200,7 +207,7 @@ ThemeEngine::ThemeEngine(Common::String id, GraphicsMode mode) :
 	_themeId = getThemeId(_themeFile);
 
 	_graphicsMode = mode;
-	_themeArchive = 0;
+	_themeArchive = nullptr;
 	_initOk = false;
 
 	_cursorHotspotX = _cursorHotspotY = 0;
@@ -213,7 +220,7 @@ ThemeEngine::ThemeEngine(Common::String id, GraphicsMode mode) :
 
 ThemeEngine::~ThemeEngine() {
 	delete _vectorRenderer;
-	_vectorRenderer = 0;
+	_vectorRenderer = nullptr;
 	_screen.free();
 	_backBuffer.free();
 
@@ -481,7 +488,7 @@ void ThemeEngine::restoreBackground(Common::Rect r) {
 void ThemeEngine::addDrawStep(const Common::String &drawDataId, const Graphics::DrawStep &step) {
 	DrawData id = parseDrawDataId(drawDataId);
 
-	assert(id != kDDNone && _widgets[id] != 0);
+	assert(id != kDDNone && _widgets[id] != nullptr);
 	_widgets[id]->_steps.push_back(step);
 }
 
@@ -503,7 +510,7 @@ bool ThemeEngine::addFont(TextData textId, const Common::String &file, const Com
 	if (textId == -1)
 		return false;
 
-	if (_texts[textId] != 0)
+	if (_texts[textId] != nullptr)
 		delete _texts[textId];
 
 	_texts[textId] = new TextDrawData;
@@ -563,7 +570,7 @@ bool ThemeEngine::addTextColor(TextColor colorId, int r, int g, int b) {
 	if (colorId >= kTextColorMAX)
 		return false;
 
-	if (_textColors[colorId] != 0)
+	if (_textColors[colorId] != nullptr)
 		delete _textColors[colorId];
 
 	_textColors[colorId] = new TextColorData;
@@ -581,7 +588,7 @@ bool ThemeEngine::addBitmap(const Common::String &filename) {
 	if (surf)
 		return true;
 
-	const Graphics::Surface *srcSurface = 0;
+	const Graphics::Surface *srcSurface = nullptr;
 
 	if (filename.hasSuffix(".png")) {
 		// Maybe it is PNG?
@@ -630,7 +637,7 @@ bool ThemeEngine::addBitmap(const Common::String &filename) {
 	// Store the surface into our hashmap (attention, may store NULL entries!)
 	_bitmaps[filename] = surf;
 
-	return surf != 0;
+	return surf != nullptr;
 }
 
 bool ThemeEngine::addAlphaBitmap(const Common::String &filename) {
@@ -640,7 +647,7 @@ bool ThemeEngine::addAlphaBitmap(const Common::String &filename) {
 		return true;
 
 #ifdef USE_PNG
-	const Graphics::TransparentSurface *srcSurface = 0;
+	const Graphics::TransparentSurface *srcSurface = nullptr;
 #endif
 
 	if (filename.hasSuffix(".png")) {
@@ -674,7 +681,7 @@ bool ThemeEngine::addAlphaBitmap(const Common::String &filename) {
 	// Store the surface into our hashmap (attention, may store NULL entries!)
 	_abitmaps[filename] = surf;
 
-	return surf != 0;
+	return surf != nullptr;
 }
 
 bool ThemeEngine::addDrawData(const Common::String &data, bool cached) {
@@ -683,7 +690,7 @@ bool ThemeEngine::addDrawData(const Common::String &data, bool cached) {
 	if (id == -1)
 		return false;
 
-	if (_widgets[id] != 0)
+	if (_widgets[id] != nullptr)
 		delete _widgets[id];
 
 	_widgets[id] = new WidgetDrawData;
@@ -715,7 +722,7 @@ void ThemeEngine::loadTheme(const Common::String &themeId) {
 	}
 
 	for (int i = 0; i < kDrawDataMAX; ++i) {
-		if (_widgets[i] == 0) {
+		if (_widgets[i] == nullptr) {
 			warning("Missing data asset: '%s'", kDrawDataDefaults[i].name);
 		} else {
 			_widgets[i]->calcBackgroundOffset();
@@ -729,17 +736,17 @@ void ThemeEngine::unloadTheme() {
 
 	for (int i = 0; i < kDrawDataMAX; ++i) {
 		delete _widgets[i];
-		_widgets[i] = 0;
+		_widgets[i] = nullptr;
 	}
 
 	for (int i = 0; i < kTextDataMAX; ++i) {
 		delete _texts[i];
-		_texts[i] = 0;
+		_texts[i] = nullptr;
 	}
 
 	for (int i = 0; i < kTextColorMAX; ++i) {
 		delete _textColors[i];
-		_textColors[i] = 0;
+		_textColors[i] = nullptr;
 	}
 
 	_themeEval->reset();
@@ -869,6 +876,11 @@ void ThemeEngine::drawDD(DrawData type, const Common::Rect &r, uint32 dynamic, b
 		extendedRect.clip(_clip);
 	}
 
+	// Cull the elements not in the clip rect
+	if (extendedRect.isEmpty()) {
+		return;
+	}
+
 	if (forceRestore || drawData->_layer == kDrawLayerBackground)
 		restoreBackground(extendedRect);
 
@@ -935,6 +947,35 @@ void ThemeEngine::drawButton(const Common::Rect &r, const Common::String &str, W
 	           _widgets[dd]->_textAlignV);
 }
 
+void ThemeEngine::drawDropDownButton(const Common::Rect &r, uint32 dropdownWidth, const Common::String &str,
+                                     ThemeEngine::WidgetStateInfo buttonState, bool inButton, bool inDropdown) {
+	if (!ready())
+		return;
+
+	DrawData dd;
+	if (buttonState == kStateHighlight && inButton)
+		dd = kDDDropDownButtonHoverLeft;
+	else if (buttonState == kStateHighlight && inDropdown)
+		dd = kDDDropDownButtonHoverRight;
+	else if (buttonState == kStateDisabled)
+		dd = kDDDropDownButtonDisabled;
+	else if (buttonState == kStatePressed && inButton)
+		dd = kDDDropDownButtonPressedLeft;
+	else if (buttonState == kStatePressed && inDropdown)
+		dd = kDDDropDownButtonPressedRight;
+	else
+		dd = kDDDropDownButtonIdle;
+
+	drawDD(dd, r);
+
+	// Center the text in the button without using the area of the drop down button
+	Common::Rect textRect = r;
+	textRect.left  = r.left  + dropdownWidth;
+	textRect.right = r.right - dropdownWidth;
+	drawDDText(getTextData(dd), getTextColor(dd), textRect, str, false, true, _widgets[dd]->_textAlignH,
+	           _widgets[dd]->_textAlignV);
+}
+
 void ThemeEngine::drawLineSeparator(const Common::Rect &r) {
 	if (!ready())
 		return;
@@ -965,8 +1006,10 @@ void ThemeEngine::drawCheckbox(const Common::Rect &r, const Common::String &str,
 	r2.left = r2.right + checkBoxSize;
 	r2.right = r.right;
 
-	drawDDText(getTextData(dd), getTextColor(dd), r2, str, true, false, _widgets[kDDCheckboxDefault]->_textAlignH,
-	           _widgets[dd]->_textAlignV);
+	if (r2.right > r2.left) {
+		drawDDText(getTextData(dd), getTextColor(dd), r2, str, true, false, _widgets[kDDCheckboxDefault]->_textAlignH,
+		           _widgets[dd]->_textAlignV);
+	}
 }
 
 void ThemeEngine::drawRadiobutton(const Common::Rect &r, const Common::String &str, bool checked, WidgetStateInfo state) {
@@ -1011,7 +1054,7 @@ void ThemeEngine::drawSlider(const Common::Rect &r, int width, WidgetStateInfo s
 	r2.setWidth(MIN((int16)width, r.width()));
 	//	r2.top++; r2.bottom--; r2.left++; r2.right--;
 
-	drawWidgetBackground(r, 0, kWidgetBackgroundSlider);
+	drawWidgetBackground(r, kWidgetBackgroundSlider);
 
 	drawDD(dd, r2);
 }
@@ -1124,11 +1167,14 @@ void ThemeEngine::drawSurface(const Common::Point &p, const Graphics::Surface &s
 	addDirtyRect(dirtyRect);
 }
 
-void ThemeEngine::drawWidgetBackground(const Common::Rect &r, uint16 hints, WidgetBackground background) {
+void ThemeEngine::drawWidgetBackground(const Common::Rect &r, WidgetBackground background) {
 	if (!ready())
 		return;
 
 	switch (background) {
+	case kWidgetBackgroundNo:
+		break;
+
 	case kWidgetBackgroundBorderSmall:
 		drawDD(kDDWidgetBackgroundSmall, r);
 		break;
@@ -1512,7 +1558,7 @@ const Graphics::Font *ThemeEngine::loadScalableFont(const Common::String &filena
 	if (font)
 		return font;
 #endif
-	return 0;
+	return nullptr;
 }
 
 const Graphics::Font *ThemeEngine::loadFont(const Common::String &filename, Common::String &name) {
@@ -1547,13 +1593,13 @@ const Graphics::Font *ThemeEngine::loadFont(const Common::String &filename, Comm
 		}
 	}
 
-	return 0;
+	return nullptr;
 }
 
 const Graphics::Font *ThemeEngine::loadFont(const Common::String &filename, const Common::String &scalableFilename, const Common::String &charset, const int pointsize, const bool makeLocalizedFont) {
 	Common::String fontName;
 
-	const Graphics::Font *font = 0;
+	const Graphics::Font *font = nullptr;
 
 	// Prefer scalable fonts over non-scalable fonts
 	if (!scalableFilename.empty())

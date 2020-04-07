@@ -25,6 +25,7 @@
 
 #if defined(__ANDROID__)
 
+#include "backends/platform/android/portdefs.h"
 #include "common/fs.h"
 #include "common/archive.h"
 #include "audio/mixer_intern.h"
@@ -79,8 +80,6 @@ private:
 
 	Common::String getSystemProperty(const char *name) const;
 
-	void setupKeymapper();
-
 protected:
 	virtual Common::EventSource *getDefaultEventSource() { return this; }
 
@@ -119,6 +118,8 @@ private:
 public:
 	virtual void pushEvent(const Common::Event &event);
 	virtual bool pollEvent(Common::Event &event);
+	virtual Common::KeymapperDefaultBindings *getKeymapperDefaultBindings();
+
 	virtual uint32 getMillis(bool skipRecord = false);
 	virtual void delayMillis(uint msecs);
 

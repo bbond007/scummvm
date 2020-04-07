@@ -756,6 +756,14 @@ bool GuestAdditions::restoreFromLauncher() const {
 			return false;
 		}
 
+		// Delayed restore should not happen in LSL6 hires until the room number is set.
+		//  LSL6:restore tests room numbers to determine if restoring is allowed, but the
+		//  Mac version adds a call to kGetEvent in LSL6:init before the initial call to
+		//  LSL6:newRoom. If the room number isn't set yet then restoring isn't allowed.
+		if (g_sci->getGameId() == GID_LSL6HIRES && _state->variables[VAR_GLOBAL][kGlobalVarCurrentRoomNo] == NULL_REG) {
+			return false;
+		}
+
 		_restoring = true;
 
 		// Any events queued up before the game restore can cause accidental
@@ -834,6 +842,7 @@ void GuestAdditions::syncMessageTypeFromScummVM() const {
 		break;
 #endif
 	case kMessageTypeSyncStrategyNone:
+	default:
 		break;
 	}
 }
@@ -932,6 +941,7 @@ void GuestAdditions::syncMessageTypeToScummVM(const int index, const reg_t value
 		// LSL6hires synchronisation happens via send_selector
 #endif
 	case kMessageTypeSyncStrategyNone:
+	default:
 		break;
 	}
 }
@@ -1317,6 +1327,8 @@ void GuestAdditions::syncAudioVolumeGlobalsToScummVM(const int index, const reg_
 				break;
 			case kGlobalVarTorinSpeechVolume:
 				ConfMan.setInt("speech_volume", volume);
+				break;
+			default:
 				break;
 			}
 		}

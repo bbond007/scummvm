@@ -53,7 +53,7 @@ static const ADGameDescription gameDescriptions[] = {
 		AD_ENTRY1s("EDEN6.HSQ", 0, 17093),
 		Common::EN_ANY,
 		Common::kPlatformDOS,
-		ADGF_DEMO,
+		ADGF_DEMO | ADGF_UNSTABLE,
 		GUIO1(GUIO_NOMIDI)
 	},
 
@@ -64,7 +64,7 @@ static const ADGameDescription gameDescriptions[] = {
 		AD_ENTRY1s("EDEN.DAT", 0, 205473728),
 		Common::EN_ANY,
 		Common::kPlatformDOS,
-		ADGF_DEMO,
+		ADGF_DEMO | ADGF_UNSTABLE,
 		GUIO1(GUIO_NOMIDI)
 	},
 
@@ -133,19 +133,22 @@ static const ADGameDescription gameDescriptions[] = {
 class CryoMetaEngine : public AdvancedMetaEngine {
 public:
 	CryoMetaEngine() : AdvancedMetaEngine(Cryo::gameDescriptions, sizeof(ADGameDescription), cryoGames) {
-		_singleId = "losteden";
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineId() const override {
+		return "cryo";
+	}
+
+	const char *getName() const override {
 		return "Cryo";
 	}
 
-	virtual const char *getOriginalCopyright() const {
-		return "Cryo (C) Cryo Interactive";
+	const char *getOriginalCopyright() const override {
+		return "Cryo Engine (C) Cryo Interactive";
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
+	bool hasFeature(MetaEngineFeature f) const override;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const override;
 };
 
 bool CryoMetaEngine::hasFeature(MetaEngineFeature f) const {

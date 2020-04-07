@@ -234,7 +234,9 @@ void GfxFrameout::kernelUpdateScreenItem(const reg_t object) {
 		const reg_t planeObject = readSelector(_segMan, object, SELECTOR(plane));
 		Plane *plane = _planes.findByObject(planeObject);
 		if (plane == nullptr) {
-			error("kUpdateScreenItem: Plane %04x:%04x not found for screen item %04x:%04x", PRINT_REG(planeObject), PRINT_REG(object));
+			// Script bug in PQ:SWAT, when skipping the Tactics Training
+			warning("kUpdateScreenItem: Plane %04x:%04x not found for screen item %04x:%04x", PRINT_REG(planeObject), PRINT_REG(object));
+			return;
 		}
 
 		ScreenItem *screenItem = plane->_screenItemList.findByObject(object);
@@ -285,7 +287,7 @@ void GfxFrameout::kernelAddPlane(const reg_t object) {
 		// kAddPlane is called several times, this detects the second call
 		//  which is for the import character dialog. If changeButton:value
 		//  is non-zero then the dialog is initializing. If the button isn't
-		//  disabled then we havent't displayed the message box yet. There
+		//  disabled then we haven't displayed the message box yet. There
 		//  are multiple changeButtons because the script clones the object.
 		SegManager *segMan = g_sci->getEngineState()->_segMan;
 		Common::Array<reg_t> changeDirButtons = _segMan->findObjectsByName("changeButton");
@@ -340,6 +342,48 @@ void GfxFrameout::deletePlane(Plane &planeToFind) {
 		plane->_created = 0;
 		plane->_moved = 0;
 		plane->_deleted = getScreenCount();
+	}
+}
+
+void GfxFrameout::deletePlanesForMacRestore() {
+	// SCI32 PC games delete planes and screen items from
+	//  their Game:restore script before calling kRestore.
+	//  In Mac this work was moved into the interpreter.
+	for (PlaneList::size_type i = 0; i < _planes.size(); ) {
+		Plane *plane = _planes[i];
+
+		// don't delete the default plane
+		if (plane->isDefaultPlane()) {
+			i++;
+			continue;
+		}
+
+		// delete all inserted screen items from the plane
+		for (ScreenItemList::size_type j = 0; j < plane->_screenItemList.size(); ++j) {
+			ScreenItem *screenItem = plane->_screenItemList[j];
+			if (screenItem != nullptr &&
+				!screenItem->_object.isNumber() &&
+				_segMan->getObject(screenItem->_object)->isInserted()) {
+
+				// delete the screen item
+				if (screenItem->_created) {
+					plane->_screenItemList.erase_at(j);
+				} else {
+					screenItem->_updated = 0;
+					screenItem->_deleted = getScreenCount();
+				}
+			}
+		}
+		plane->_screenItemList.pack();
+
+		// delete the plane
+		if (plane->_created) {
+			_planes.erase(plane);
+		} else {
+			plane->_moved = 0;
+			plane->_deleted = getScreenCount();
+			i++;
+		}
 	}
 }
 
@@ -1189,27 +1233,27 @@ void GfxFrameout::throttle() {
 }
 
 void GfxFrameout::shakeScreen(int16 numShakes, const ShakeDirection direction) {
-	if (direction & kShakeHorizontal) {
-		// Used by QFG4 room 750
-		warning("TODO: Horizontal shake not implemented");
-		return;
-	}
-
 	while (numShakes--) {
 		if (g_engine->shouldQuit()) {
 			break;
 		}
 
-		if (direction & kShakeVertical) {
-			g_system->setShakePos(_isHiRes ? 8 : 4);
+		int shakeXOffset = 0;
+		if (direction & kShakeHorizontal) {
+			shakeXOffset = _isHiRes ? 8 : 4;
 		}
+
+		int shakeYOffset = 0;
+		if (direction & kShakeVertical) {
+			shakeYOffset = _isHiRes ? 8 : 4;
+		}
+
+		g_system->setShakePos(shakeXOffset, shakeYOffset);
 
 		updateScreen();
 		g_sci->getEngineState()->sleep(3);
 
-		if (direction & kShakeVertical) {
-			g_system->setShakePos(0);
-		}
+		g_system->setShakePos(0, 0);
 
 		updateScreen();
 		g_sci->getEngineState()->sleep(3);

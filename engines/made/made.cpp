@@ -53,7 +53,7 @@ MadeEngine::MadeEngine(OSystem *syst, const MadeGameDescription *gameDesc) : Eng
 
 	_rnd = new Common::RandomSource("made");
 
-	_console = new MadeConsole(this);
+	setDebugger(new MadeConsole(this));
 
 	_system->getAudioCDManager()->open();
 
@@ -89,6 +89,8 @@ MadeEngine::MadeEngine(OSystem *syst, const MadeGameDescription *gameDesc) : Eng
 	case GID_RTZ:
 		// Return to Zork sets it itself via a script funtion
 		break;
+	default:
+		break;
 	}
 }
 
@@ -96,7 +98,6 @@ MadeEngine::~MadeEngine() {
 	_system->getAudioCDManager()->stop();
 
 	delete _rnd;
-	delete _console;
 	delete _pmvPlayer;
 	delete _res;
 	delete _screen;
@@ -119,10 +120,6 @@ void MadeEngine::syncSoundSettings() {
 
 int16 MadeEngine::getTicks() {
 	return g_system->getMillis() * 30 / 1000;
-}
-
-GUI::Debugger *MadeEngine::getDebugger() {
-	return _console;
 }
 
 int16 MadeEngine::getTimer(int16 timerNum) {
@@ -243,12 +240,6 @@ void MadeEngine::handleEvents() {
 				_eventNum = 5;
 				_eventKey = event.kbd.ascii;
 				break;
-			}
-
-			// Check for Debugger Activation
-			if (event.kbd.hasFlags(Common::KBD_CTRL) && event.kbd.keycode == Common::KEYCODE_d) {
-				this->getDebugger()->attach();
-				this->getDebugger()->onFrame();
 			}
 			break;
 

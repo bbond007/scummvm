@@ -188,6 +188,8 @@ public:
 
 	Graphics::Surface  _surfaceFront;
 	Graphics::Surface  _surfaceBack;
+	bool               _surfaceFrontCreated;
+	bool               _surfaceBackCreated;
 
 	ZBuffer           *_zbuffer;
 
@@ -215,6 +217,8 @@ public:
 	bool _sitcomMode;
 	bool _shortyMode;
 	bool _noDelayMillisFramelimiter;
+	bool _framesPerSecondMax;
+	bool _disableStaminaDrain;
 	bool _cutContent;
 
 	int _walkSoundId;
@@ -250,13 +254,13 @@ private:
 
 public:
 	BladeRunnerEngine(OSystem *syst, const ADGameDescription *desc);
-	~BladeRunnerEngine();
+	~BladeRunnerEngine() override;
 
 	bool hasFeature(EngineFeature f) const override;
 	bool canLoadGameStateCurrently() override;
 	Common::Error loadGameState(int slot) override;
 	bool canSaveGameStateCurrently() override;
-	Common::Error saveGameState(int slot, const Common::String &desc) override;
+	Common::Error saveGameState(int slot, const Common::String &desc, bool isAutosave = false) override;
 	void pauseEngineIntern(bool pause) override;
 
 	Common::Error run() override;
@@ -300,7 +304,7 @@ public:
 	bool closeArchive(const Common::String &name);
 	bool isArchiveOpen(const Common::String &name) const;
 
-	void syncSoundSettings();
+	void syncSoundSettings() override;
 	bool isSubtitlesEnabled();
 	void setSubtitlesEnabled(bool newVal);
 
@@ -321,7 +325,6 @@ public:
 	void blitToScreen(const Graphics::Surface &src) const;
 	Graphics::Surface generateThumbnail() const;
 
-	GUI::Debugger *getDebugger();
 	Common::String getTargetName() const;
 };
 

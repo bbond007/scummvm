@@ -36,7 +36,13 @@ Common::String *toLowercaseMac(Common::String *s);
 
 Common::String convertPath(Common::String &path);
 
-void processQuitEvent(); // events.cpp
+Common::String getPath(Common::String path, Common::String cwd);
+
+Common::String pathMakeRelative(Common::String path, bool recursive = true);
+
+Common::String convertMacFilename(const char *name);
+
+bool processQuitEvent(bool click = false); // events.cpp
 
 } // End of namespace Director
 

@@ -26,12 +26,13 @@
 #include "graphics/macgui/macfontmanager.h"
 #include "graphics/macgui/macwindowmanager.h"
 #include "graphics/macgui/macwindow.h"
+#include "graphics/macgui/macwidget.h"
 #include "image/bmp.h"
 
 namespace Graphics {
 
 BaseMacWindow::BaseMacWindow(int id, bool editable, MacWindowManager *wm) :
-		_id(id), _editable(editable), _wm(wm) {
+		MacWidget(nullptr, 0, 0, 0, 0, true), _id(id), _editable(editable), _wm(wm) {
 	_callback = 0;
 	_dataPtr = 0;
 
@@ -513,10 +514,14 @@ bool MacWindow::processEvent(Common::Event &event) {
 		return false;
 	}
 
+	MacWidget *w = findEventHandler(event, _dims.left, _dims.top);
+	if (w && w->processEvent(event))
+		return true;
+
 	if (_callback)
 		return (*_callback)(click, event, _dataPtr);
 	else
 		return false;
 }
 
-} // End of namespace Wage
+} // End of namespace Graphics

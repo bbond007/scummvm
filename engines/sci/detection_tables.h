@@ -187,7 +187,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.map", 0, "9dd015e79cac4f91e7de805448f39775", 1912},
 		{"resource.000", 0, "e4efcd042f86679dd4e1834bb3a38edb", 3770943},
 		AD_LISTEND},
-		Common::EN_ANY, Common::kPlatformDOS, ADGF_UNSTABLE, GUIO7(GUIO_NOSUBTITLES, GUIO_NOMUSIC, GUIO_NOSPEECH, GUIO_NOSFX, GUIO_NOMIDI, GUIO_NOLAUNCHLOAD, GUIO_NOASPECT)	},
+		Common::EN_ANY, Common::kPlatformDOS, ADGF_TESTING, GUIO7(GUIO_NOSUBTITLES, GUIO_NOMUSIC, GUIO_NOSPEECH, GUIO_NOSFX, GUIO_NOMIDI, GUIO_NOLAUNCHLOAD, GUIO_NOASPECT)	},
 #endif
 
 	// Christmas Card 1988 - English DOS
@@ -211,6 +211,14 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 	{"christmas1990", "256 Colors", {
 		{"resource.map", 0, "44b8f45b841b9b5e17e939a35e443988", 600},
 		{"resource.001", 0, "acde93e58fca4f7a2a5a220558a94aa8", 335362},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformDOS, 0, GUIO_STD16	},
+
+	// Christmas Card 1992 - English DOS
+	// Unknown SCI interpreter version, reported by oblivioncth
+	{"christmas1992", "", {
+		{"resource.map", 0, "25c8b7ee5f1e79ae04dcdb5a21681402", 308},
+		{"resource.000", 0, "118f639435ebeee6e4d4c6d9cdbd70fc", 202728},
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformDOS, 0, GUIO_STD16	},
 
@@ -873,8 +881,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
                             GUIO_NOLAUNCHLOAD, \
                             GUIO_NOASPECT, \
                             GAMEOPTION_HQ_VIDEO)
-#define GUIO_GK2      GUIO7(GUIO_NOSUBTITLES, \
-                            GUIO_LINKSPEECHTOSFX, \
+#define GUIO_GK2      GUIO6(GUIO_LINKSPEECHTOSFX, \
                             GUIO_NOMIDI, \
                             GUIO_NOASPECT, \
                             GAMEOPTION_ORIGINAL_SAVELOAD, \
@@ -951,6 +958,42 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resmap.006", 0, "c5323f49b7ee6a2c08c4852290e351c0", 2995},
 		AD_LISTEND},
 		Common::DE_DEU, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_GK2 },
+
+	// Gabriel Knight 2 - Portuguese DOS/Windows (6-CDs original release)
+	// Executable scanning reports "2.100.002", VERSION file reports "1.0"
+	{"gk2", "", {
+		{"resmap.001", 0, "dc313253adfe68584ad43993599dfb7e", 2806},
+		{"ressci.001", 0, "37d2df0e1ec0603b605d0c87f1c09ce5", 50932558},
+		{"resmap.002", 0, "3fd2283c7983d821b894593e97359913", 1999},
+		{"ressci.002", 0, "5d07e6b51afaa3a5850b17a3dbd800a0", 42258859},
+		{"resmap.003", 0, "c9980e5a16d7247f156b056a2e3adca7", 1711},
+		{"ressci.003", 0, "59b597ed3550b5e175746e4f9bc8786d", 35477175},
+		{"resmap.004", 0, "92e24eba78d7bed89954c472a5acc5f6", 2755},
+		{"ressci.004", 0, "5d07e6b51afaa3a5850b17a3dbd800a0", 59781752},
+		{"resmap.005", 0, "207f4f2ce425059bdd2f755a58c66309", 2101},
+		{"ressci.005", 0, "1eb5a72744799f5a5518543f5b4c3c79", 38249037},
+		{"resmap.006", 0, "c92f7b756964c8a57928a0b6558feaa5", 3007},
+		{"ressci.006", 0, "4037d941aec39d2e654e20960429aefc", 60781720},
+		AD_LISTEND},
+		Common::PT_BRA, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_GK2 },
+
+	// Gabriel Knight 2 - Italian DOS/Windows (6-CDs original release, provided in Trac #11013)
+	// Executable scanning reports "2.100.002", VERSION file reports "Italian 1.0"
+	{"gk2", "", {
+		{"resmap.001", 0, "f0841f987ba7ba08adb9035f2231fa87", 2806},
+		{"ressci.001", 0, "2bca1716ae0afa602d2cb8933ea8c244", 51083193},
+		{"resmap.002", 0, "2c5362c8c6f4b913500a941a5db01d03", 1999},
+		{"ressci.002", 0, "584c20593a4e8d3740d0b4a5ce4729a2", 41865579},
+		{"resmap.003", 0, "2ee65a5560dc9fd290fd7c623ba8ac61", 1711},
+		{"ressci.003", 0, "59b597ed3550b5e175746e4f9bc8786d", 35547945},
+		{"resmap.004", 0, "9c7b26b547a8abc3b88302acbf0cec5e", 2755},
+		{"ressci.004", 0, "851d879c5c27b014ebbd8c44df6865c5", 59304672},
+		{"resmap.005", 0, "2b2da2a53b492cb944ee022658f9acc2", 2101},
+		{"ressci.005", 0, "376341973f5bb64ccf09ccf1b3119de0", 38303329},
+		{"resmap.006", 0, "fe0f9b565b2b4f69080bbcb06f658e3e", 3007},
+		{"ressci.006", 0, "4037d941aec39d2e654e20960429aefc", 61231670},
+		AD_LISTEND},
+		Common::IT_ITA, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_GK2 },
 
 	// Gabriel Knight 2 - English Macintosh
 	// NOTE: This only contains disc 1 files (as well as the persistent file:
@@ -1257,6 +1300,15 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resmap.000", 0, "e2feb47ab16f9e22a9b6a8580d1da3f0", 3055},
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_HOYLE5 },
+
+	// Hoyle 5 (Hoyle Classic Games) - Macintosh CD
+	// VERSION file reports "1.000.000"
+	{"hoyle5", "", {
+		{"Data1", 0, "b280fbcdb1e0fa9d708e1f8d6050ef2d", 553372},
+		{"Data2", 0, "a1b4d73bc7672e4db2665657911fc5f2", 14429682},
+		{"Data3", 0, "65f9b79f2f8904a6277c8e6ee4fd7ac0", 75704},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_HOYLE5_SAVELOAD },
 
 #undef GUIO_HOYLE5
 #undef GUIO_HOYLE5_SAVELOAD
@@ -2015,6 +2067,16 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.000", 0, "51c1ead1163e19a2de8f121c39df7a76", 200764100},
 		AD_LISTEND},
 		Common::ES_ESP, Common::kPlatformWindows, ADGF_NO_FLAGS, GUIO_KQ7 },
+		
+	// King's Quest 7 - Russian Windows (SoftClub official translation)
+	// VERSION file reports "2.1b", provided by trcpman in Trac #11302.
+	// This version is Windows-only. It does not include a DOS interpreter and
+	// only the Windows AVI files were translated. The DOS RBT files weren't.
+	{"kq7", "", {
+		{"resource.map", 0, "dd1504ee0274e4e3b8447b25137136df", 18709},
+		{"resource.000", 0, "e6cee6c1ddb1e73e8c25d8f2a9f508ff", 200873632},
+		AD_LISTEND},
+		Common::RU_RUS, Common::kPlatformWindows, ADGF_NO_FLAGS, GUIO_KQ7 },
 
 	// King's Quest 7 - English DOS Non-Interactive Demo
 	// SCI interpreter version 2.100.002
@@ -2031,6 +2093,27 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"resource.000", 0, "bad61d50aaa64298fa57a7c6ccd3bccf", 84020382},
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformWindows, ADGF_DEMO, GUIO_KQ7_DEMO },
+
+	// King's Quest 7 - English Macintosh
+	{"kq7", "", {
+		{"Data1", 0, "e0d120473fee7a548b1418b18bffbd7d", 4964646},
+		{"Data2", 0, "a260b97fb2396a9cd6ac3df6a56a2499", 14645782},
+		{"Data3", 0, "a5a660a469c9ba7b179ba9757181d2af", 6664388},
+		{"Data4", 0, "556721a5e3f158c0a7a39e428402dd1f", 6438951},
+		{"Data5", 0, "c38c2f51c9c2bafd5fefdffca83bd372", 6661526},
+		{"Data6", 0, "2054e1ec891cad31b5c647b57eccff9c", 4489712},
+		{"Data7", 0, "c6e634ea56f6f82954baeab9c468c47b", 7552537},
+		{"Data8", 0, "5b4d7cc7b1b7fdd262c1f65bb9c8af5f", 7478357},
+		{"Data9", 0, "7aba74ca9a52fba1199ab06f602bd268", 7304634},
+		{"Data10", 0, "2ee17c2a1037067ecc218a7b65582062", 7066946},
+		{"Data11", 0, "5df02ec2b6289bd84cd97a9bc677773e", 7555953},
+		{"Data12", 0, "4a8cebdff7f8d431dbcd36d39c5af29e", 6925934},
+		{"Data13", 0, "3dd2903e170518011d3bc0eadada399a", 7071386},
+		//{"Data14", 0, "60d8435ae44c7e0e1d553269bf8a58e0", 7872208},
+		//{"Data15", 0, "4c4c33e93a2352473c1adf9e3981e6ca", 6924278},
+		//{"Data16", 0, "753d9bddf035bbb5391119e8dc0f464a", 3971083},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_KQ7 },
 
 #undef GUIO_KQ7_DEMO
 #undef GUIO_KQ7
@@ -2722,6 +2805,14 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::ES_ESP, Common::kPlatformDOS, 0, GUIO_STD16	},
 
+	// Larry 6 - English Macintosh Floppy (provided by sluicebox)
+	// VERSION file reports "1.0"
+	{"lsl6", "", {
+		{"Data1", 0, "482e6bcdda3a89390d5c4bcbfb5896b4", 2754907},
+		{"Data2", 0, "ba0799a45076780dfbceb8fce4c549c9", 5846345},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK, GUIO_STD16_MAC },
+
 	// Crazy Nick's Software Picks: Leisure Suit Larry's Casino - English DOS (from the Leisure Suit Larry Collection)
 	// Executable scanning reports "1.001.029", VERSION file reports "1.000"
 	{"cnick-lsl", "", {
@@ -2763,6 +2854,8 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 #define GUIO_LSL6HIRES GUIO3(GUIO_NOASPECT, \
                              GUIO_LINKSPEECHTOSFX, \
                              GAMEOPTION_ORIGINAL_SAVELOAD)
+#define GUIO_LSL6HIRES_MAC GUIO2(GUIO_NOASPECT, \
+                                 GUIO_LINKSPEECHTOSFX)
 
 	// Larry 6 - English/German DOS CD - HIRES
 	// SCI interpreter version 2.100.002
@@ -2788,7 +2881,18 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::FR_FRA, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_LSL6HIRES },
 
+	// Larry 6 - English Macintosh CD - HIRES (provided by michaelklaube in bug report #11218)
+	{"lsl6hires", "Hi-res", {
+		{"Data1", 0, "2c4e00a6910490831d4d84e9e6a49ec4", 3456494},
+		{"Data2", 0, "a7522b925dd5422c2db2b0a2337c76c3", 5856678},
+		{"Data3", 0, "9ebb490ec63721e5261111b918b5520e", 5577998},
+		{"Data4", 0, "d70687689ff3cf19a5e3c79dfced1c94", 3472320},
+		{"Data5", 0, "e91c3b681095a263fcb2f2c8d8fc74b6", 3274099},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_LSL6HIRES_MAC },
+
 #undef GUIO_LSL6HIRES
+#undef GUIO_LSL6HIRES_MAC
 
 #define GUIO_LSL7_DEMO GUIO4(GUIO_NOASPECT, \
                              GUIO_NOMIDI, \
@@ -2855,6 +2959,30 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		{"ressci.000", 0, "07002ad7b1cff28c6701eea201dcf6c8", 145215917},
 		AD_LISTEND},
 		Common::RU_RUS, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_LSL7 },
+
+	// Larry 7 - Polish DOS (GOG.com release 1.01v2)
+	// Executable scanning reports "3.000.000", VERSION file reports "1.01"
+	{"lsl7", "", {
+		{"resmap.000", 0, "eae93e1b1d1ccc58b4691c371281c95d", 8188},
+		{"ressci.000", 0, "89353723488219e25589165d73ed663e", 66965678},
+		{"resource.aud", 0, "d7b26b5df5ee6766b2dbd45b427b0074", 417594676},
+		AD_LISTEND},
+		Common::PL_POL, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_LSL7 },
+
+	// Larry 7 - English Macintosh CD
+	{"lsl7", "", {
+		{"Data1", 0, "824a48b794c334b4bcf37e80fcc5f82e", 913286},
+		{"Data2", 0, "be36c59a3a694e14ed6d86e6ccc180a4", 7549943},
+		{"Data3", 0, "8325c7d702ffa8dd2854135e0f42b0d0", 6815697},
+		{"Data4", 0, "4584f786e0b5a502938d3cd90e6fab56", 8169195},
+		{"Data5", 0, "94bd026d27ba526d1f8d86d8e783acdd", 7452479},
+		{"Data6", 0, "c6a60210244a8591ecf10a50975ab9db", 8119360},
+		{"Data7", 0, "0d52c9764e047169f3d50f76d0cb5ae5", 8164785},
+		{"Data8", 0, "6f4838585ceb8a9ac277d13291c81235", 7754883},
+		{"Data9", 0, "68c0b7bd4aebf57e215f0517247a11d1", 8079211},
+		{"Data10", 0, "3dbacbcf4bd6d1b25aa8baeb3e2c4dab", 6446948},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_LSL7 },
 
 #undef GUIO_LSL7_DEMO
 #undef GUIO_LSL7
@@ -3101,6 +3229,16 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformWindows, ADGF_DROPPLATFORM, GUIO_MOTHERGOOSEHIRES },
 
+	// Mixed-Up Mother Goose Deluxe - English Macintosh CD
+	{ "mothergoosehires", "",{
+		{"Data1", 0, "8a7ef3307d80adcd393c012f78a4e1d7", 609389},
+		{"Data2", 0, "94e72a735be859cac3cdf084497a03c7", 5550743},
+		{"Data3", 0, "4819cca5624615fcdd8838605661cd77", 5362685},
+		{"Data4", 0, "ea260cdb42405649136b08bdac45c708", 6368421},
+		{"Data5", 0, "eb5d6c76c69acafbbafa9e75b65f1da8", 3522384},
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_MOTHERGOOSEHIRES },
+
 #undef GUIO_MOTHERGOOSEHIRES
 
 #endif // ENABLE_SCI32
@@ -3147,7 +3285,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		Common::EN_ANY, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_PHANTASMAGORIA },
 
 	// Phantasmagoria - English DOS (from jvprat)
-	// Executable scanning reports "2.100.002", VERSION file reports "1.100.000UK"
+	// Executable scanning reports "2.100.002", VERSION file reports "1.000.001UK"
 	{"phantasmagoria", "", {
 		{"resmap.001", 0, "416138651ea828219ca454cae18341a3", 11518},
 		{"ressci.001", 0, "3aae6559aa1df273bc542d5ac6330d75", 65844612},
@@ -3257,7 +3395,7 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 	// Phantasmagoria - English DOS/Windows (GOG version) - ressci.* merged in ressci.000
 	// Windows executable scanning reports "2.100.002" - "Sep 19 1995 15:09:43"
 	// DOS executable scanning reports "2.100.002" - "Sep 19 1995 09:15:40"
-	// VERSION file reports "1.100.001UK"
+	// VERSION file reports "1.000.001UK"
 	// Supplied by littleboy in patch #3112884
 	{"phantasmagoria", "", {
 		{"ressci.000", 0, "cd5967f9b9586e3380645961c0765be3", 116822037},
@@ -3265,9 +3403,17 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_PHANTASMAGORIA },
 
+	// Phantasmagoria - German Patch V3 externally applied to GOG English DOS/Windows version
+	{"phantasmagoria", "", {
+		{"ressci.000", 0, "cd5967f9b9586e3380645961c0765be3", 116817874},
+		{"resmap.000", 0, "59a0362e4133d4d82d546d75333813ae", 16486},
+		AD_LISTEND},
+		Common::DE_DEU, Common::kPlatformDOS, ADGF_NO_FLAGS, GUIO_PHANTASMAGORIA },
+
 	// Phantasmagoria - English Macintosh
 	// NOTE: This only contains disc 1 files (as well as the two persistent files:
 	// Data1 and Data13. Other discs have conflicting names :(
+	// Game script sets version to "1.000.000"
 	{"phantasmagoria", "", {
 		{"Data1", 0, "0fcb42802f49edb5af60532bd7b60c4f", 14705669},
 		{"Data2", 0, "d52f612058ec78e300385df3336a4ba2", 14516712},
@@ -4319,6 +4465,25 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformWindows, ADGF_DEMO | ADGF_DROPPLATFORM, GUIO_SHIVERS },
 
+	// Shivers - English Macintosh CD
+	{"shivers", "", {
+		{"Data1", 0, "7154f2fc5466f0cd6923deb1a6f6729a", 4635483},
+		{"Data2", 0, "499e46f2b9d1c1485eca53cb90d60a18", 518575},
+		{"Data3", 0, "8f874e8207f3bf0f1d089fb3af01c1ad", 10159733},
+		{"Data4", 0, "af5e6582a7157eb2a8784fa7098cf1b1", 15479074},
+		{"Data5", 0, "1db5025dce818f35bab9acd6e67b5e31", 15635028},
+		{"Data6", 0, "d64c3acef05ffe1ae09173fdc7fad1fa", 15536868},
+		{"Data7", 0, "e0ff5994850499fe80024af11291e9db", 14592851},
+		{"Data8", 0, "2add76cb84e374c1cd56469b9fc85f3d", 15777002},
+		{"Data9", 0, "5415a1b9634fcdd8ce5ce736ee97ff92", 14644368},
+		{"Data10", 0, "4f2c24bcc71a35654b39ad8faa537f96", 16371379},
+		{"Data11", 0, "821e464fd28e5a2e9ca084cde9daeac6", 15270009},
+		{"Data12", 0, "85e6c8edf7899fc52864b83ede54a38a", 14970109},
+		{"Data13", 0, "cfb0bbb2bedb00be4849e3796abad3f8", 15182978},
+		// goes up to Data20
+		AD_LISTEND},
+		Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_SHIVERS },
+
 #undef GUIO_SHIVERS_DEMO
 #undef GUIO_SHIVERS
 
@@ -4938,6 +5103,10 @@ static const struct ADGameDescription SciGameDescriptions[] = {
                             GAMEOPTION_ORIGINAL_SAVELOAD, \
                             GAMEOPTION_ENABLE_BLACK_LINED_VIDEO, \
                             GAMEOPTION_HQ_VIDEO)
+#define GUIO_SQ6_MAC  GUIO4(GUIO_LINKSPEECHTOSFX, \
+                            GUIO_NOASPECT, \
+                            GAMEOPTION_ENABLE_BLACK_LINED_VIDEO, \
+                            GAMEOPTION_HQ_VIDEO)
 
 	// Space Quest 6 - English DOS/Win3.11 CD (from the Space Quest Collection)
 	// Executable scanning reports "2.100.002", VERSION file reports "1.0"
@@ -4987,8 +5156,27 @@ static const struct ADGameDescription SciGameDescriptions[] = {
 		AD_LISTEND},
 		Common::EN_ANY, Common::kPlatformWindows, ADGF_DEMO, GUIO_SQ6_DEMO },
 
+	// Space Quest 6 - English Macintosh CD
+	// VERSION file reports "1.000"
+	{"sq6", "", {
+		{"Data1", 0, "37d452ef82e3c054a2531d3028acbd9a", 11488588},
+		{"Data2", 0, "c4d2da963e1ae9f52bac4bece8ecef19", 6912519},
+		{"Data3", 0, "d1ee854dc7ac5e439aaaed683404dd53", 5527552},
+		{"Data4", 0, "4126aa73958a00203e97f843e888d82b", 5872808},
+		{"Data5", 0, "9b3558495d861ebb97ceaaec6f1686c1", 5916650},
+		{"Data6", 0, "7ce6c5172ee8cd23476d5c9fcf41a545", 5340247},
+		{"Data7", 0, "7103d65a3b94ca0cdb88d83e0faa6589", 6017850},
+		{"Data8", 0, "0f30545c9789f4b31613a671d47b5b67", 2266349},
+		{"Data9", 0, "d667feaefef37089577b3fb925c676ed", 2941306},
+		{"Data10", 0, "92d878ff44fc4ef6b0d9e8cda2f11d2c", 4037677},
+		{"Data11", 0, "08ca4f202e115df26cf80aa2a722a959", 925888},
+		{"Data12", 0, "5c715987024fbc666c1c3fea2bcdce42", 1869183},
+	AD_LISTEND },
+	Common::EN_ANY, Common::kPlatformMacintosh, ADGF_MACRESFORK | ADGF_UNSTABLE, GUIO_SQ6_MAC },
+
 #undef GUIO_SQ6_DEMO
 #undef GUIO_SQ6
+#undef GUIO_SQ6_MAC
 
 #endif // ENABLE_SCI32
 

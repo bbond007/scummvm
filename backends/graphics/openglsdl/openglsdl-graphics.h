@@ -60,7 +60,7 @@ protected:
 
 	virtual void *getProcAddress(const char *name) const override;
 
-	virtual void handleResizeImpl(const int width, const int height) override;
+	virtual void handleResizeImpl(const int width, const int height, const int xdpi, const int ydpi) override;
 
 	virtual bool saveScreenshot(const Common::String &filename) const override;
 
@@ -114,8 +114,6 @@ private:
 
 	uint _desiredFullscreenWidth;
 	uint _desiredFullscreenHeight;
-
-	bool isHotkey(const Common::Event &event) const;
 };
 
 #endif

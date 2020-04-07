@@ -727,6 +727,7 @@ begin_credits("Credits");
 			begin_section("Director");
 				add_person("Eugene Sandulenko", "sev", "");
 				add_person("Dmitry Iskrich", "", "");
+				add_person("Scott Percival", "moralrecordings", "");
 				add_person("Steven Hoefel", "", "");
 				add_person("Tobia Tesan", "", "");
 			end_section();
@@ -751,7 +752,7 @@ begin_credits("Credits");
 				add_person("Torbj&ouml;rn Andersson", "eriktorbjorn", "");
 				add_person("Bertrand Augereau", "Tramb", "");
 				add_person("Filippos Karapetis", "[md5]", "");
-				add_person("Vladimir Menshakov", "whoozle", "(retired)");
+				add_person("Vladimir Menshakov", "whoozle", "");
 				add_person("Willem Jan Palenstijn", "wjp", "");
 			end_section();
 
@@ -966,7 +967,7 @@ begin_credits("Credits");
 
 			begin_section("TeenAgent");
 				add_person("Robert Megone", "sanguine", "Help with callback rewriting");
-				add_person("Vladimir Menshakov", "whoozle", "(retired)");
+				add_person("Vladimir Menshakov", "whoozle", "");
 			end_section();
 
 			begin_section("Tinsel");
@@ -1011,6 +1012,32 @@ begin_credits("Credits");
 
 			begin_section("Tucker");
 				add_person("Gregory Montoir", "cyx", "(retired)");
+			end_section();
+
+			begin_section("Ultima");
+				add_person("Paul Gilbert", "dreammaster", "");
+				add_person("Matthew Duggan", "stauff", "");
+
+				add_person("Daniel c. W&uuml:rl", "dwuerl", "(Nuvie)");
+				add_person("Eric Fry", "yuv422", "(Nuvie)");
+				add_person("Jeremy Newman", "laxdragon", "(Nuvie)");
+				add_person("Jonathan E. Wright", "nelno", "(Nuvie)");
+				add_person("Joseph Applegate", "sb-x", "(Nuvie)");
+				add_person("Malignant Manor", "malignantmanor", "(Nuvie)");
+				add_person("Markus Niemist&ouml;", "niemisto", "(Nuvie)");
+				add_person("Michael Fink", "vividos", "(Nuvie)");
+				add_person("Pieter Luteijn", "luteijn", "(Nuvie)");
+				add_person("Sam Matthews", "samuelmatthews", "(Nuvie)");
+				add_person("Travis Howell", "kirben", "(Nuvie)");
+				add_person("Willem Jan Palenstijn", "wjp", "(Nuvie)");
+
+				add_person("Brian Tietz", "btietz", "(Pentagram)");
+				add_person("Dominik Reichardt", "Dominus Dragon", "(Pentagram)");
+				add_person("Matthew Jimenez", "mjimenez", "(Pentagram)");
+				add_person("Max Horn", "Fingolfin", "(Pentagram)");
+				add_person("Patrick Burke", "takhisis", "(Pentagram)");
+				add_person("Ryan Nunn", "Colourless Dragon", "(Pentagram)");
+				add_person("Willem Jan Palenstijn", "wjp", "(Pentagram)");
 			end_section();
 
 			begin_section("Voyeur");
@@ -1100,7 +1127,7 @@ begin_credits("Credits");
 
 			begin_section("PocketPC / WinCE");
 				add_person("Nicolas Bacca", "arisme", "(retired)");
-				add_person("Ismail Khatib", "CeRiAl", "");
+				add_person("Ismail Khatib", "CeRiAl", "(retired)");
 				add_person("Kostas Nakos", "Jubanka", "(retired)");
 			end_section();
 

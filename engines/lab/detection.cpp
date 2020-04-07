@@ -115,32 +115,34 @@ uint32 LabEngine::getFeatures() const {
 class LabMetaEngine : public AdvancedMetaEngine {
 public:
 	LabMetaEngine() : AdvancedMetaEngine(labDescriptions, sizeof(ADGameDescription), lab_setting) {
-		_singleId = "lab";
-
 		_maxScanDepth = 4;
 		_directoryGlobs = directoryGlobs;
 		_flags = kADFlagUseExtraAsHint;
 	}
 
-	virtual const char *getName() const {
+	const char *getEngineId() const override {
+		return "lab";
+	}
+
+	const char *getName() const override {
 		return "Labyrinth of Time";
 	}
 
-	virtual const char *getOriginalCopyright() const {
+	const char *getOriginalCopyright() const override {
 		return "Labyrinth of Time (C) 2004 The Wyrmkeep Entertainment Co. and Terra Nova Development";
 	}
 
-	virtual bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const {
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const override {
 		// Instantiate Engine even if the game data is not found.
 		*engine = new Lab::LabEngine(syst, desc);
 		return true;
 	}
 
-	virtual bool hasFeature(MetaEngineFeature f) const;
-	SaveStateList listSaves(const char *target) const;
-	virtual int getMaximumSaveSlot() const;
-	void removeSaveState(const char *target, int slot) const;
-	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
+	bool hasFeature(MetaEngineFeature f) const override;
+	SaveStateList listSaves(const char *target) const override;
+	int getMaximumSaveSlot() const override;
+	void removeSaveState(const char *target, int slot) const override;
+	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const override;
 };
 
 bool LabMetaEngine::hasFeature(MetaEngineFeature f) const {

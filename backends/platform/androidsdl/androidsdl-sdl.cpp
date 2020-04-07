@@ -26,7 +26,6 @@
 
 #include "backends/platform/androidsdl/androidsdl-sdl.h"
 #include "backends/events/androidsdl/androidsdl-events.h"
-#include "backends/graphics/androidsdl/androidsdl-graphics.h"
 #include <SDL_android.h>
 #include <SDL_screenkeyboard.h>
 
@@ -35,9 +34,6 @@ void OSystem_ANDROIDSDL::initBackend() {
 
 	if (_eventSource == 0)
 		_eventSource = new AndroidSdlEventSource();
-
-	if (_graphicsManager == 0)
-		_graphicsManager = new AndroidSdlGraphicsManager(_eventSource, _window);
 
 	if (!ConfMan.hasKey("browser_lastpath") || (ConfMan.hasKey("browser_lastpath") && (ConfMan.get("browser_lastpath") == "/storage")))
 		ConfMan.set("browser_lastpath", getenv("SDCARD"));
@@ -114,8 +110,6 @@ void OSystem_ANDROIDSDL::setFeatureState(Feature f, bool enable) {
 		ConfMan.setBool("swap_menu_and_back_buttons", enable);
 		swapMenuAndBackButtons(enable);
 		break;
-	case kFeatureFullscreenMode:
-		break;
 	default:
 		OSystem_POSIX::setFeatureState(f, enable);
 		break;
@@ -132,9 +126,6 @@ bool OSystem_ANDROIDSDL::getFeatureState(Feature f) {
 		break;
 	case kFeatureSwapMenuAndBackButtons:
 		return ConfMan.getBool("swap_menu_and_back_buttons");
-		break;
-	case kFeatureFullscreenMode:
-		return true;
 		break;
 	default:
 		return OSystem_POSIX::getFeatureState(f);

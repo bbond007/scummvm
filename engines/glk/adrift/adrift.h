@@ -20,6 +20,8 @@
  *
  */
 
+/* Based on Scare interpreter 1.3.10 */
+
 #ifndef GLK_ADRIFT_ADRIFT
 #define GLK_ADRIFT_ADRIFT
 
@@ -37,16 +39,6 @@ namespace Adrift {
  */
 class Adrift : public GlkAPI {
 private:
-	/**
-	 * Initialization
-	 */
-	bool initialize();
-
-	/**
-	 * Deinitialization
-	 */
-	void deinitialize();
-
 	static void if_write_saved_game(void *opaque, const sc_byte *buffer, sc_int length);
 	static sc_int if_read_saved_game(void *opaque, sc_byte *buffer, sc_int length);
 public:
@@ -58,26 +50,25 @@ public:
 	/**
 	 * Run the game
 	 */
-	void runGame();
+	void runGame() override;
 
 	/**
 	 * Returns the running interpreter type
 	 */
-	virtual InterpreterType getInterpreterType() const override {
+	InterpreterType getInterpreterType() const override {
 		return INTERPRETER_ADRIFT;
 	}
 
 	/**
 	 * Load a savegame from the passed Quetzal file chunk stream
 	 */
-	virtual Common::Error readSaveData(Common::SeekableReadStream *rs) override;
+	Common::Error readSaveData(Common::SeekableReadStream *rs) override;
 
 	/**
 	 * Save the game. The passed write stream represents access to the UMem chunk
 	 * in the Quetzal save file that will be created
 	 */
-	virtual Common::Error writeGameData(Common::WriteStream *ws) override;
-
+	Common::Error writeGameData(Common::WriteStream *ws) override;
 };
 
 extern Adrift *g_vm;

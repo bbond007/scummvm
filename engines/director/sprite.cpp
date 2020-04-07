@@ -22,7 +22,6 @@
 
 #include "director/director.h"
 #include "director/cast.h"
-#include "director/score.h"
 #include "director/sprite.h"
 
 namespace Director {
@@ -32,12 +31,13 @@ Sprite::Sprite() {
 	_trails = 0;
 	_width = 0;
 	_ink = kInkTypeCopy;
-	_flags = 0;
+	_inkData = 0;
 	_height = 0;
 	_castId = 0;
 	_constraint = 0;
 	_moveable = 0;
 	_castId = 0;
+	_castIndex = 0;
 	_backColor = 255;
 	_foreColor = 0;
 	_left = 0;
@@ -53,19 +53,15 @@ Sprite::Sprite() {
 	_stretch = 0;
 	_type = kInactiveSprite;
 
-	_bitmapCast = nullptr;
-	_textCast = nullptr;
-	_buttonCast = nullptr;
-	_shapeCast = nullptr;
+	_cast = nullptr;
 
 	_blend = 0;
-	_lineSize = 1;
+	_thickness = 0;
 
-	_x1 = 0;
-	_x2 = 0;
 	_scriptId = 0;
-	_flags2 = 0;
-	_unk2 = 0;
+	_scriptCastIndex = 0;
+	_colorcode = 0;
+	_blendAmount = 0;
 	_unk3 = 0;
 	_spriteType = 0;
 }
@@ -73,9 +69,10 @@ Sprite::Sprite() {
 Sprite::Sprite(const Sprite &sprite) {
 	_enabled = sprite._enabled;
 	_castId = sprite._castId;
-	_flags = sprite._flags;
+	_castIndex = sprite._castIndex;
 	_trails = sprite._trails;
 	_ink = sprite._ink;
+	_inkData = sprite._inkData;
 	_width = sprite._width;
 	_height = sprite._height;
 	_startPoint.x = sprite._startPoint.x;
@@ -94,35 +91,74 @@ Sprite::Sprite(const Sprite &sprite) {
 	_stretch = sprite._stretch;
 	_type = sprite._type;
 
-	_bitmapCast = sprite._bitmapCast;
-	_shapeCast = sprite._shapeCast;
-	_textCast = sprite._textCast;
-	_buttonCast = sprite._buttonCast;
+	_cast = sprite._cast;
 
 	_constraint = sprite._constraint;
 	_moveable = sprite._moveable;
 	_blend = sprite._blend;
 	_startTime = sprite._startTime;
-	_lineSize = sprite._lineSize;
+	_thickness = sprite._thickness;
 
-	_x1 = sprite._x1;
-	_x2 = sprite._x2;
 	_scriptId = sprite._scriptId;
-	_flags2 = sprite._flags2;
-	_unk2 = sprite._unk2;
+	_scriptCastIndex = sprite._scriptCastIndex;
+	_colorcode = sprite._colorcode;
+	_blendAmount = sprite._blendAmount;
 	_unk3 = sprite._unk3;
 	_spriteType = sprite._spriteType;
 }
 
 Sprite::~Sprite() {
-	if (_bitmapCast) 
-		delete _bitmapCast;
-	if (_shapeCast) 
-		delete _shapeCast;
-	if (_textCast) 
-		delete _textCast;
-	if (_buttonCast) 
-		delete _buttonCast;
 }
+
+uint16 Sprite::getPattern() {
+	switch (_spriteType) {
+	case kRectangleSprite:
+	case kRoundedRectangleSprite:
+	case kOvalSprite:
+	case kLineTopBottomSprite:
+	case kLineBottomTopSprite:
+	case kOutlinedRectangleSprite:
+	case kOutlinedRoundedRectangleSprite:
+	case kOutlinedOvalSprite:
+		return _castId;
+
+	case kCastMemberSprite:
+		switch (_cast->_type) {
+		case kCastShape:
+			return ((ShapeCast *)_cast)->_pattern;
+			break;
+		default:
+			warning("Sprite::getPattern(): Unhandled cast type: %d", _cast->_type);
+			break;
+		}
+		// fallthrough
+	default:
+		return 0;
+	}
+}
+
+void Sprite::setPattern(uint16 pattern) {
+	switch (_spriteType) {
+	case kRectangleSprite:
+	case kRoundedRectangleSprite:
+	case kOvalSprite:
+	case kLineTopBottomSprite:
+	case kLineBottomTopSprite:
+	case kOutlinedRectangleSprite:
+	case kOutlinedRoundedRectangleSprite:
+	case kOutlinedOvalSprite:
+		_castId = pattern;
+		break;
+
+	case kCastMemberSprite:
+		// TODO
+		warning("Sprite::setPattern(): kCastMemberSprite");
+		return;
+
+	default:
+		return;
+	}
+}
+
 
 } // End of namespace Director

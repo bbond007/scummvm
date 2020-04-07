@@ -29,7 +29,7 @@
 
 namespace MacVenture {
 
-#define ADGF_DEFAULT (ADGF_DROPLANGUAGE|ADGF_DROPPLATFORM|ADGF_MACRESFORK)
+#define ADGF_DEFAULT (ADGF_DROPLANGUAGE|ADGF_DROPPLATFORM|ADGF_MACRESFORK|ADGF_UNSTABLE)
 
 #define BASEGAME(n, v, f, md5, s) {n, v, AD_ENTRY1s(f, md5, s), Common::EN_ANY, Common::kPlatformMacintosh, ADGF_DEFAULT, GUIO1(GUIO_NOMIDI)}
 
@@ -63,20 +63,25 @@ public:
 		_md5Bytes = 5000000; // TODO: Upper limit, adjust it once all games are added
 	}
 
-	const char *getName() const {
+	const char *getEngineId() const override {
+		return "macventure";
+	}
+
+	const char *getName() const override {
 		return "MacVenture";
 	}
-	const char *getOriginalCopyright() const {
+
+	const char *getOriginalCopyright() const override {
 		return "(C) ICOM Simulations";
 	}
 
 protected:
-	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const;
-	bool hasFeature(MetaEngineFeature f) const;
-	SaveStateList listSaves(const char *target) const;
-	int getMaximumSaveSlot() const;
-	void removeSaveState(const char *target, int slot) const;
-	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const;
+	bool createInstance(OSystem *syst, Engine **engine, const ADGameDescription *desc) const override;
+	bool hasFeature(MetaEngineFeature f) const override;
+	SaveStateList listSaves(const char *target) const override;
+	int getMaximumSaveSlot() const override;
+	void removeSaveState(const char *target, int slot) const override;
+	SaveStateDescriptor querySaveMetaInfos(const char *target, int slot) const override;
 };
 
 bool MacVentureMetaEngine::hasFeature(MetaEngineFeature f) const {

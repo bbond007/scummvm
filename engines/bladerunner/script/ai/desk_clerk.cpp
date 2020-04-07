@@ -83,15 +83,15 @@ void AIScriptDeskClerk::ClickedByPlayer() {
 	//return false;
 }
 
-void AIScriptDeskClerk::EnteredScene(int sceneId) {
+void AIScriptDeskClerk::EnteredSet(int setId) {
 	// return false;
 }
 
-void AIScriptDeskClerk::OtherAgentEnteredThisScene(int otherActorId) {
+void AIScriptDeskClerk::OtherAgentEnteredThisSet(int otherActorId) {
 	// return false;
 }
 
-void AIScriptDeskClerk::OtherAgentExitedThisScene(int otherActorId) {
+void AIScriptDeskClerk::OtherAgentExitedThisSet(int otherActorId) {
 	// return false;
 }
 
@@ -122,6 +122,12 @@ bool AIScriptDeskClerk::GoalChanged(int currentGoalNumber, int newGoalNumber) {
 	case kGoalDeskClerkRecovered:
 		Actor_Put_In_Set(kActorDeskClerk, kSetCT09);
 		Actor_Set_At_XYZ(kActorDeskClerk, 282.0f, 360.52f, 743.0f, 513);
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+		Actor_Change_Animation_Mode(kActorDeskClerk, kAnimationModeIdle);
+		_animationFrame = 0;
+		_animationState = 0;
+#endif // BLADERUNNER_ORIGINAL_BUGS
 		break;
 	case kGoalDeskClerkKnockedOut:
 		// fall through
@@ -135,11 +141,37 @@ bool AIScriptDeskClerk::GoalChanged(int currentGoalNumber, int newGoalNumber) {
 
 bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
+#if BLADERUNNER_ORIGINAL_BUGS
+#else
+	// Fixing a bug for when the Clerk gets stuck in animation id 668, after Act 3:
+	//	- when using HDFRAMES, the clerk will briefly be in the choking animation when McCoy re-enters
+	//	- when using CDFRAMES, the game would crash with a message "Unable to locate page 2214 for animation 668 frame 4!"
+	// This occurs when:
+	//	 The player walks out too fast from the scene where Leon is choking the clerk in Act 3.
+	//   Hence, Leon's AI script's OtherAgentExitedThisSet() is triggered, Leon is gone,
+	//   and DeskClerk goal is set to kGoalDeskClerkKnockedOut which puts him in kSetFreeSlotH without changing his animation id.
+	// Thus later on, when the player leaves Chinatown and returns, DeskClerk's (update()) will set his goal to kGoalDeskClerkRecovered
+	// In Act 4, the CDFRAMES#.DAT method loads a reduced number of animations for DeskClerk causing the crash when McCoy visits the Yukon lobby.
+	//
+	// The following fix will work with awry saved games too (even from the original game in theory),
+	// that have this buggy state stored.
+	// We also include the rest of the problematic states that are missing animations in Act 4
+	// (ie. all _animationState >= 6)
+	if (Global_Variable_Query(kVariableChapter) > 3
+	    && _animationState >= 6
+	) {
+		Actor_Change_Animation_Mode(kActorDeskClerk, kAnimationModeIdle);
+		*animation = 661;
+		_animationFrame = 0;
+		_animationState = 0;
+	}
+#endif // BLADERUNNER_ORIGINAL_BUGS
+
 	switch (_animationState) {
 	case 0:
 		if (_flag1) {
 			*animation = 662;
-			_animationFrame++;
+			++_animationFrame;
 			if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(662)) {
 				_animationFrame = 0;
 				_flag1 = false;
@@ -152,7 +184,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 			}
 
 			*animation = 661;
-			_animationFrame++;
+			++_animationFrame;
 			if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(661)) {
 				_animationFrame = 0;
 
@@ -174,7 +206,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 			_animationState = 0;
 			_flag1 = false;
 		} else {
-			_animationFrame++;
+			++_animationFrame;
 			if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(*animation)) {
 				_animationFrame = 0;
 			}
@@ -183,7 +215,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 2:
 		*animation = 664;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(664)) {
 			_animationFrame = 0;
 			_animationState = 1;
@@ -193,7 +225,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 3:
 		*animation = 665;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(665)) {
 			_animationFrame = 0;
 			_animationState = 1;
@@ -203,7 +235,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 4:
 		*animation = 666;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(666)) {
 			_animationFrame = 0;
 			_animationState = 1;
@@ -213,7 +245,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 5:
 		*animation = 667;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(667)) {
 			_animationFrame = 0;
 			_animationState = 1;
@@ -223,7 +255,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 6:
 		*animation = 668;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(668)) {
 			_animationFrame = 0;
 		}
@@ -239,7 +271,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 			*animation = 668;
 			_animationState = 6;
 		} else {
-			_animationFrame++;
+			++_animationFrame;
 			if (_animationFrame >= Slice_Animation_Query_Number_Of_Frames(*animation)) {
 				_animationFrame = 0;
 			}
@@ -248,7 +280,7 @@ bool AIScriptDeskClerk::UpdateAnimation(int *animation, int *frame) {
 
 	case 8:
 		*animation = 670;
-		_animationFrame++;
+		++_animationFrame;
 		if (_animationFrame > Slice_Animation_Query_Number_Of_Frames(670) - 2) {
 			Ambient_Sounds_Play_Sound(kSfxZUBLAND1, 40, 30, 30, 99);
 			Actor_Set_Goal_Number(kActorDeskClerk, kGoalDeskClerkKnockedOut);

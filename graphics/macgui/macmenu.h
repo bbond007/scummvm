@@ -24,11 +24,12 @@
 #define GRAPHICS_MACGUI_MACMENU_H
 
 #include "common/str-array.h"
-#include "common/winexe_pe.h"
+#include "graphics/macgui/macfontmanager.h"
 
 namespace Common {
 class U32String;
 class MacResManager;
+class PEResources;
 }
 
 namespace Graphics {
@@ -51,7 +52,7 @@ public:
 	~MacMenu();
 
 	static Common::StringArray *readMenuFromResource(Common::SeekableReadStream *res);
-	static MacMenu *createMenuFromPEexe(Common::PEResources &exe, MacWindowManager *wm);
+	static MacMenu *createMenuFromPEexe(Common::PEResources *exe, MacWindowManager *wm);
 
 	void setCommandsCallback(void (*callback)(int, Common::String &, void *), void *data) { _ccallback = callback; _cdata = data; }
 	void setCommandsCallback(void (*callback)(int, Common::U32String &, void *), void *data) { _unicodeccallback = callback; _cdata = data; }
@@ -92,7 +93,8 @@ private:
 	ManagedSurface _tempSurface;
 
 private:
-	const Font *getMenuFont();
+	bool checkCallback(bool unicode = false);
+	const Font *getMenuFont(int slant = kMacFontRegular);
 	const Common::String getAcceleratorString(MacMenuItem *item, const char *prefix);
 	void processTabs();
 	void processSubmenuTabs(MacMenuSubMenu *submenu);
@@ -109,6 +111,8 @@ private:
 	bool processMenuShortCut(byte flags, uint16 ascii);
 
 	void drawSubMenuArrow(ManagedSurface *dst, int x, int y, int color);
+
+	void eventLoop();
 
 	ItemArray _items;
 
