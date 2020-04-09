@@ -128,7 +128,7 @@ Common::Error DirectorEngine::run() {
 	_macBinary = nullptr;
 	_soundManager = nullptr;
 
-	_wm = new Graphics::MacWindowManager(Graphics::kWMModalMenuMode);
+	_wm = new Graphics::MacWindowManager(Graphics::kWMModalMenuMode | Graphics::kWMModeNoDesktop);
 
 	_lingo = new Lingo(this);
 	_soundManager = new DirectorSound();
@@ -262,6 +262,8 @@ Common::Error DirectorEngine::run() {
 			// TODO: this is a workaround until the rendering pipeline is reworked
 			if (_currentScore && _currentScore->_surface) {
 				_backSurface.copyFrom(*_currentScore->_surface);
+
+				_newMovieStarted = true;
 			}
 
 			delete _currentScore;
