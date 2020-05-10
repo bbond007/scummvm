@@ -37,8 +37,6 @@ namespace Ultima8 {
 
 DEFINE_RUNTIME_CLASSTYPE_CODE_BASE_CLASS(Shape)
 
-DEFINE_CUSTOM_MEMORY_ALLOCATION(Shape)
-
 Shape::Shape(const uint8 *data, uint32 size, const ConvertShapeFormat *format,
              const uint16 id, const uint32 shape)
 		: _flexId(id), _shapeNum(shape), _palette(nullptr) {
@@ -194,6 +192,11 @@ Common::Array<RawShapeFrame *> Shape::loadGenericFormat(const uint8 *data, uint3
 		// Read frame_length
 		if (format->_bytes_frame_length) framesize = ds.readX(format->_bytes_frame_length) + format->_bytes_frame_length_kludge;
 		else framesize = size - frameoffset;
+
+		if (framesize > size) {
+			warning("shape frame %d goes off the end of the buffer, stopping early", i);
+			break;
+		}
 
 		ConvertShapeFrame *prev = nullptr, p;
 

@@ -50,6 +50,7 @@
 #include "director/lingo/lingo.h"
 #include "director/lingo/lingo-builtins.h"
 #include "director/lingo/lingo-code.h"
+#include "director/lingo/lingo-the.h"
 
 namespace Director {
 
@@ -129,6 +130,7 @@ static struct FuncDescr {
 	{ LC::c_telldone,		"c_telldone",		"" },
 	{ LC::c_theentityassign,"c_theentityassign","EF" },
 	{ LC::c_theentitypush,	"c_theentitypush",	"EF" }, // entity, field
+	{ LC::c_themenuentitypush,"c_themenuentitypush","EF" },
 	{ LC::c_themenuitementityassign,"c_themenuitementityassign","EF" },
 	{ LC::c_varpush,		"c_varpush",		"s" },
 	{ LC::c_voidpush,		"c_voidpush",		""  },
@@ -142,6 +144,7 @@ static struct FuncDescr {
 	{ LC::cb_globalassign,	"cb_globalassign",	"i" },
 	{ LC::cb_globalpush,	"cb_globalpush",	"i" },
 	{ LC::cb_list,			"cb_list",			"" },
+	{ LC::cb_proplist,		"cb_proplist",		"" },
 	{ LC::cb_localcall,		"cb_localcall",		"i" },
 	{ LC::cb_methodcall,	"cb_methodcall",	"i" },
 	{ LC::cb_objectpush,	"cb_objectpush",	"i" },
@@ -155,6 +158,8 @@ static struct FuncDescr {
 	{ LC::cb_v4theentitynamepush,"cb_v4theentitynamepush","i" },
 	{ LC::cb_v4theentityassign,"cb_v4theentityassign","i" },
 	{ LC::cb_zeropush,		"cb_zeropush",		"" },
+	{ LC::cb_stackpeek,		"cb_stackpeek",		"i" },
+	{ LC::cb_stackdrop,		"cb_stackdrop",		"i" },
 	{ 0, 0, 0 }
 };
 
@@ -183,6 +188,13 @@ Datum Lingo::pop(void) {
 	Datum ret = _stack.back();
 	_stack.pop_back();
 
+	return ret;
+}
+
+Datum Lingo::peek(uint offset) {
+	assert (_stack.size() > offset);
+
+	Datum ret = _stack[_stack.size() - 1 - offset];
 	return ret;
 }
 
@@ -226,6 +238,9 @@ void LC::c_printtop(void) {
 		warning("#%s", d.u.s->c_str());
 		break;
 	case ARRAY:
+		warning("%s", d.getPrintable().c_str());
+		break;
+	case PARRAY:
 		warning("%s", d.getPrintable().c_str());
 		break;
 	default:
@@ -313,13 +328,17 @@ void LC::c_proparraypush() {
 	Datum d;
 	int arraySize = g_lingo->readInt();
 
-	warning("STUB: c_proparraypush()");
+	d.type = PARRAY;
+	d.u.parr = new PropertyArray;
 
-	for (int i = 0; i < arraySize * 2; i++)
-		g_lingo->pop();
+	for (int i = 0; i < arraySize; i++) {
+		Datum p = g_lingo->pop();
+		Datum v = g_lingo->pop();
 
-	d.u.i = arraySize;
-	d.type = INT;
+		PCell cell = PCell(p, v);
+		d.u.parr->insert_at(0, cell);
+	}
+
 	g_lingo->push(d);
 }
 
@@ -378,7 +397,7 @@ void LC::c_assign() {
 }
 
 bool LC::verify(Symbol *s) {
-	if (s->type != INT && s->type != VOID && s->type != FLOAT && s->type != STRING && s->type != POINT && s->type != SYMBOL && s->type != ARRAY) {
+	if (s->type != INT && s->type != VOID && s->type != FLOAT && s->type != STRING && s->type != POINT && s->type != SYMBOL && s->type != ARRAY && s->type != PARRAY) {
 		warning("attempt to evaluate non-variable '%s'", s->name.c_str());
 
 		return false;
@@ -425,6 +444,21 @@ void LC::c_theentitypush() {
 	g_lingo->push(d);
 }
 
+void LC::c_themenuentitypush() {
+	int entity = g_lingo->readInt();
+	int field  = g_lingo->readInt();
+
+	Datum menuId = g_lingo->pop();
+	Datum menuItemId;
+
+	if (entity != kTheMenuItems) { // "<entity> of menuitems" has 1 parameter
+		menuItemId = g_lingo->pop();
+	}
+
+	Datum d = g_lingo->getTheMenuItemEntity(entity, menuId, field, menuItemId);
+	g_lingo->push(d);
+}
+
 void LC::c_theentityassign() {
 	Datum id = g_lingo->pop();
 
@@ -436,12 +470,16 @@ void LC::c_theentityassign() {
 }
 
 void LC::c_themenuitementityassign() {
-	Datum d = g_lingo->pop();
-	Datum menuId = g_lingo->pop();
-	Datum menuItemId = g_lingo->pop();
-
 	int entity = g_lingo->readInt();
 	int field  = g_lingo->readInt();
+
+	Datum d = g_lingo->pop();
+	Datum menuId = g_lingo->pop();
+	Datum menuItemId;
+
+	if (entity != kTheMenuItems) { // "<entity> of menuitems" has 2 parameters
+		menuItemId = g_lingo->pop();
+	}
 
 	g_lingo->setTheMenuItemEntity(entity, menuId, field, menuItemId, d);
 }
@@ -967,41 +1005,68 @@ void LC::c_not() {
 	g_lingo->push(d);
 }
 
-Datum LC::compareArrays(Datum (*compareFunc)(Datum, Datum), Datum d1, Datum d2) {
+Datum LC::compareArrays(Datum (*compareFunc)(Datum, Datum), Datum d1, Datum d2, bool location, bool value) {
 	// At least one of d1 and d2 must be an array
 	uint arraySize;
 	if (d1.type == ARRAY && d2.type == ARRAY) {
 		arraySize = MIN(d1.u.farr->size(), d2.u.farr->size());
+	} else if (d1.type == PARRAY && d2.type == PARRAY) {
+		arraySize = MIN(d1.u.parr->size(), d2.u.parr->size());
 	} else if (d1.type == ARRAY) {
 		arraySize = d1.u.farr->size();
-	} else {
+	} else if (d1.type == PARRAY) {
+		arraySize = d1.u.parr->size();
+	} else if (d2.type == ARRAY) {
 		arraySize = d2.u.farr->size();
+	} else if (d2.type == PARRAY) {
+		arraySize = d2.u.parr->size();
+	} else {
+		warning("LC::compareArrays(): Called with wrong data types: %s and %s", d1.type2str(), d2.type2str());
+		return Datum(0);
 	}
+
 	Datum res;
 	res.type = INT;
-	res.u.i = 1;
+	res.u.i = location ? -1 : 1;
 	Datum a = d1;
 	Datum b = d2;
 	for (uint i = 0; i < arraySize; i++) {
 		if (d1.type == ARRAY) {
 			a = d1.u.farr->operator[](i);
+		} else if (d1.type == PARRAY) {
+			PCell t = d1.u.parr->operator[](i);
+			a = value ? *t.v : *t.p;
 		}
+
 		if (d2.type == ARRAY) {
 			b = d2.u.farr->operator[](i);
+		} else if (d2.type == PARRAY) {
+			PCell t = d2.u.parr->operator[](i);
+			b = value ? *t.v : *t.p;
 		}
+
 		res = compareFunc(a, b);
-		if (res.u.i == 0) {
-			break;
+		if (!location) {
+			if (res.u.i == 0) {
+				break;
+			}
+		} else {
+			if (res.u.i == 1) {
+				// Lingo indexing starts at 1
+				res.u.i = (int)i + 1;
+				break;
+			}
 		}
 	}
 	return res;
 }
 
 Datum LC::eqData(Datum d1, Datum d2) {
-	if (d1.type == ARRAY || d2.type == ARRAY) {
+	if (d1.type == ARRAY || d2.type == ARRAY ||
+			d1.type == PARRAY || d2.type == PARRAY) {
 		return LC::compareArrays(LC::eqData, d1, d2);
 	}
-	d1.u.i = (d1.compareToIgnoreCase(d2) == 0) ? 1 : 0;
+	d1.u.i = (d1.compareTo(d2, true) == 0) ? 1 : 0;
 	d1.type = INT;
 	return d1;
 }
@@ -1016,7 +1081,7 @@ Datum LC::neqData(Datum d1, Datum d2) {
 	if (d1.type == ARRAY || d2.type == ARRAY) {
 		return LC::compareArrays(LC::neqData, d1, d2);
 	}
-	d1.u.i = (d1.compareToIgnoreCase(d2) != 0) ? 1 : 0;
+	d1.u.i = (d1.compareTo(d2, true) != 0) ? 1 : 0;
 	d1.type = INT;
 	return d1;
 }

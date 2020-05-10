@@ -78,6 +78,7 @@ struct Symbol {	/* symbol table entry */
 		void (*bltin)(int);	/* BUILTIN */
 		Common::String	*s;	/* STRING */
 		DatumArray *farr;	/* ARRAY, POINT, RECT */
+		PropertyArray *parr;
 	} u;
 	int nargs;		/* number of arguments */
 	int maxArgs;	/* maximal number of arguments, for builtins */
@@ -92,6 +93,14 @@ struct Symbol {	/* symbol table entry */
 	Symbol();
 };
 
+struct PCell {
+	Datum *p;
+	Datum *v;
+
+	PCell();
+	PCell(Datum &prop, Datum &val);
+};
+
 struct Datum {	/* interpreter stack type */
 	int type;
 
@@ -101,6 +110,7 @@ struct Datum {	/* interpreter stack type */
 		Common::String *s;	/* STRING */
 		Symbol	*sym;
 		DatumArray *farr;	/* ARRAY, POINT, RECT */
+		PropertyArray *parr; /* PARRAY */
 	} u;
 
 	Datum() { u.sym = NULL; type = VOID; }
@@ -115,8 +125,7 @@ struct Datum {	/* interpreter stack type */
 
 	const char *type2str(bool isk = false);
 
-	int compareTo(Datum d);
-	int compareToIgnoreCase(Datum d);
+	int compareTo(Datum d, bool ignoreCase = false);
 };
 
 struct Builtin {
@@ -193,7 +202,7 @@ private:
 	void processGenericEvent(LEvent event);
 	void runMovieScript(LEvent event);
 	void processSpriteEvent(LEvent event);
-	void processEvent(LEvent event, ScriptType st, int entityId);
+	void processEvent(LEvent event, ScriptType st, int entityId, int channelId = -1);
 
 public:
 	ScriptContext *getScriptContext(ScriptType type, uint16 id);
@@ -287,6 +296,7 @@ public:
 	Datum getObjectField(Common::String &obj, int field);
 	void setObjectField(Common::String &obj, int field, Datum &d);
 	Datum getObjectRef(Common::String &obj, Common::String &field);
+	Datum getTheMenuItemEntity(int entity, Datum &menuId, int field, Datum &menuItemId);
 	const char *entity2str(int id);
 	const char *field2str(int id);
 
@@ -301,6 +311,7 @@ public:
 public:
 	ScriptType _currentScriptType;
 	uint16 _currentEntityId;
+	int _currentChannelId;
 	ScriptContext *_currentScriptContext;
 	uint16 _currentScriptFunction;
 	ScriptData *_currentScript;
@@ -347,6 +358,7 @@ public:
 public:
 	void push(Datum d);
 	Datum pop(void);
+	Datum peek(uint offset);
 
 public:
 	Common::HashMap<uint32, const char *> _eventHandlerTypes;

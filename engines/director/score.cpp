@@ -76,6 +76,11 @@ Score::Score(DirectorEngine *vm) {
 	_soundManager = _vm->getSoundManager();
 	_currentMouseDownSpriteId = 0;
 	_mouseIsDown = false;
+	_lastEventTime = _vm->getMacTicks();
+	_lastKeyTime = _lastEventTime;
+	_lastClickTime = _lastEventTime;
+	_lastRollTime = _lastEventTime;
+	_lastTimerReset = _lastEventTime;
 
 	// FIXME: TODO: Check whether the original truely does it
 	if (_vm->getVersion() <= 3) {
@@ -305,9 +310,11 @@ void Score::copyCastStxts() {
 		if (c->_value->_type != kCastText && c->_value->_type != kCastButton)
 			continue;
 
-		uint stxtid = (_vm->getVersion() < 4) ?
-			c->_key + _castIDoffset :
-			c->_value->_children[0].index;
+		uint stxtid;
+		if (_vm->getVersion() >= 4 && c->_value->_children.size() > 0)
+			stxtid = c->_value->_children[0].index;
+		else
+			stxtid = c->_key + _castIDoffset;
 
 		if (_loadedStxts->getVal(stxtid)) {
 			const Stxt *stxt = _loadedStxts->getVal(stxtid);
@@ -376,7 +383,7 @@ void Score::loadSpriteImages(bool isSharedCast) {
 
 			if (w > 0 && h > 0) {
 				if (_vm->getVersion() < 6) {
-					img = new BITDDecoder(w, h, bitmapCast->_bitsPerPixel, bitmapCast->_pitch);
+					img = new BITDDecoder(w, h, bitmapCast->_bitsPerPixel, bitmapCast->_pitch, _vm->getPalette());
 				} else {
 					img = new Image::BitmapDecoder();
 				}
@@ -601,7 +608,7 @@ void Score::loadFrames(Common::SeekableSubReadStreamEndian &stream) {
 
 	while (size != 0 && !stream.eos()) {
 		uint16 frameSize = stream.readUint16();
-		debugC(kDebugLoading, 8, "++++++++++ score frame %d (frameSize %d) size %d", _frames.size(), frameSize, size);
+		debugC(8, kDebugLoading, "++++++++++ score frame %d (frameSize %d) size %d", _frames.size(), frameSize, size);
 
 		if (frameSize > 0) {
 			Frame *frame = new Frame(_vm, _numChannelsDisplayed);
@@ -757,16 +764,19 @@ void Score::setSpriteCasts() {
 			if (castId == 0)
 				continue;
 
-			if (_vm->getSharedScore() && _vm->getSharedScore()->_loadedCast && _vm->getSharedScore()->_loadedCast->contains(castId)) {
-				_frames[i]->_sprites[j]->_cast = _vm->getSharedScore()->_loadedCast->getVal(castId);
-			} else if (_loadedCast->contains(castId)) {
+			if (_loadedCast->contains(castId)) {
 				_frames[i]->_sprites[j]->_cast = _loadedCast->getVal(castId);
+			} else if (_vm->getSharedScore() && _vm->getSharedScore()->_loadedCast && _vm->getSharedScore()->_loadedCast->contains(castId)) {
+				_frames[i]->_sprites[j]->_cast = _vm->getSharedScore()->_loadedCast->getVal(castId);
 			}
 		}
 	}
 }
 
 void Score::loadCastData(Common::SeekableSubReadStreamEndian &stream, uint16 id, Resource *res) {
+	// IDs are stored as relative to the start of the cast array.
+	id += _castArrayStart;
+
 	// D4+ variant
 	if (stream.size() == 0)
 		return;
@@ -1086,6 +1096,11 @@ void Score::loadActions(Common::SeekableSubReadStreamEndian &stream) {
 	for (uint i = 0; i < _frames.size(); i++) {
 		if (_frames[i]->_actionId <= _actions.size())
 			scriptRefs[_frames[i]->_actionId] = true;
+
+		for (uint16 j = 0; j <= _frames[i]->_numChannels; j++) {
+			if (_frames[i]->_sprites[j]->_scriptId <= _actions.size())
+				scriptRefs[_frames[i]->_sprites[j]->_scriptId] = true;
+		}
 	}
 
 	Common::HashMap<uint16, Common::String>::iterator j;
@@ -1098,7 +1113,7 @@ void Score::loadActions(Common::SeekableSubReadStreamEndian &stream) {
 
 	for (j = _actions.begin(); j != _actions.end(); ++j) {
 		if (!scriptRefs[j->_key]) {
-			warning("Action id %d is not referenced, skipping, the code was:\n-----\n%s\n------", j->_key, j->_value.c_str());
+			warning("Action id %d is not referenced, the code is:\n-----\n%s\n------", j->_key, j->_value.c_str());
 			// continue;
 		}
 		if (!j->_value.empty()) {
@@ -1515,11 +1530,11 @@ void Score::startLoop() {
 
 	initGraphics(_movieRect.width(), _movieRect.height());
 
-	_window = _vm->_wm->addWindow(false, false, false);
+	_window = _vm->_wm->addWindow(false, false, true);
 	_window->disableBorder();
 	_window->resize(_movieRect.width(), _movieRect.height());
 
-	_surface = _window->getSurface();
+	_surface = _window->getWindowSurface();
 	_trailSurface = new Graphics::ManagedSurface;
 	_backSurface = new Graphics::ManagedSurface;
 	_backSurface2 = new Graphics::ManagedSurface;
@@ -1739,7 +1754,7 @@ void Score::renderZoomBox(bool redraw) {
 		end = MIN(start + 3 - box->step % 2, 8);
 	}
 
-	Graphics::MacPlotData pd(_surface, &_vm->_wm->getPatterns(), Graphics::kPatternCheckers, 0, 0, 1, 0);
+	Graphics::MacPlotData pd(_surface, nullptr, &_vm->_wm->getPatterns(), Graphics::kPatternCheckers, 0, 0, 1, 0);
 
 	for (int i = start; i <= end; i++) {
 		Common::Rect r(box->start.left   + (box->end.left   - box->start.left)   * i / 8,

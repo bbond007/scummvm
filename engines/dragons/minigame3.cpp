@@ -70,23 +70,23 @@ void Minigame3::run() {
 	int iVar4;
 	DragonINI *flicker;
 	uint16 origSceneId;
-	//byte auStack1584_palette [512]; //[126];
-	uint16 local_5b2;
-	//byte auStack1072_palette [512];
-	Actor *bunnyActorTbl [4];
+	//byte auStack1584_palette[512]; //[126];
+	//uint16 local_5b2;
+	//byte auStack1072_palette[512];
+	Actor *bunnyActorTbl[4];
 	uint16 local_228;
 	//uint16 local_226;
 	int16 local_224;
-	Actor *tearActorTbl [8];
+	Actor *tearActorTbl[8];
 	uint16 local_210;
-	int16 local_208 [16];
+	int16 local_208[16];
 	uint local_1e8;
 	uint oldEngineFlags;
 	uint16 local_1e0;
 	uint16 local_1de;
-	Actor *tearBlinkActorTbl2 [4];
-	Actor *tearBlinkActorTbl [4];
-	int16 local_1c8;
+	Actor *tearBlinkActorTbl2[4];
+	Actor *tearBlinkActorTbl[4];
+	int16 local_1c8 = 0;
 	int16 local_1c6;
 	uint16 local_1c2;
 	int16 local_1c0;
@@ -95,11 +95,11 @@ void Minigame3::run() {
 	int16 local_1ba;
 	uint16 local_1b8;
 	int16 eyeBgYOffsetTbl[21];
-	TearInfo tearInfo [30];
-	Common::Point bunnyPositionsTbl [4];
-	Common::Point handPositionsTbl [4];
-	uint16 goodRabbitPositionTbl [4];
-	uint16 bunnyPositionTbl [4];
+	TearInfo tearInfo[30];
+	Common::Point bunnyPositionsTbl[4];
+	Common::Point handPositionsTbl[4];
+	uint16 goodRabbitPositionTbl[4];
+	uint16 bunnyPositionTbl[4];
 	int16 currentState;
 	uint16 flags;
 	int16 local_5c;
@@ -108,7 +108,7 @@ void Minigame3::run() {
 	int16 local_56;
 	int16 hopCounter;
 	uint16 local_50;
-	BunnyStruct bunnyInfo [2];
+	BunnyStruct bunnyInfo[2];
 	uint16 local_20;
 	uint16 local_1e;
 	uint16 local_1c;
@@ -196,7 +196,7 @@ void Minigame3::run() {
 // TODO
 //	memcpy2(auStack1584_palette, scrFileData_maybe, 0x200);
 //	memcpy2(auStack1072_palette, scrFileData_maybe, 0x200);
-	local_5b2 = 0x7fff;
+//	local_5b2 = 0x7fff;
 //	DisableVSyncEvent();
 	int i = 0;
 	while ((int16)i < 4) {
@@ -617,7 +617,7 @@ void Minigame3::run() {
 					if ((tmpValue & 0xffff) == 0) {
 						local_1be = 1;
 					} else {
-						local_1be = 0xffff;
+						local_1be = -1;
 					}
 					local_1bc = _vm->getRand(3);
 					local_1bc = local_1bc + 3;

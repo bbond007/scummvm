@@ -27,8 +27,6 @@
 #include "ultima/ultima8/audio/audio_process.h"
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/conf/setting_manager.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -38,13 +36,14 @@ DEFINE_RUNTIME_CLASSTYPE_CODE(BarkGump, ItemRelativeGump)
 // TODO: Remove all the hacks
 
 BarkGump::BarkGump() : ItemRelativeGump(), _counter(0), _textWidget(0),
-		_speechShapeNum(0), _speechLength(0), _totalTextHeight(0) {
+		_speechShapeNum(0), _speechLength(0), _totalTextHeight(0),
+		_textDelay(20) {
 }
 
 BarkGump::BarkGump(uint16 owner, const Std::string &msg, uint32 speechShapeNum) :
 	ItemRelativeGump(0, 0, 100, 100, owner, FLAG_KEEP_VISIBLE, LAYER_ABOVE_NORMAL),
 	_barked(msg), _counter(100), _speechShapeNum(speechShapeNum),
-	_speechLength(0), _totalTextHeight(0), _textWidget(0) {
+	_speechLength(0), _totalTextHeight(0), _textWidget(0), _textDelay(20) {
 	SettingManager::get_instance()->get("textdelay", _textDelay);
 }
 
@@ -178,31 +177,31 @@ Gump *BarkGump::OnMouseDown(int button, int32 mx, int32 my) {
 	return this;
 }
 
-void BarkGump::saveData(ODataSource *ods) {
-	ItemRelativeGump::saveData(ods);
+void BarkGump::saveData(Common::WriteStream *ws) {
+	ItemRelativeGump::saveData(ws);
 
-	ods->writeUint32LE(static_cast<uint32>(_counter));
-	ods->writeUint16LE(_textWidget);
-	ods->writeUint32LE(_speechShapeNum);
-	ods->writeUint32LE(_speechLength);
-	ods->writeUint32LE(_totalTextHeight);
-	ods->writeUint32LE(static_cast<uint32>(_barked.size()));
-	ods->write(_barked.c_str(), _barked.size());
+	ws->writeUint32LE(static_cast<uint32>(_counter));
+	ws->writeUint16LE(_textWidget);
+	ws->writeUint32LE(_speechShapeNum);
+	ws->writeUint32LE(_speechLength);
+	ws->writeUint32LE(_totalTextHeight);
+	ws->writeUint32LE(static_cast<uint32>(_barked.size()));
+	ws->write(_barked.c_str(), _barked.size());
 }
 
-bool BarkGump::loadData(IDataSource *ids, uint32 version) {
-	if (!ItemRelativeGump::loadData(ids, version)) return false;
+bool BarkGump::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!ItemRelativeGump::loadData(rs, version)) return false;
 
-	_counter = static_cast<int32>(ids->readUint32LE());
-	_textWidget = ids->readUint16LE();
-	_speechShapeNum = ids->readUint32LE();
-	_speechLength = ids->readUint32LE();
-	_totalTextHeight = ids->readUint32LE();
+	_counter = static_cast<int32>(rs->readUint32LE());
+	_textWidget = rs->readUint16LE();
+	_speechShapeNum = rs->readUint32LE();
+	_speechLength = rs->readUint32LE();
+	_totalTextHeight = rs->readUint32LE();
 
-	uint32 slen = ids->readUint32LE();
+	uint32 slen = rs->readUint32LE();
 	if (slen > 0) {
 		char *buf = new char[slen + 1];
-		ids->read(buf, slen);
+		rs->read(buf, slen);
 		buf[slen] = 0;
 		_barked = buf;
 		delete[] buf;
@@ -210,8 +209,9 @@ bool BarkGump::loadData(IDataSource *ids, uint32 version) {
 		_barked = "";
 	}
 
-
 	TextWidget *widget = p_dynamic_cast<TextWidget *>(getGump(_textWidget));
+	if (!widget)
+		return false;
 
 	SettingManager::get_instance()->get("textdelay", _textDelay);
 

@@ -103,7 +103,7 @@ void checkEnd(Common::String *token, const char *expect, bool required) {
 }
 
 %token UNARY
-%token CASTREF VOID VAR POINT RECT ARRAY OBJECT REFERENCE LEXERROR
+%token CASTREF VOID VAR POINT RECT ARRAY OBJECT REFERENCE LEXERROR PARRAY
 %token<i> INT ARGC ARGCNORET
 %token<e> THEENTITY THEENTITYWITHID THEMENUITEMENTITY THEMENUITEMSENTITY
 %token<f> FLOAT
@@ -161,10 +161,10 @@ asgn: tPUT expr tINTO ID 		{
 			YYERROR;
 		}
 
-		warning("STUB: menuItems entity");
-		g_lingo->code1(LC::c_themenuitementityassign);
+		g_lingo->code1(LC::c_themenuentitypush);
 		g_lingo->codeInt($THEMENUITEMSENTITY[0]);
 		g_lingo->codeInt($THEMENUITEMSENTITY[1]);
+		g_lingo->code1(LC::c_assign);
 		$$ = $expr; }
 	| tPUT expr tAFTER expr 		{ $$ = g_lingo->code1(LC::c_after); }		// D3
 	| tPUT expr tBEFORE expr 		{ $$ = g_lingo->code1(LC::c_before); }		// D3
@@ -416,6 +416,14 @@ simpleexpr: INT		{
 		$$ = g_lingo->code1(LC::c_eval);
 		g_lingo->codeString($ID->c_str());
 		delete $ID; }
+	| THEENTITY	{
+		$$ = g_lingo->code1(LC::c_intpush);
+		g_lingo->codeInt(0); // Put dummy id
+		g_lingo->code1(LC::c_theentitypush);
+		inst e = 0, f = 0;
+		WRITE_UINT32(&e, $THEENTITY[0]);
+		WRITE_UINT32(&f, $THEENTITY[1]);
+		g_lingo->code2(e, f); }
 	| list
 
 expr: simpleexpr { $$ = $simpleexpr; }
@@ -429,14 +437,6 @@ expr: simpleexpr { $$ = $simpleexpr; }
 	| ID '(' arglist ')'	{
 		$$ = g_lingo->codeFunc($ID, $arglist);
 		delete $ID; }
-	| THEENTITY	{
-		$$ = g_lingo->code1(LC::c_intpush);
-		g_lingo->codeInt(0); // Put dummy id
-		g_lingo->code1(LC::c_theentitypush);
-		inst e = 0, f = 0;
-		WRITE_UINT32(&e, $THEENTITY[0]);
-		WRITE_UINT32(&f, $THEENTITY[1]);
-		g_lingo->code2(e, f); }
 	| THEENTITYWITHID simpleexpr {
 		$$ = g_lingo->code1(LC::c_theentitypush);
 		inst e = 0, f = 0;

@@ -28,8 +28,6 @@
 #include "ultima/ultima8/kernel/kernel.h"
 #include "ultima/ultima8/world/world.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -38,7 +36,7 @@ namespace Ultima8 {
 DEFINE_RUNTIME_CLASSTYPE_CODE(GravityProcess, Process)
 
 GravityProcess::GravityProcess()
-	: Process() {
+	: Process(), _xSpeed(0), _ySpeed(0), _zSpeed(0), _gravity(0) {
 
 }
 
@@ -167,6 +165,8 @@ void GravityProcess::run() {
 
 		bool termFlag = true;
 		Item *hititem = getItem(hititemid);
+		if (!hititem)
+			return; // shouldn't happen..
 		if (_zSpeed < -2 && !p_dynamic_cast<Actor *>(item)) {
 #ifdef BOUNCE_DIAG
 			pout << "item " << _itemNum << " bounce ["
@@ -346,22 +346,22 @@ void GravityProcess::dumpInfo() const {
 }
 
 
-void GravityProcess::saveData(ODataSource *ods) {
-	Process::saveData(ods);
+void GravityProcess::saveData(Common::WriteStream *ws) {
+	Process::saveData(ws);
 
-	ods->writeUint32LE(static_cast<uint32>(_gravity));
-	ods->writeUint32LE(static_cast<uint32>(_xSpeed));
-	ods->writeUint32LE(static_cast<uint32>(_ySpeed));
-	ods->writeUint32LE(static_cast<uint32>(_zSpeed));
+	ws->writeUint32LE(static_cast<uint32>(_gravity));
+	ws->writeUint32LE(static_cast<uint32>(_xSpeed));
+	ws->writeUint32LE(static_cast<uint32>(_ySpeed));
+	ws->writeUint32LE(static_cast<uint32>(_zSpeed));
 }
 
-bool GravityProcess::loadData(IDataSource *ids, uint32 version) {
-	if (!Process::loadData(ids, version)) return false;
+bool GravityProcess::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Process::loadData(rs, version)) return false;
 
-	_gravity = static_cast<int>(ids->readUint32LE());
-	_xSpeed = static_cast<int>(ids->readUint32LE());
-	_ySpeed = static_cast<int>(ids->readUint32LE());
-	_zSpeed = static_cast<int>(ids->readUint32LE());
+	_gravity = static_cast<int>(rs->readUint32LE());
+	_xSpeed = static_cast<int>(rs->readUint32LE());
+	_ySpeed = static_cast<int>(rs->readUint32LE());
+	_zSpeed = static_cast<int>(rs->readUint32LE());
 
 	return true;
 }

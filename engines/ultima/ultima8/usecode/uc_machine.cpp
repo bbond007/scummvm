@@ -28,14 +28,13 @@
 #include "ultima/ultima8/kernel/delay_process.h"
 #include "ultima/ultima8/kernel/core_app.h"
 #include "ultima/ultima8/games/game_info.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "ultima/ultima8/world/current_map.h"
 #include "ultima/ultima8/world/world.h"
 #include "ultima/ultima8/usecode/bit_set.h"
 #include "ultima/ultima8/usecode/uc_list.h"
 #include "ultima/ultima8/misc/id_man.h"
 #include "ultima/ultima8/world/get_object.h"
+#include "ultima/ultima8/filesys/idata_source.h"
 
 #define INCLUDE_CONVERTUSECODEU8_WITHOUT_BRINGING_IN_FOLD
 #include "ultima/ultima8/convert/u8/convert_usecode_u8.h"
@@ -349,7 +348,7 @@ void UCMachine::execProcess(UCProcess *p) {
 			//! TODO
 			uint16 arg_bytes = cs.readByte();
 			uint16 func = cs.readUint16LE();
-			debug(MM_INFO, "calli\t\t%04Xh (%02Xh arg bytes) %s \n", func, arg_bytes, _convUse->intrinsics()[func]);
+			debug(MM_INFO, "calli\t\t%04Xh (%02Xh arg bytes) %s ", func, arg_bytes, _convUse->intrinsics()[func]);
 
 			// !constants
 			if (func >= _intrinsicCount || _intrinsics[func] == 0) {
@@ -505,7 +504,7 @@ void UCMachine::execProcess(UCProcess *p) {
 		}
 		break;
 
-		case 0x19:
+		case 0x19: {
 			// 19 02
 			// add two stringlists, removing duplicates
 			ui32a = cs.readByte();
@@ -516,28 +515,42 @@ void UCMachine::execProcess(UCProcess *p) {
 			}
 			ui16a = p->_stack.pop2();
 			ui16b = p->_stack.pop2();
-			getList(ui16b)->unionStringList(*getList(ui16a));
-			freeStringList(ui16a); // contents are actually freed in unionSL
+			UCList *srclist = getList(ui16a);
+			UCList *dstlist = getList(ui16b);
+			if (!srclist || !dstlist) {
+				perr << "Invalid list param to union slist" << Std::endl;
+				error = true;
+			} else {
+				dstlist->unionStringList(*srclist);
+				freeStringList(ui16a); // contents are actually freed in unionSL
+			}
 			p->_stack.push2(ui16b);
 			LOGPF(("union slist\t(%02X)\n", ui32a));
 			break;
-
-		case 0x1A:
+		}
+		case 0x1A: {
 			// 1A
-			// substract string list
+			// subtract string list
 			// NB: this one takes a length parameter in crusader. (not in U8)!!
 			// (or rather, it seems it takes one after all? -wjp,20030511)
 			ui32a = cs.readByte(); // elementsize
 			ui32a = 2;
 			ui16a = p->_stack.pop2();
 			ui16b = p->_stack.pop2();
-			getList(ui16b)->substractStringList(*getList(ui16a));
-			freeStringList(ui16a);
+			UCList *srclist = getList(ui16a);
+			UCList *dstlist = getList(ui16b);
+			if (!srclist || !dstlist) {
+				perr << "Invalid list param to subtract slist" << Std::endl;
+				error = true;
+			} else {
+				dstlist->subtractStringList(*srclist);
+				freeStringList(ui16a);
+			}
 			p->_stack.push2(ui16b);
 			LOGPF(("remove slist\t(%02X)\n", ui32a));
 			break;
-
-		case 0x1B:
+		}
+		case 0x1B: {
 			// 1B xx
 			// pop two lists from the stack and remove the 2nd from the 1st
 			// (free the originals? order?)
@@ -545,12 +558,19 @@ void UCMachine::execProcess(UCProcess *p) {
 			ui32a = cs.readByte(); // elementsize
 			ui16a = p->_stack.pop2();
 			ui16b = p->_stack.pop2();
-			getList(ui16b)->substractList(*getList(ui16a));
-			freeList(ui16a);
+			UCList *srclist = getList(ui16a);
+			UCList *dstlist = getList(ui16b);
+			if (!srclist || !dstlist) {
+				perr << "Invalid list param to remove from slist" << Std::endl;
+				error = true;
+			} else {
+				dstlist->subtractList(*srclist);
+				freeList(ui16a);
+			}
 			p->_stack.push2(ui16b);
 			LOGPF(("remove list\t(%02X)\n", ui32a));
 			break;
-
+		}
 		case 0x1C:
 			// 1C
 			// subtract two 16 bit integers
@@ -897,7 +917,7 @@ void UCMachine::execProcess(UCProcess *p) {
 			break;
 
 
-		case 0x38:
+		case 0x38: {
 			// 38 xx yy
 			// is element (size xx) in list? (or slist if yy is true)
 			// free list/slist afterwards
@@ -905,19 +925,23 @@ void UCMachine::execProcess(UCProcess *p) {
 			ui16a = cs.readByte();
 			ui32a = cs.readByte();
 			ui16b = p->_stack.pop2();
-			if (ui32a) { // stringlist
+			UCList *l = getList(ui16b);
+			if (!l) {
+				perr << "Invalid list id " << ui16b << Std::endl;
+				error = true;
+			} else if (ui32a) { // stringlist
 				if (ui16a != 2) {
 					perr << "Unhandled operand " << ui16a << " to in slist"
 					     << Std::endl;
 					error = true;
 				}
-				if (getList(ui16b)->stringInList(p->_stack.pop2()))
+				if (l->stringInList(p->_stack.pop2()))
 					p->_stack.push2(1);
 				else
 					p->_stack.push2(0);
 				freeStringList(ui16b);
 			} else {
-				bool found = getList(ui16b)->inList(p->_stack.access());
+				bool found = l->inList(p->_stack.access());
 				p->_stack.addSP(ui16a);
 				if (found)
 					p->_stack.push2(1);
@@ -928,7 +952,7 @@ void UCMachine::execProcess(UCProcess *p) {
 			}
 			LOGPF(("in list\t\t%s slist==%02X\n", print_bp(ui16a), ui32a));
 			break;
-
+		}
 		case 0x39:
 			// 39
 			// 16 bit bitwise and
@@ -1092,8 +1116,8 @@ void UCMachine::execProcess(UCProcess *p) {
 					if (ui16a < l->getSize()) {
 						p->_stack.push((*l)[ui16a], ui32a);
 					} else {
-						perr << "Warning: ignore 0x44 request to push " << ui16a <<
-								" from list len " << l->getSize() << Std::endl;
+						// WORKAROUND
+						warning("ignore 0x44 request to push %d from list len %d", ui16a, l->getSize());
 					}
 				}
 			}
@@ -1545,12 +1569,26 @@ void UCMachine::execProcess(UCProcess *p) {
 				break;
 			case 2: { // slist
 				UCList *l = new UCList(2);
-				l->copyStringList(*getList(ui16a));
+				const UCList *srclist = getList(ui16a);
+				if (!srclist) {
+					perr << "Warning: invalid src list passed to slist copy"
+						 << Std::endl;
+					ui16b = 0;
+					delete l;
+					break;
+				}
+				l->copyStringList(*srclist);
 				ui16b = assignList(l);
 			}
 			break;
 			case 3: { // list
-				UCList *l = getList(ui16a);
+				const UCList *l = getList(ui16a);
+				if (!l) {
+					perr << "Warning: invalid src list passed to list copy"
+						 << Std::endl;
+					ui16b = 0;
+					break;
+				}
 				int elementsize = l->getElementSize();
 				UCList *l2 = new UCList(elementsize);
 				l2->copyList(*l);
@@ -1578,7 +1616,7 @@ void UCMachine::execProcess(UCProcess *p) {
 
 		case 0x6E:
 			// 6E xx
-			// substract xx from stack pointer
+			// subtract xx from stack pointer
 			// (effect on SP is the same as popping xx bytes)
 			si8a = static_cast<int8>(cs.readByte());
 			p->_stack.addSP(-si8a);
@@ -1611,7 +1649,7 @@ void UCMachine::execProcess(UCProcess *p) {
 			// yy == num bytes in string
 			// zz == type
 		{
-			si16a = cs.readXS(1);
+			si16a = cs.readSByte();
 			uint32 scriptsize = cs.readByte();
 			uint32 searchtype = cs.readByte();
 
@@ -2231,47 +2269,47 @@ void UCMachine::usecodeStats() const {
 #endif
 }
 
-void UCMachine::saveGlobals(ODataSource *ods) {
-	_globals->save(ods);
+void UCMachine::saveGlobals(Common::WriteStream *ws) const {
+	_globals->save(ws);
 }
 
-void UCMachine::saveStrings(ODataSource *ods) {
-	_stringIDs->save(ods);
-	ods->writeUint32LE(static_cast<uint32>(_stringHeap.size()));
+void UCMachine::saveStrings(Common::WriteStream *ws) const {
+	_stringIDs->save(ws);
+	ws->writeUint32LE(static_cast<uint32>(_stringHeap.size()));
 
-	Std::map<uint16, Std::string>::iterator iter;
+	Std::map<uint16, Std::string>::const_iterator iter;
 	for (iter = _stringHeap.begin(); iter != _stringHeap.end(); ++iter) {
-		ods->writeUint16LE((*iter)._key);
-		ods->writeUint32LE((*iter)._value.size());
-		ods->write((*iter)._value.c_str(), (*iter)._value.size());
+		ws->writeUint16LE((*iter)._key);
+		ws->writeUint32LE((*iter)._value.size());
+		ws->write((*iter)._value.c_str(), (*iter)._value.size());
 	}
 }
 
-void UCMachine::saveLists(ODataSource *ods) {
-	_listIDs->save(ods);
-	ods->writeUint32LE(_listHeap.size());
+void UCMachine::saveLists(Common::WriteStream *ws) const {
+	_listIDs->save(ws);
+	ws->writeUint32LE(_listHeap.size());
 
-	Std::map<uint16, UCList *>::iterator iter;
+	Std::map<uint16, UCList *>::const_iterator iter;
 	for (iter = _listHeap.begin(); iter != _listHeap.end(); ++iter) {
-		ods->writeUint16LE((*iter)._key);
-		(*iter)._value->save(ods);
+		ws->writeUint16LE((*iter)._key);
+		(*iter)._value->save(ws);
 	}
 }
 
-bool UCMachine::loadGlobals(IDataSource *ids, uint32 version) {
-	return _globals->load(ids, version);
+bool UCMachine::loadGlobals(Common::ReadStream *rs, uint32 version) {
+	return _globals->load(rs, version);
 }
 
-bool UCMachine::loadStrings(IDataSource *ids, uint32 version) {
-	if (!_stringIDs->load(ids, version)) return false;
+bool UCMachine::loadStrings(Common::ReadStream *rs, uint32 version) {
+	if (!_stringIDs->load(rs, version)) return false;
 
-	uint32 stringcount = ids->readUint32LE();
+	uint32 stringcount = rs->readUint32LE();
 	for (unsigned int i = 0; i < stringcount; ++i) {
-		uint16 sid = ids->readUint16LE();
-		uint32 len = ids->readUint32LE();
+		uint16 sid = rs->readUint16LE();
+		uint32 len = rs->readUint32LE();
 		if (len) {
 			char *buf = new char[len + 1];
-			ids->read(buf, len);
+			rs->read(buf, len);
 			buf[len] = 0;
 			_stringHeap[sid] = buf;
 			delete[] buf;
@@ -2283,14 +2321,14 @@ bool UCMachine::loadStrings(IDataSource *ids, uint32 version) {
 	return true;
 }
 
-bool UCMachine::loadLists(IDataSource *ids, uint32 version) {
-	if (!_listIDs->load(ids, version)) return false;
+bool UCMachine::loadLists(Common::ReadStream *rs, uint32 version) {
+	if (!_listIDs->load(rs, version)) return false;
 
-	uint32 listcount = ids->readUint32LE();
+	uint32 listcount = rs->readUint32LE();
 	for (unsigned int i = 0; i < listcount; ++i) {
-		uint16 lid = ids->readUint16LE();
+		uint16 lid = rs->readUint16LE();
 		UCList *l = new UCList(2); // the "2" will be ignored by load()
-		bool ret = l->load(ids, version);
+		bool ret = l->load(rs, version);
 		if (!ret) return false;
 
 		_listHeap[lid] = l;

@@ -86,16 +86,17 @@ private:
 	void renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Common::Rect *textSize);
 	void renderShape(Graphics::ManagedSurface &surface, uint16 spriteId);
 	void renderButton(Graphics::ManagedSurface &surface, uint16 spriteId);
+	void renderBitmap(Graphics::ManagedSurface &surface, uint16 spriteId);
 	void readPaletteInfo(Common::SeekableSubReadStreamEndian &stream);
 	void readSprite(Common::SeekableSubReadStreamEndian &stream, uint16 offset, uint16 size);
 	void readMainChannels(Common::SeekableSubReadStreamEndian &stream, uint16 offset, uint16 size);
 	Image::ImageDecoder *getImageFrom(uint16 spriteId);
 	Common::String readTextStream(Common::SeekableSubReadStreamEndian *textStream, TextCast *textCast);
-	void drawBackgndTransSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect);
+	void drawBackgndTransSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect, int spriteId);
 	void drawMatteSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect);
 	void drawGhostSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect);
-	void drawReverseSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect);
-	void inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics::Surface &spriteSurface, InkType ink, Common::Rect drawRect);
+	void drawReverseSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect, uint16 spriteId);
+	void inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics::ManagedSurface *maskSurface, const Graphics::Surface &spriteSurface, InkType ink, Common::Rect drawRect, uint spriteId);
 	void addDrawRect(uint16 entityId, Common::Rect &rect);
 
 public:

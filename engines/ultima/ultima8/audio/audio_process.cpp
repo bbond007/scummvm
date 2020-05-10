@@ -23,6 +23,7 @@
 #include "ultima/ultima8/misc/pent_include.h"
 #include "ultima/ultima8/audio/audio_process.h"
 #include "ultima/ultima8/usecode/intrinsics.h"
+#include "ultima/ultima8/usecode/uc_machine.h"
 #include "ultima/ultima8/kernel/object.h"
 #include "ultima/ultima8/games/game_data.h"
 #include "ultima/ultima8/audio/sound_flex.h"
@@ -33,8 +34,7 @@
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/world/item.h"
 #include "ultima/ultima8/world/camera_process.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
+#include "common/util.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -95,6 +95,10 @@ bool AudioProcess::calculateSoundVolume(ObjId objId, int16 &lVol, int16 &rVol) c
 	lVol = (dist * lbal) / 160;
 	rVol = (dist * rbal) / 160;
 
+	// Clip to expected range of 0-255
+	lVol = CLIP(lVol, (int16)0, (int16)255);
+	rVol = CLIP(rVol, (int16)0, (int16)255);
+
 	return true;
 }
 
@@ -112,13 +116,22 @@ void AudioProcess::run() {
 				finished = true;
 		}
 
+		if (it->_loops == -1) {
+			// check if an ever-looping sfx for an item has left the
+			// fast area.. if so we are "finished".
+			Item *item = getItem(it->_objId);
+			if (item && !item->hasFlags(Item::FLG_FASTAREA) && mixer->isPlaying(it->_channel)) {
+				finished = true;
+				mixer->stopSample(it->_channel);
+			}
+		}
+
 		if (finished)
 			it = _sampleInfo.erase(it);
 		else {
-
 			if (it->_sfxNum != -1 && it->_objId) {
-				it->_lVol = 256;
-				it->_rVol = 256;
+				it->_lVol = 255;
+				it->_rVol = 255;
 				calculateSoundVolume(it->_objId, it->_lVol, it->_rVol);
 			}
 			mixer->setVolume(it->_channel, (it->_lVol * it->_volume) / 256, (it->_rVol * it->_volume) / 256);
@@ -157,53 +170,53 @@ bool AudioProcess::continueSpeech(SampleInfo &si) {
 }
 
 
-void AudioProcess::saveData(ODataSource *ods) {
-	Process::saveData(ods);
+void AudioProcess::saveData(Common::WriteStream *ws) {
+	Process::saveData(ws);
 
-	ods->writeByte(static_cast<uint8>(_sampleInfo.size()));
+	ws->writeByte(static_cast<uint8>(_sampleInfo.size()));
 
 	Std::list<SampleInfo>::iterator it;
 	for (it = _sampleInfo.begin(); it != _sampleInfo.end(); ++it) {
-		ods->writeUint16LE(it->_sfxNum);
-		ods->writeUint16LE(it->_priority);
-		ods->writeUint16LE(it->_objId);
-		ods->writeUint16LE(it->_loops);
-		ods->writeUint32LE(it->_pitchShift);
-		ods->writeUint16LE(it->_volume);
+		ws->writeUint16LE(it->_sfxNum);
+		ws->writeUint16LE(it->_priority);
+		ws->writeUint16LE(it->_objId);
+		ws->writeUint16LE(it->_loops);
+		ws->writeUint32LE(it->_pitchShift);
+		ws->writeUint16LE(it->_volume);
 
 		if (it->_sfxNum == -1) { // Speech
-			ods->writeUint32LE(static_cast<uint32>(it->_barked.size()));
-			ods->write(it->_barked.c_str(), static_cast<uint32>(it->_barked.size()));
+			ws->writeUint32LE(static_cast<uint32>(it->_barked.size()));
+			ws->write(it->_barked.c_str(), static_cast<uint32>(it->_barked.size()));
 		}
 	}
 }
 
-bool AudioProcess::loadData(IDataSource *ids, uint32 version) {
-	if (!Process::loadData(ids, version)) return false;
+bool AudioProcess::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Process::loadData(rs, version)) return false;
 
-	uint32 count = ids->readByte();
+	uint32 count = rs->readByte();
 
 	while (count--) {
-		int16 sfxNum = ids->readUint16LE();
-		int16 priority = ids->readUint16LE();
-		int16 objId = ids->readUint16LE();
-		int16 loops = ids->readUint16LE();
-		uint32 pitchShift = ids->readUint32LE();
-		uint16 volume = ids->readUint16LE();
+		int16 sfxNum = rs->readUint16LE();
+		int16 priority = rs->readUint16LE();
+		int16 objId = rs->readUint16LE();
+		int16 loops = rs->readUint16LE();
+		uint32 pitchShift = rs->readUint32LE();
+		uint16 volume = rs->readUint16LE();
 
 		if (sfxNum != -1) { // SFX
 			int16 lVol = 0;
 			int16 rVol = 0;
 			if (objId != 0) {
-				lVol = 256;
-				rVol = 256;
+				lVol = 255;
+				rVol = 255;
 			}
 			playSFX(sfxNum, priority, objId, loops, false, pitchShift, volume, lVol, rVol);
 		} else {                // Speech
-			uint32 slen = ids->readUint32LE();
+			uint32 slen = rs->readUint32LE();
 
 			char *buf = new char[slen + 1];
-			ids->read(buf, slen);
+			rs->read(buf, slen);
 			buf[slen] = 0;
 			Std::string text = buf;
 			delete[] buf;
@@ -499,6 +512,24 @@ uint32 AudioProcess::I_playAmbientSFX(const uint8 *args, unsigned int argsize) {
 	else perr << "Error: No AudioProcess" << Std::endl;
 
 	return 0;
+}
+
+uint32 AudioProcess::I_playAmbientSFXCru(const uint8 *args, unsigned int argsize) {
+	// Similar to I_playAmbientSFX, but the params are different.
+	ARG_ITEM_FROM_PTR(item)
+	ARG_SINT16(sfxNum);
+
+	if (!item) {
+		warning("I_playAmbientSFXCru: Couldn't get item");
+	} else {
+		AudioProcess *ap = AudioProcess::get_instance();
+		if (ap)
+			ap->playSFX(sfxNum, 0x10, item->getObjId(), -1, true);
+		else
+			warning("I_playAmbientSFXCru Error: No AudioProcess");
+	}
+	return 0;
+
 }
 
 uint32 AudioProcess::I_isSFXPlaying(const uint8 *args, unsigned int argsize) {

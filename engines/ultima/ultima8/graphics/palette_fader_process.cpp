@@ -25,9 +25,6 @@
 #include "ultima/ultima8/kernel/kernel.h"
 #include "ultima/ultima8/graphics/palette.h"
 
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
-
 namespace Ultima {
 namespace Ultima8 {
 
@@ -36,7 +33,8 @@ PaletteFaderProcess *PaletteFaderProcess::_fader = nullptr;
 // p_dynamic_class stuff
 DEFINE_RUNTIME_CLASSTYPE_CODE(PaletteFaderProcess, Process)
 
-PaletteFaderProcess::PaletteFaderProcess() : Process() {
+PaletteFaderProcess::PaletteFaderProcess() : Process(), _priority(0),
+	_counter(0), _maxCounter(0) {
 }
 
 PaletteFaderProcess::PaletteFaderProcess(PalTransforms trans,
@@ -98,31 +96,31 @@ void PaletteFaderProcess::run() {
 	if (!_counter--) terminate();
 }
 
-void PaletteFaderProcess::saveData(ODataSource *ods) {
-	Process::saveData(ods);
+void PaletteFaderProcess::saveData(Common::WriteStream *ws) {
+	Process::saveData(ws);
 
-	ods->writeUint32LE(static_cast<uint32>(_priority));
-	ods->writeUint32LE(static_cast<uint32>(_counter));
-	ods->writeUint32LE(static_cast<uint32>(_maxCounter));
+	ws->writeUint32LE(static_cast<uint32>(_priority));
+	ws->writeUint32LE(static_cast<uint32>(_counter));
+	ws->writeUint32LE(static_cast<uint32>(_maxCounter));
 	unsigned int i;
 	for (i = 0; i < 12; ++i)
-		ods->writeUint16LE(_oldMatrix[i]);
+		ws->writeUint16LE(_oldMatrix[i]);
 	for (i = 0; i < 12; ++i)
-		ods->writeUint16LE(_newMatrix[i]);
+		ws->writeUint16LE(_newMatrix[i]);
 }
 
-bool PaletteFaderProcess::loadData(IDataSource *ids, uint32 version) {
-	if (!Process::loadData(ids, version)) return false;
+bool PaletteFaderProcess::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Process::loadData(rs, version)) return false;
 
-	_priority = static_cast<int>(ids->readUint32LE());
-	_counter = static_cast<int>(ids->readUint32LE());
-	_maxCounter = static_cast<int>(ids->readUint32LE());
+	_priority = static_cast<int>(rs->readUint32LE());
+	_counter = static_cast<int>(rs->readUint32LE());
+	_maxCounter = static_cast<int>(rs->readUint32LE());
 
 	unsigned int i;
 	for (i = 0; i < 12; ++i)
-		_oldMatrix[i] = ids->readUint16LE();
+		_oldMatrix[i] = rs->readUint16LE();
 	for (i = 0; i < 12; ++i)
-		_newMatrix[i] = ids->readUint16LE();
+		_newMatrix[i] = rs->readUint16LE();
 
 	_fader = this; //static
 	return true;

@@ -29,8 +29,6 @@
 #include "ultima/ultima8/graphics/shape.h"
 #include "ultima/ultima8/kernel/mouse.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -39,14 +37,15 @@ namespace Ultima8 {
 DEFINE_RUNTIME_CLASSTYPE_CODE(ButtonWidget, Gump)
 
 ButtonWidget::ButtonWidget() : Gump(), _shapeUp(nullptr), _shapeDown(nullptr),
-		_mouseOver(false), _origW(0), _origH(0) {
+		_mouseOver(false), _origW(0), _origH(0), _frameNumUp(0),
+		_frameNumDown(0), _mouseOverBlendCol(0), _textWidget(0) {
 }
 
 ButtonWidget::ButtonWidget(int x, int y, Std::string txt, bool gamefont,
                            int font, uint32 mouseOverBlendCol,
                            int w, int h, int32 layer) :
 	Gump(x, y, w, h, 0, 0, layer), _shapeUp(nullptr), _shapeDown(nullptr),
-	_mouseOver(false), _origW(w), _origH(h) {
+	_mouseOver(false), _origW(w), _origH(h), _frameNumUp(0), _frameNumDown(0) {
 	TextWidget *widget = new TextWidget(0, 0, txt, gamefont, font, w, h);
 	_textWidget = widget->getObjId();
 	_mouseOverBlendCol = mouseOverBlendCol;
@@ -55,7 +54,8 @@ ButtonWidget::ButtonWidget(int x, int y, Std::string txt, bool gamefont,
 
 ButtonWidget::ButtonWidget(int x, int y, FrameID frame_up, FrameID frame_down,
                            bool mouseOver, int32 layer)
-	: Gump(x, y, 5, 5, 0, 0, layer), _textWidget(0), _mouseOver(mouseOver) {
+	: Gump(x, y, 5, 5, 0, 0, layer), _textWidget(0), _mouseOver(mouseOver),
+		_origW(0), _origH(0), _mouseOverBlendCol(0) {
 	_shapeUp = GameData::get_instance()->getShape(frame_up);
 	_shapeDown = GameData::get_instance()->getShape(frame_down);
 	_frameNumUp = frame_up._frameNum;
@@ -179,7 +179,7 @@ void ButtonWidget::OnMouseLeft() {
 	}
 }
 
-void ButtonWidget::saveData(ODataSource *ods) {
+void ButtonWidget::saveData(Common::WriteStream *ws) {
 	// HACK ALERT
 	int w = 0, h = 0;
 	if (_textWidget != 0) {
@@ -189,7 +189,7 @@ void ButtonWidget::saveData(ODataSource *ods) {
 		_dims.h = _origH;
 	}
 
-	Gump::saveData(ods);
+	Gump::saveData(ws);
 
 	// HACK ALERT
 	if (_textWidget != 0) {
@@ -202,46 +202,46 @@ void ButtonWidget::saveData(ODataSource *ods) {
 	if (_shapeUp) {
 		_shapeUp->getShapeId(flex, shapenum);
 	}
-	ods->writeUint16LE(flex);
-	ods->writeUint32LE(shapenum);
-	ods->writeUint32LE(_frameNumUp);
+	ws->writeUint16LE(flex);
+	ws->writeUint32LE(shapenum);
+	ws->writeUint32LE(_frameNumUp);
 
 	flex = 0;
 	shapenum = 0;
 	if (_shapeDown) {
 		_shapeDown->getShapeId(flex, shapenum);
 	}
-	ods->writeUint16LE(flex);
-	ods->writeUint32LE(shapenum);
-	ods->writeUint32LE(_frameNumDown);
-	ods->writeUint16LE(_textWidget);
-	ods->writeUint32LE(_mouseOverBlendCol);
+	ws->writeUint16LE(flex);
+	ws->writeUint32LE(shapenum);
+	ws->writeUint32LE(_frameNumDown);
+	ws->writeUint16LE(_textWidget);
+	ws->writeUint32LE(_mouseOverBlendCol);
 
 	uint8 m = (_mouseOver ? 1 : 0);
-	ods->writeByte(m);
+	ws->writeByte(m);
 }
 
-bool ButtonWidget::loadData(IDataSource *ids, uint32 version) {
-	if (!Gump::loadData(ids, version)) return false;
+bool ButtonWidget::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Gump::loadData(rs, version)) return false;
 
 	_shapeUp = nullptr;
-	ShapeArchive *flex = GameData::get_instance()->getShapeFlex(ids->readUint16LE());
-	uint32 shapenum = ids->readUint32LE();
+	ShapeArchive *flex = GameData::get_instance()->getShapeFlex(rs->readUint16LE());
+	uint32 shapenum = rs->readUint32LE();
 	if (flex) {
 		_shapeUp = flex->getShape(shapenum);
 	}
-	_frameNumUp = ids->readUint32LE();
+	_frameNumUp = rs->readUint32LE();
 
 	_shapeDown = nullptr;
-	flex = GameData::get_instance()->getShapeFlex(ids->readUint16LE());
-	shapenum = ids->readUint32LE();
+	flex = GameData::get_instance()->getShapeFlex(rs->readUint16LE());
+	shapenum = rs->readUint32LE();
 	if (flex) {
 		_shapeDown = flex->getShape(shapenum);
 	}
-	_frameNumDown = ids->readUint32LE();
-	_textWidget = ids->readUint16LE();
-	_mouseOverBlendCol = ids->readUint32LE();
-	_mouseOver = (ids->readByte() != 0);
+	_frameNumDown = rs->readUint32LE();
+	_textWidget = rs->readUint16LE();
+	_mouseOverBlendCol = rs->readUint32LE();
+	_mouseOver = (rs->readByte() != 0);
 
 	// HACK ALERT
 	if (_textWidget != 0) {

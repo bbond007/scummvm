@@ -25,6 +25,7 @@
 
 #include "director/director.h"
 #include "director/cast.h"
+#include "director/frame.h"
 #include "director/sprite.h"
 #include "director/score.h"
 #include "director/lingo/lingo.h"
@@ -356,6 +357,26 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		d.type = INT;
 		d.u.i = _vm->_keyCode;
 		break;
+	case kTheLastClick:
+		d.type = INT;
+		d.u.i = _vm->getMacTicks() - _vm->getCurrentScore()->_lastClickTime;
+		break;
+	case kTheLastEvent:
+		d.type = INT;
+		d.u.i = _vm->getMacTicks() - _vm->getCurrentScore()->_lastEventTime;
+		break;
+	case kTheLastFrame:
+		d.type = INT;
+		d.u.i = _vm->getCurrentScore()->_frames.size() - 1;
+		break;
+	case kTheLastKey:
+		d.type = INT;
+		d.u.i = _vm->getMacTicks() - _vm->getCurrentScore()->_lastKeyTime;
+		break;
+	case kTheLastRoll:
+		d.type = INT;
+		d.u.i = _vm->getMacTicks() - _vm->getCurrentScore()->_lastRollTime;
+		break;
 	case kTheMachineType:
 		// 1 - Macintosh 512Ke			D2
 		// 2 - Macintosh Plus			D2
@@ -399,6 +420,22 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		d.type = INT;
 		d.u.i = _vm->_machineType;
 		break;
+	case kTheMouseCast:
+		{
+			Common::Point pos = g_system->getEventManager()->getMousePos();
+			Score *sc = _vm->getCurrentScore();
+			Frame *currentFrame = sc->_frames[sc->getCurrentFrame()];
+			uint16 spriteId = currentFrame->getSpriteIDFromPos(pos);
+			d.type = INT;
+			d.u.i = currentFrame->_sprites[spriteId]->_castId;
+			if (d.u.i == 0)
+				d.u.i = -1;
+		}
+		break;
+	case kTheMouseDown:
+		d.type = INT;
+		d.u.i = g_system->getEventManager()->getButtonState() & (1 << Common::MOUSE_BUTTON_LEFT | 1 << Common::MOUSE_BUTTON_RIGHT) ? 1 : 0;
+		break;
 	case kTheMouseH:
 		d.type = INT;
 		d.u.i = g_system->getEventManager()->getMousePos().x;
@@ -407,12 +444,21 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 		d.type = INT;
 		d.u.i = g_system->getEventManager()->getMousePos().y;
 		break;
+	case kTheMouseUp:
+		d.type = INT;
+		d.u.i = g_system->getEventManager()->getButtonState() & (1 << Common::MOUSE_BUTTON_LEFT | 1 << Common::MOUSE_BUTTON_RIGHT) ? 0 : 1;
+		break;
 	case kThePerFrameHook:
 		warning("STUB: Lingo::getTheEntity(): getting the perframehook");
 		break;
 	case kThePi:
 		d.type = FLOAT;
 		d.u.f = M_PI;
+		break;
+	case kTheQuickTimePresent:
+		// QuickTime is always present for scummvm
+		d.type = INT;
+		d.u.i = 1;
 		break;
 	case kTheSprite:
 		d = getTheSprite(id, field);
@@ -425,6 +471,10 @@ Datum Lingo::getTheEntity(int entity, Datum &id, int field) {
 	case kTheStillDown:
 		d.type = INT;
 		d.u.i = _vm->getCurrentScore()->_mouseIsDown;
+		break;
+	case kTheTimer:
+		d.type = INT;
+		d.u.i = _vm->getMacTicks() - _vm->getCurrentScore()->_lastTimerReset;
 		break;
 	default:
 		warning("Lingo::getTheEntity(): Unprocessed getting field \"%s\" of entity %s", field2str(field), entity2str(entity));
@@ -466,8 +516,15 @@ void Lingo::setTheEntity(int entity, Datum &id, int field, Datum &d) {
 }
 
 void Lingo::setTheMenuItemEntity(int entity, Datum &menuId, int field, Datum &menuItemId, Datum &d) {
-	warning("STUB: setTheMenuItemEntity(%s, \"%s\", %s, \"%s\", %s)", entity2str(entity), menuId.getPrintable().c_str(), field2str(field),
+	warning("STUB: setTheMenuItemEntity(%s, %s, %s, %s, %s)", entity2str(entity), menuId.getPrintable().c_str(), field2str(field),
 				menuItemId.getPrintable().c_str(), d.getPrintable().c_str());
+}
+
+Datum Lingo::getTheMenuItemEntity(int entity, Datum &menuId, int field, Datum &menuItemId) {
+	warning("STUB: getTheMenuItemEntity(%s, %s, %s, %s)", entity2str(entity), menuId.getPrintable().c_str(), field2str(field),
+				menuItemId.getPrintable().c_str());
+
+	return Datum();
 }
 
 Datum Lingo::getTheSprite(Datum &id1, int field) {
@@ -530,10 +587,10 @@ Datum Lingo::getTheSprite(Datum &id1, int field) {
 		d.u.i = sprite->_thickness & 0x3;
 		break;
 	case kTheLocH:
-		d.u.i = sprite->_startPoint.x;
+		d.u.i = sprite->_currentPoint.x;
 		break;
 	case kTheLocV:
-		d.u.i = sprite->_startPoint.y;
+		d.u.i = sprite->_currentPoint.y;
 		break;
 	case kTheMoveableSprite:
 		d.u.i = sprite->_moveable;
@@ -546,6 +603,9 @@ Datum Lingo::getTheSprite(Datum &id1, int field) {
 		break;
 	case kThePattern:
 		d.u.i = sprite->getPattern();
+		break;
+	case kThePuppet:
+		d.u.i = sprite->_puppet;
 		break;
 	case kTheRight:
 		d.u.i = sprite->_right;
@@ -566,7 +626,7 @@ Datum Lingo::getTheSprite(Datum &id1, int field) {
 		d.u.i = sprite->_trails;
 		break;
 	case kTheType:
-		d.u.i = sprite->_type;
+		d.u.i = sprite->_spriteType;
 		break;
 	case kTheVisibility:
 	case kTheVisible:
@@ -647,13 +707,15 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 		sprite->_thickness = d.u.i;
 		break;
 	case kTheLocH:
-		sprite->_startPoint.x = d.u.i;
+		sprite->_currentPoint.x = d.u.i;
 		break;
 	case kTheLocV:
-		sprite->_startPoint.y = d.u.i;
+		sprite->_currentPoint.y = d.u.i;
 		break;
 	case kTheMoveableSprite:
 		sprite->_moveable = d.u.i;
+		if (!d.u.i)
+			sprite->_currentPoint = sprite->_startPoint;
 		break;
 	case kTheMovieRate:
 		sprite->_movieRate = d.u.i;
@@ -663,6 +725,9 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 		break;
 	case kThePattern:
 		sprite->setPattern(d.u.i);
+		break;
+	case kThePuppet:
+		sprite->_puppet = d.u.i;
 		break;
 	case kTheRight:
 		sprite->_right = d.u.i;
@@ -683,7 +748,7 @@ void Lingo::setTheSprite(Datum &id1, int field, Datum &d) {
 		sprite->_trails = d.u.i;
 		break;
 	case kTheType:
-		sprite->_type = static_cast<SpriteType>(d.u.i);
+		sprite->_spriteType = static_cast<SpriteType>(d.u.i);
 		break;
 	case kTheVisibility:
 	case kTheVisible:
@@ -707,6 +772,11 @@ Datum Lingo::getTheCast(Datum &id1, int field) {
 	Score *score = _vm->getCurrentScore();
 	// Setting default type
 	d.type = INT;
+
+	if (!score) {
+		warning("Lingo::getTheCast(): No cast loaded");
+		return d;
+	}
 
 	CastType castType;
 	CastInfo *castInfo;
@@ -767,12 +837,25 @@ Datum Lingo::getTheCast(Datum &id1, int field) {
 		d.u.i = 1; //Not loaded handled above
 		break;
 	case kTheName:
-		d.makeString();
-		d.u.s = &castInfo->name;
+		d.type = STRING;
+		d.u.s = new Common::String(castInfo->name.c_str());
 		break;
 	case kTheScriptText:
+		d.type = STRING;
+		d.u.s = new Common::String(castInfo->script.c_str());
+		break;
+	case kTheText:
 		d.makeString();
-		d.u.s = &castInfo->script;
+		*d.u.s = "";
+		if (castType == kCastText) {
+			if (score->_loadedCast->contains(id) && score->_loadedCast->getVal(id)->_type == kCastText) {
+				*d.u.s = ((TextCast *)score->_loadedCast->getVal(id))->getText();
+			} else {
+				warning("Lingo::getTheCast(): Unknown STXT cast id %d", id);
+			}
+		} else {
+			warning("Lingo::getTheCast(): Unprocessed getting text of cast %d type %d", id, castType);
+		}
 		break;
 	case kTheWidth:
 		d.u.i = score->getCastMemberInitialRect(id).width();

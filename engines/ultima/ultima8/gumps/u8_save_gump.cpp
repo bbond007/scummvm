@@ -35,8 +35,6 @@
 #include "ultima/ultima8/gumps/paged_gump.h"
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/world/actors/main_actor.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "common/savefile.h"
 #include "common/translation.h"
 
@@ -328,7 +326,7 @@ Gump *U8SaveGump::showLoadSaveGump(Gump *parent, bool save) {
 		// can't _save if game over
 		// FIXME: this check should probably be in Game or GUIApp
 		MainActor *av = getMainActor();
-		if (!av || (av->getActorFlags() & Actor::ACT_DEAD))
+		if (!av || av->hasActorFlags(Actor::ACT_DEAD))
 			return nullptr;
 	}
 

@@ -34,8 +34,6 @@ class Item;
 class UCList;
 class TeleportEgg;
 class EggHatcherProcess;
-class IDataSource;
-class ODataSource;
 
 #define MAP_NUM_CHUNKS  64
 
@@ -86,18 +84,18 @@ public:
 	//! \param y y coordinate of search center if item is 0.
 	void areaSearch(UCList *itemlist, const uint8 *loopscript,
 	                uint32 scriptsize, const Item *item, uint16 range,
-					bool recurse, int32 x = 0, int32 y = 0);
+					bool recurse, int32 x = 0, int32 y = 0) const;
 
 	// Surface search: Search above and below an item.
 	void surfaceSearch(UCList *itemlist, const uint8 *loopscript,
 	                   uint32 scriptsize, const Item *item, bool above,
-					   bool below, bool recurse = false);
+					   bool below, bool recurse = false) const;
 
 	// Surface search: Search above and below an item.
 	void surfaceSearch(UCList *itemlist, const uint8 *loopscript,
 	                   uint32 scriptsize, ObjId id,
 	                   int32 origin[3], int32 dims[2],
-	                   bool above, bool below, bool recurse = false);
+	                   bool above, bool below, bool recurse = false) const;
 
 	// Collision detection. Returns true if the box [x,y,z]-[x-xd,y-yd,z+zd]
 	// does not collide with any solid items.
@@ -195,13 +193,13 @@ public:
 	}
 
 	// A simple trace to find the top item at a specific xy point
-	Item *traceTopItem(int32 x, int32 y, int32 ztop, int32 zbot, ObjId ignore, uint32 shflags);
+	const Item *traceTopItem(int32 x, int32 y, int32 ztop, int32 zbot, ObjId ignore, uint32 shflags);
 
 	// Set the entire map as being 'fast'
 	void setWholeMapFast();
 
-	void save(ODataSource *ods);
-	bool load(IDataSource *ids, uint32 version);
+	void save(Common::WriteStream *ws);
+	bool load(Common::ReadStream *rs, uint32 version);
 
 	INTRINSIC(I_canExistAt);
 
@@ -209,16 +207,19 @@ private:
 	void loadItems(Std::list<Item *> itemlist, bool callCacheIn);
 	void createEggHatcher();
 
+	//! clip the given map chunk numbers to iterate over them safely
+	void clipMapChunks(int &minx, int &maxx, int &miny, int &maxy) const;
+
 	Map *_currentMap;
 
 	// item lists. Lots of them :-)
 	// items[x][y]
-	Std::list<Item *> **_items;
+	Std::list<Item *> _items[MAP_NUM_CHUNKS][MAP_NUM_CHUNKS];
 
 	ProcId _eggHatcher;
 
 	// Fast area bit masks -> fast[ry][rx/32]&(1<<(rx&31));
-	uint32 **_fast;
+	uint32 _fast[MAP_NUM_CHUNKS][MAP_NUM_CHUNKS / 32];
 	int32 _fastXMin, _fastYMin, _fastXMax, _fastYMax;
 
 	int _mapChunkSize;

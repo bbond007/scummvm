@@ -27,8 +27,6 @@
 #include "ultima/ultima8/world/current_map.h"
 #include "ultima/ultima8/kernel/kernel.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -37,15 +35,16 @@ namespace Ultima8 {
 DEFINE_RUNTIME_CLASSTYPE_CODE(SpriteProcess, Process)
 
 SpriteProcess::SpriteProcess()
-	: Process() {
-
+	: Process(), _shape(0), _frame(0), _firstFrame(0), _lastFrame(0),
+	_repeats(0), _delay(0), _x(0), _y(0), _z(0), _delayCounter(0),
+	_initialized(false) {
 }
 
-SpriteProcess::SpriteProcess(int Shape, int Frame, int LastFrame,
-                             int Repeats, int Delay, int x, int y, int z,
+SpriteProcess::SpriteProcess(int shape, int frame, int lastFrame,
+                             int repeats, int delay, int x, int y, int z,
                              bool delayed_init) :
-	_shape(Shape), _frame(Frame), _firstFrame(Frame), _lastFrame(LastFrame),
-	_repeats(Repeats), _delay(Delay * 2), _x(x), _y(y), _z(z), _delayCounter(0),
+	_shape(shape), _frame(frame), _firstFrame(frame), _lastFrame(lastFrame),
+	_repeats(repeats), _delay(delay * 2), _x(x), _y(y), _z(z), _delayCounter(0),
 	_initialized(false) {
 	if (!delayed_init)
 		init();
@@ -111,36 +110,36 @@ uint32 SpriteProcess::I_createSprite(const uint8 *args, unsigned int argsize) {
 	return Kernel::get_instance()->addProcess(p);
 }
 
-void SpriteProcess::saveData(ODataSource *ods) {
-	Process::saveData(ods);
+void SpriteProcess::saveData(Common::WriteStream *ws) {
+	Process::saveData(ws);
 
-	ods->writeUint32LE(static_cast<uint32>(_shape));
-	ods->writeUint32LE(static_cast<uint32>(_frame));
-	ods->writeUint32LE(static_cast<uint32>(_firstFrame));
-	ods->writeUint32LE(static_cast<uint32>(_lastFrame));
-	ods->writeUint32LE(static_cast<uint32>(_repeats));
-	ods->writeUint32LE(static_cast<uint32>(_delay));
-	ods->writeUint32LE(static_cast<uint32>(_x));
-	ods->writeUint32LE(static_cast<uint32>(_y));
-	ods->writeUint32LE(static_cast<uint32>(_z));
-	ods->writeUint32LE(static_cast<uint32>(_delayCounter));
-	ods->writeByte(_initialized ? 1 : 0);
+	ws->writeUint32LE(static_cast<uint32>(_shape));
+	ws->writeUint32LE(static_cast<uint32>(_frame));
+	ws->writeUint32LE(static_cast<uint32>(_firstFrame));
+	ws->writeUint32LE(static_cast<uint32>(_lastFrame));
+	ws->writeUint32LE(static_cast<uint32>(_repeats));
+	ws->writeUint32LE(static_cast<uint32>(_delay));
+	ws->writeUint32LE(static_cast<uint32>(_x));
+	ws->writeUint32LE(static_cast<uint32>(_y));
+	ws->writeUint32LE(static_cast<uint32>(_z));
+	ws->writeUint32LE(static_cast<uint32>(_delayCounter));
+	ws->writeByte(_initialized ? 1 : 0);
 }
 
-bool SpriteProcess::loadData(IDataSource *ids, uint32 version) {
-	if (!Process::loadData(ids, version)) return false;
+bool SpriteProcess::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Process::loadData(rs, version)) return false;
 
-	_shape = static_cast<int>(ids->readUint32LE());
-	_frame = static_cast<int>(ids->readUint32LE());
-	_firstFrame = static_cast<int>(ids->readUint32LE());
-	_lastFrame = static_cast<int>(ids->readUint32LE());
-	_repeats = static_cast<int>(ids->readUint32LE());
-	_delay = static_cast<int>(ids->readUint32LE());
-	_x = static_cast<int>(ids->readUint32LE());
-	_y = static_cast<int>(ids->readUint32LE());
-	_z = static_cast<int>(ids->readUint32LE());
-	_delayCounter = static_cast<int>(ids->readUint32LE());
-	_initialized = (ids->readByte() != 0);
+	_shape = static_cast<int>(rs->readUint32LE());
+	_frame = static_cast<int>(rs->readUint32LE());
+	_firstFrame = static_cast<int>(rs->readUint32LE());
+	_lastFrame = static_cast<int>(rs->readUint32LE());
+	_repeats = static_cast<int>(rs->readUint32LE());
+	_delay = static_cast<int>(rs->readUint32LE());
+	_x = static_cast<int>(rs->readUint32LE());
+	_y = static_cast<int>(rs->readUint32LE());
+	_z = static_cast<int>(rs->readUint32LE());
+	_delayCounter = static_cast<int>(rs->readUint32LE());
+	_initialized = (rs->readByte() != 0);
 
 	return true;
 }

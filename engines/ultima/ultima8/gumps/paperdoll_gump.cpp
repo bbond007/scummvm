@@ -37,8 +37,6 @@
 #include "ultima/ultima8/gumps/mini_stats_gump.h"
 #include "ultima/ultima8/ultima8.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -268,9 +266,11 @@ bool PaperdollGump::GetLocationOfItem(uint16 itemid, int32 &gx, int32 &gy,
                                       int32 lerp_factor) {
 
 	Item *item = getItem(itemid);
-	Item *parent_ = item->getParentAsContainer();
-	if (!parent_) return false;
-	if (parent_->getObjId() != _owner) return false;
+	if (!item)
+		return false; // item gone - shouldn't happen?
+	Item *parent = item->getParentAsContainer();
+	if (!parent || parent->getObjId() != _owner)
+		return false;
 
 	//!!! need to use lerp_factor
 
@@ -409,16 +409,16 @@ void PaperdollGump::ChildNotify(Gump *child, uint32 message) {
 }
 
 
-void PaperdollGump::saveData(ODataSource *ods) {
-	ContainerGump::saveData(ods);
+void PaperdollGump::saveData(Common::WriteStream *ws) {
+	ContainerGump::saveData(ws);
 
-	ods->writeUint16LE(_statButtonId);
+	ws->writeUint16LE(_statButtonId);
 }
 
-bool PaperdollGump::loadData(IDataSource *ids, uint32 version) {
-	if (!ContainerGump::loadData(ids, version)) return false;
+bool PaperdollGump::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!ContainerGump::loadData(rs, version)) return false;
 
-	_statButtonId = ids->readUint16LE();
+	_statButtonId = rs->readUint16LE();
 
 	return true;
 }

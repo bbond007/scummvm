@@ -54,6 +54,7 @@
 #include "engines/wintermute/base/scriptables/script_stack.h"
 #include "engines/wintermute/base/scriptables/script.h"
 #include "engines/wintermute/base/sound/base_sound.h"
+#include "engines/wintermute/ext/plugins.h"
 #include "engines/wintermute/video/video_player.h"
 #include "engines/wintermute/video/video_theora_player.h"
 #include "engines/wintermute/utils/utils.h"
@@ -3392,6 +3393,13 @@ bool BaseGame::externalCall(ScScript *script, ScStack *stack, ScStack *thisStack
 		delete[] copy;
 	}
 #endif
+
+	//////////////////////////////////////////////////////////////////////////
+	// Plugins: emulate object constructors from known "wme_*.dll" plugins
+	//////////////////////////////////////////////////////////////////////////
+	else if(!DID_FAIL(EmulatePluginCall(_gameRef, stack, thisStack, name))) {
+		return STATUS_OK;
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	// failure

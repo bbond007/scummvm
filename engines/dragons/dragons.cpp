@@ -77,6 +77,19 @@ DragonsEngine::DragonsEngine(OSystem *syst, const ADGameDescription *desc) : Eng
 	_sceneUpdateFunction = nullptr;
 	_vsyncUpdateFunction = nullptr;
 
+	_dragonOBD = nullptr;
+	_dragonImg = nullptr;
+	_actorManager = nullptr;
+	_dragonINIResource = nullptr;
+	_scene = nullptr;
+	_sound = nullptr;
+	_isLoadingDialogAudio = false;
+	_sceneId1 = 0;
+	_dragonFLG = nullptr;
+	_dragonVAR = nullptr;
+	_flickerIdleCounter = 0;
+	_loadingScreenState = nullptr;
+
 	_leftMouseButtonUp = false;
 	_leftMouseButtonDown = false;
 	_rightMouseButtonUp = false;
@@ -107,6 +120,7 @@ DragonsEngine::DragonsEngine(OSystem *syst, const ADGameDescription *desc) : Eng
 DragonsEngine::~DragonsEngine() {
 	delete _sequenceOpcodes;
 	delete _scriptOpcodes;
+	delete _cursor;
 }
 
 void DragonsEngine::updateEvents() {
@@ -271,8 +285,6 @@ uint16 DragonsEngine::ipt_img_file_related() {
 
 void DragonsEngine::gameLoop() {
 	uint16 prevImgIniId = 0;
-	InventoryState uVar6;
-	InventoryState uVar7;
 	uint16 sequenceId;
 
 	_cursor->_cursorActivationSeqOffset = 0;
@@ -477,9 +489,9 @@ void DragonsEngine::gameLoop() {
 				}
 			}
 			if (_inventory->getState() == InventionBookOpen) {
-				uVar6 = _inventory->getState();
+				InventoryState uVar6 = _inventory->getState();
 				if (checkForInventoryButtonRelease() && isInputEnabled()) {
-					uVar7 = _inventory->_previousState;
+					InventoryState uVar7 = _inventory->_previousState;
 					if (_dragonVAR->getVar(7) == 1) {
 						_inventory->_previousState = uVar7;
 						_inventory->inventoryMissing();
@@ -519,7 +531,7 @@ void DragonsEngine::gameLoop() {
 			_inventory->setPreviousState();
 			continue;
 		}
-		uVar6 = _inventory->getState();
+		InventoryState uVar6 = _inventory->getState();
 		if (checkForActionButtonRelease() && isFlagSet(ENGINE_FLAG_8)) {
 			_flickerIdleCounter = 0;
 			if ((_cursor->_iniUnderCursor & 0x8000) != 0) {

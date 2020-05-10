@@ -35,9 +35,7 @@
 #include "ultima/ultima8/gumps/quit_gump.h"
 #include "ultima/ultima8/gumps/shape_viewer_gump.h"
 #include "ultima/ultima8/gumps/menu_gump.h"
-#include "ultima/ultima8/kernel/allocator.h"
 #include "ultima/ultima8/kernel/kernel.h"
-#include "ultima/ultima8/kernel/memory_manager.h"
 #include "ultima/ultima8/kernel/object_manager.h"
 #include "ultima/ultima8/misc/id_man.h"
 #include "ultima/ultima8/misc/util.h"
@@ -47,6 +45,7 @@
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/world/item_factory.h"
 #include "ultima/ultima8/world/actors/quick_avatar_mover_process.h"
+#include "ultima/ultima8/world/actors/avatar_mover_process.h"
 #include "ultima/ultima8/world/actors/main_actor.h"
 #include "ultima/ultima8/world/actors/pathfinder.h"
 
@@ -82,6 +81,7 @@ Debugger::Debugger() : Shared::Debugger() {
 	registerCmd("Ultima8Engine::togglePaintEditorItems", WRAP_METHOD(Debugger, cmdTogglePaintEditorItems));
 	registerCmd("Ultima8Engine::toggleShowTouchingItems", WRAP_METHOD(Debugger, cmdToggleShowTouchingItems));
 	registerCmd("Ultima8Engine::closeItemGumps", WRAP_METHOD(Debugger, cmdCloseItemGumps));
+	registerCmd("AvatarMoverProcess::setFakeBothButtonClick", WRAP_METHOD(Debugger, cmdBothButtonClick));
 
 	registerCmd("AudioProcess::listSFX", WRAP_METHOD(Debugger, cmdListSFX));
 	registerCmd("AudioProcess::playSFX", WRAP_METHOD(Debugger, cmdPlaySFX));
@@ -116,11 +116,6 @@ Debugger::Debugger() : Shared::Debugger() {
 	registerCmd("MainActor::useBedroll", WRAP_METHOD(Debugger, cmdUseBedroll));
 	registerCmd("MainActor::useKeyring", WRAP_METHOD(Debugger, cmdUseKeyring));
 	registerCmd("MainActor::toggleCombat", WRAP_METHOD(Debugger, cmdToggleCombat));
-
-	registerCmd("MemoryManager::MemInfo", WRAP_METHOD(Debugger, cmdMemInfo));
-#ifdef DEBUG
-	registerCmd("MemoryManager::test", WRAP_METHOD(Debugger, cmdTestMemory));
-#endif
 
 	registerCmd("ObjectManager::objectTypes", WRAP_METHOD(Debugger, cmdObjectTypes));
 	registerCmd("ObjectManager::objectInfo", WRAP_METHOD(Debugger, cmdObjectInfo));
@@ -299,7 +294,7 @@ bool Debugger::cmdTogglePaintEditorItems(int argc, const char **argv) {
 	Ultima8Engine *g = Ultima8Engine::get_instance();
 	g->togglePaintEditorItems();
 	debugPrintf("paintEditorItems = %s\n", strBool(g->isPaintEditorItems()));
-	return true;
+	return false;
 }
 
 bool Debugger::cmdToggleShowTouchingItems(int argc, const char **argv) {
@@ -685,7 +680,7 @@ bool Debugger::cmdToggleInvincibility(int argc, const char **argv) {
 	}
 	MainActor *av = getMainActor();
 
-	if (av->getActorFlags() & Actor::ACT_INVINCIBLE) {
+	if (av->hasActorFlags(Actor::ACT_INVINCIBLE)) {
 		av->clearActorFlag(Actor::ACT_INVINCIBLE);
 		debugPrintf("Avatar is no longer invincible.\n");
 	} else {
@@ -796,12 +791,12 @@ bool Debugger::cmdDumpMap(int argc, const char **argv) {
 	sprintf(buf, "%02d", World::get_instance()->getCurrentMap()->getNum());
 	filename += buf;
 	filename += ".png";
-	ODataSource *ds = FileSystem::get_instance()->WriteFile(filename);
+	Common::WriteStream *ws = FileSystem::get_instance()->WriteFile(filename);
 	Std::string pngcomment = "Map ";
 	pngcomment += buf;
 	pngcomment += ", dumped by Pentagram.";
 
-	PNGWriter *pngw = new PNGWriter(ds);
+	PNGWriter *pngw = new PNGWriter(ws);
 	pngw->init(awidth, aheight, pngcomment);
 
 	// Now render the map
@@ -843,7 +838,7 @@ bool Debugger::cmdDumpMap(int argc, const char **argv) {
 	pngw->finish();
 	delete pngw;
 
-	delete ds;
+	delete ws;
 
 	delete g;
 	delete s;
@@ -1060,8 +1055,8 @@ bool Debugger::cmdName(int argc, const char **argv) {
 
 bool Debugger::cmdUseBackpack(int argc, const char **argv) {
 	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
-		debugPrintf("Can't: avatarInStasis\n");
-		return true;
+		debugPrintf("Can't use backpack: avatarInStasis\n");
+		return false;
 	}
 	MainActor *av = getMainActor();
 	Item *backpack = getItem(av->getEquip(7));
@@ -1072,8 +1067,8 @@ bool Debugger::cmdUseBackpack(int argc, const char **argv) {
 
 bool Debugger::cmdUseInventory(int argc, const char **argv) {
 	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
-		debugPrintf("Can't: avatarInStasis\n");
-		return true;
+		debugPrintf("Can't use inventory: avatarInStasis\n");
+		return false;
 	}
 	MainActor *av = getMainActor();
 	av->callUsecodeEvent_use();
@@ -1098,39 +1093,29 @@ bool Debugger::cmdUseKeyring(int argc, const char **argv) {
 	return false;
 }
 
+bool Debugger::cmdBothButtonClick(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't jump: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->setFakeBothButtonClick();
+	}
+	return false;
+}
+
 bool Debugger::cmdToggleCombat(int argc, const char **argv) {
 	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
-		debugPrintf("Can't: avatarInStasis\n");
-		return true;
+		debugPrintf("Can't toggle combat: avatarInStasis\n");
+		return false;
 	}
 
 	MainActor *av = getMainActor();
 	av->toggleInCombat();
 	return false;
 }
-
-bool Debugger::cmdMemInfo(int argc, const char **argv) {
-	MemoryManager *mm = MemoryManager::get_instance();
-	int i, count;
-
-	if (mm) {
-		count = mm->getAllocatorCount();
-		debugPrintf("Allocators: %d\n", count);
-		for (i = 0; i < count; ++i) {
-			debugPrintf(" Allocator %d:\n", i);
-			mm->getAllocator(i)->printInfo();
-			debugPrintf("==============\n");
-		}
-	}
-
-	return true;
-}
-
-#ifdef DEBUG
-bool Debugger::cmdTestMemory(int argc, const char **argv) {
-	return true;
-}
-#endif
 
 bool Debugger::cmdObjectTypes(int argc, const char **argv) {
 	ObjectManager::get_instance()->objectTypes();
@@ -1431,14 +1416,13 @@ bool Debugger::cmdPlayMovie(int argc, const char **argv) {
 
 	Std::string filename = Common::String::format("@game/static/%s.skf", argv[1]);
 	FileSystem *filesys = FileSystem::get_instance();
-	IDataSource *skf = filesys->ReadFile(filename);
+	Common::SeekableReadStream *skf = filesys->ReadFile(filename);
 	if (!skf) {
 		debugPrintf("movie not found.\n");
 		return true;
 	}
 
-	RawArchive *flex = new RawArchive(skf);
-	MovieGump::U8MovieViewer(flex, false);
+	MovieGump::U8MovieViewer(skf, false);
 	return false;
 }
 

@@ -27,23 +27,37 @@
 namespace Director {
 
 Sprite::Sprite() {
+	_scriptId = 0;
+	_scriptCastIndex = 0;
+	_colorcode = 0;
+	_blendAmount = 0;
+	_unk3 = 0;
+
 	_enabled = false;
-	_trails = 0;
-	_width = 0;
-	_ink = kInkTypeCopy;
-	_inkData = 0;
-	_height = 0;
-	_castId = 0;
-	_constraint = 0;
-	_moveable = 0;
 	_castId = 0;
 	_castIndex = 0;
+	_spriteType = kInactiveSprite;
+	_inkData = 0;
+	_ink = kInkTypeCopy;
+	_trails = 0;
+
+	_cast = nullptr;
+
+	_thickness = 0;
+	_width = 0;
+	_height = 0;
+	_constraint = 0;
+	_moveable = false;
+	_editable = false;
+	_puppet = false;
 	_backColor = 255;
 	_foreColor = 0;
+
 	_left = 0;
 	_right = 0;
 	_top = 0;
 	_bottom = 0;
+	_blend = 0;
 	_visible = false;
 	_movieRate = 0;
 	_movieTime = 0;
@@ -51,60 +65,6 @@ Sprite::Sprite() {
 	_stopTime = 0;
 	_volume = 0;
 	_stretch = 0;
-	_type = kInactiveSprite;
-
-	_cast = nullptr;
-
-	_blend = 0;
-	_thickness = 0;
-
-	_scriptId = 0;
-	_scriptCastIndex = 0;
-	_colorcode = 0;
-	_blendAmount = 0;
-	_unk3 = 0;
-	_spriteType = 0;
-}
-
-Sprite::Sprite(const Sprite &sprite) {
-	_enabled = sprite._enabled;
-	_castId = sprite._castId;
-	_castIndex = sprite._castIndex;
-	_trails = sprite._trails;
-	_ink = sprite._ink;
-	_inkData = sprite._inkData;
-	_width = sprite._width;
-	_height = sprite._height;
-	_startPoint.x = sprite._startPoint.x;
-	_startPoint.y = sprite._startPoint.y;
-	_backColor = sprite._backColor;
-	_foreColor = sprite._foreColor;
-	_left = sprite._left;
-	_right = sprite._right;
-	_top = sprite._top;
-	_bottom = sprite._bottom;
-	_visible = sprite._visible;
-	_movieRate = sprite._movieRate;
-	_movieTime = sprite._movieTime;
-	_stopTime = sprite._stopTime;
-	_volume = sprite._volume;
-	_stretch = sprite._stretch;
-	_type = sprite._type;
-
-	_cast = sprite._cast;
-
-	_constraint = sprite._constraint;
-	_moveable = sprite._moveable;
-	_blend = sprite._blend;
-	_startTime = sprite._startTime;
-	_thickness = sprite._thickness;
-
-	_scriptId = sprite._scriptId;
-	_scriptCastIndex = sprite._scriptCastIndex;
-	_colorcode = sprite._colorcode;
-	_blendAmount = sprite._blendAmount;
-	_unk3 = sprite._unk3;
-	_spriteType = sprite._spriteType;
 }
 
 Sprite::~Sprite() {

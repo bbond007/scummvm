@@ -52,8 +52,8 @@ void PathfindingState::load(const Actor *_actor) {
 	_actor->getLocation(_x, _y, _z);
 	_lastAnim = _actor->getLastAnim();
 	_direction = _actor->getDir();
-	_firstStep = (_actor->getActorFlags() & Actor::ACT_FIRSTSTEP) != 0;
-	_flipped = (_actor->getFlags() & Item::FLG_FLIPPED) != 0;
+	_firstStep = _actor->hasActorFlags(Actor::ACT_FIRSTSTEP);
+	_flipped = _actor->hasFlags(Item::FLG_FLIPPED);
 	_combat = _actor->isInCombat();
 }
 
@@ -89,7 +89,8 @@ bool PathfindingState::checkItem(const Item *item, int xyRange, int zRange) cons
 	return (range <= xyRange);
 }
 
-bool PathfindingState::checkHit(Actor *_actor, const Actor *target) {
+bool PathfindingState::checkHit(const Actor *_actor, const Actor *target) const {
+	assert(target);
 #if 0
 	pout << "Trying hit in _direction " << _actor->getDirToItemCentre(*target) << Std::endl;
 #endif
@@ -113,7 +114,9 @@ bool PathNodeCmp::operator()(const PathNode *n1, const PathNode *n2) const {
 	return (n1->heuristicTotalCost < n2->heuristicTotalCost);
 }
 
-Pathfinder::Pathfinder() {
+Pathfinder::Pathfinder() : _actor(nullptr), _targetItem(nullptr),
+		_hitMode(false), _expandTime(0), _targetX(0), _targetY(0),
+		_targetZ(0), _actorXd(0), _actorYd(0), _actorZd(0) {
 	expandednodes = 0;
 }
 
@@ -184,7 +187,7 @@ bool Pathfinder::alreadyVisited(int32 x, int32 y, int32 z) const {
 	return false;
 }
 
-bool Pathfinder::checkTarget(PathNode *node) {
+bool Pathfinder::checkTarget(PathNode *node) const {
 	// TODO: these ranges are probably a bit too high,
 	// but otherwise it won't work properly yet -wjp
 	if (_targetItem) {

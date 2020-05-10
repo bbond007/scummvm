@@ -27,8 +27,6 @@
 #include "ultima/ultima8/kernel/object_manager.h"
 #include "ultima/ultima8/usecode/uc_machine.h"
 #include "ultima/ultima8/usecode/uc_list.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "ultima/ultima8/world/item_factory.h"
 #include "ultima/ultima8/world/actors/main_actor.h"
 #include "ultima/ultima8/world/get_object.h"
@@ -275,8 +273,8 @@ uint32 Container::getContentVolume() const {
 }
 
 void Container::containerSearch(UCList *itemlist, const uint8 *loopscript,
-                                uint32 scriptsize, bool recurse) {
-	Std::list<Item *>::iterator iter;
+                                uint32 scriptsize, bool recurse) const {
+	Std::list<Item *>::const_iterator iter;
 	for (iter = _contents.begin(); iter != _contents.end(); ++iter) {
 		// check item against loopscript
 		if ((*iter)->checkLoopScript(loopscript, scriptsize)) {
@@ -305,23 +303,23 @@ void Container::dumpInfo() const {
 	     << ", total weight: " << getTotalWeight() << Std::endl;
 }
 
-void Container::saveData(ODataSource *ods) {
-	Item::saveData(ods);
-	ods->writeUint32LE(static_cast<uint32>(_contents.size()));
+void Container::saveData(Common::WriteStream *ws) {
+	Item::saveData(ws);
+	ws->writeUint32LE(static_cast<uint32>(_contents.size()));
 	Std::list<Item *>::iterator iter;
 	for (iter = _contents.begin(); iter != _contents.end(); ++iter) {
-		(*iter)->save(ods);
+		(*iter)->save(ws);
 	}
 }
 
-bool Container::loadData(IDataSource *ids, uint32 version) {
-	if (!Item::loadData(ids, version)) return false;
+bool Container::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Item::loadData(rs, version)) return false;
 
-	uint32 contentcount = ids->readUint32LE();
+	uint32 contentcount = rs->readUint32LE();
 
 	// read _contents
 	for (unsigned int i = 0; i < contentcount; ++i) {
-		Object *obj = ObjectManager::get_instance()->loadObject(ids, version);
+		Object *obj = ObjectManager::get_instance()->loadObject(rs, version);
 		Item *item = p_dynamic_cast<Item *>(obj);
 		if (!item) return false;
 

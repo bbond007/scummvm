@@ -155,12 +155,12 @@ void PagedGump::addPage(Gump *g) {
 		_nextButton->UnhideGump();
 }
 
-bool PagedGump::loadData(IDataSource *ids) {
+bool PagedGump::loadData(Common::ReadStream *rs) {
 	CANT_HAPPEN_MSG("Trying to load ModalGump");
 	return false;
 }
 
-void PagedGump::saveData(ODataSource *ods) {
+void PagedGump::saveData(Common::WriteStream *ws) {
 	CANT_HAPPEN_MSG("Trying to save ModalGump");
 }
 

@@ -61,6 +61,7 @@ static LingoV4Bytecode lingoV4[] = {
 	{ 0x1c, LC::c_tell,			"" },
 	{ 0x1d, LC::c_telldone,		"" },
 	{ 0x1e, LC::cb_list,		"" },
+	{ 0x1f, LC::cb_proplist,	"" },
 	{ 0x41, LC::c_intpush,		"b" },
 	{ 0x42, LC::c_argcnoretpush,"b" },
 	{ 0x43, LC::c_argcpush,		"b" },
@@ -82,6 +83,8 @@ static LingoV4Bytecode lingoV4[] = {
 	{ 0x59, LC::cb_v4assign,	"b" },
 	{ 0x5c, LC::cb_v4theentitypush, "b" },
 	{ 0x5d, LC::cb_v4theentityassign, "b" },
+	{ 0x64, LC::cb_stackpeek, 	"b" },
+	{ 0x65, LC::cb_stackdrop, 	"b" },
 	{ 0x66, LC::cb_v4theentitynamepush, "b" },
 	{ 0x81, LC::c_intpush,		"w" },
 	{ 0x82, LC::c_argcnoretpush,"w" },
@@ -206,9 +209,28 @@ static LingoV4TheEntity lingoV4TheEntity[] = {
 
 
 void Lingo::initBytecode() {
+	// All new bytecodes must have respective entry in funcDescr[]
+	// array in lingo-code.cpp, which is used for decompilation
+	//
+	// Check that all opcodes have entries
+	Common::HashMap<inst, bool> list;
+	bool bailout = false;
+
+	// Build reverse hashmap
+	for (FuncHash::iterator it = _functions.begin(); it != _functions.end(); ++it)
+		list[(inst)it->_key] = true;
+
 	for (LingoV4Bytecode *op = lingoV4; op->opcode; op++) {
 		_lingoV4[op->opcode] = op;
+
+		if (!list.contains(op->func)) {
+			warning("Lingo::initBytecode(): Missing prototype for opcode 0x%02x", op->opcode);
+			bailout = true;
+		}
 	}
+
+	if (bailout)
+		error("Lingo::initBytecode(): Add entries to funcDescr[] in lingo-code.cpp");
 
 	for (LingoV4TheEntity *ent = lingoV4TheEntity; ent->bank != 0xff; ent++) {
 		_lingoV4TheEntity[(ent->bank << 8) + ent->firstArg] = ent;
@@ -319,11 +341,39 @@ void LC::cb_v4assign() {
 
 void LC::cb_list() {
 	Datum nargs = g_lingo->pop();
-	if ((nargs.type == ARGC) || (nargs.type == ARGCNORET)) {
-		LB::b_list(nargs.u.i);
-	} else {
-		warning("cb_list: first arg should be of type ARGC or ARGCNORET, not %s", nargs.type2str());
+	if ((nargs.type != ARGC) && (nargs.type != ARGCNORET)) {
+		error("cb_list: first arg should be of type ARGC or ARGCNORET, not %s", nargs.type2str());
 	}
+	LB::b_list(nargs.u.i);
+}
+
+
+void LC::cb_proplist() {
+	Datum list = g_lingo->pop();
+	if (list.type != ARRAY) {
+		error("cb_proplist: first arg should be of type ARRAY, not %s", list.type2str());
+	}
+	Datum result;
+	result.type = PARRAY;
+	result.u.parr = new PropertyArray;
+	uint arraySize = list.u.farr->size();
+	if (arraySize % 2) {
+		warning("cb_proplist: list should have an even number of entries, ignoring the last one");
+	}
+	arraySize /= 2;
+
+	for (uint i = 0; i < arraySize; i += 1) {
+		Datum p = list.u.farr->operator[](i);
+		Datum v = list.u.farr->operator[](i + 1);
+
+		PCell cell = PCell(p, v);
+		result.u.parr->insert_at(0, cell);
+	};
+	delete list.u.farr;
+	list.u.i = 0;
+	list.type = VOID;
+
+	g_lingo->push(result);
 }
 
 
@@ -339,6 +389,20 @@ void LC::cb_call() {
 		warning("cb_call: first arg should be of type ARGC or ARGCNORET, not %s", nargs.type2str());
 	}
 
+}
+
+
+void LC::cb_stackpeek() {
+	int peekOffset = g_lingo->readInt();
+	g_lingo->push(g_lingo->peek(peekOffset));
+}
+
+
+void LC::cb_stackdrop() {
+	int dropCount = g_lingo->readInt();
+	for (int i = 0; i < dropCount; i++) {
+		g_lingo->pop();
+	}
 }
 
 

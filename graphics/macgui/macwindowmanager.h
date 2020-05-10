@@ -62,16 +62,20 @@ enum {
 	kWMModeAutohideMenu 	= (1 << 1),
 	kWMModalMenuMode 		= (1 << 2),
 	kWMModeForceBuiltinFonts= (1 << 3),
-	kWMModeUnicode			= (1 << 4)
+	kWMModeUnicode			= (1 << 4),
+	kWMModeManualDrawWidgets= (1 << 5)
 };
 
 }
 using namespace MacGUIConstants;
 
+class Cursor;
+
 class ManagedSurface;
 
 class MacMenu;
 class MacTextWindow;
+class MacWidget;
 
 class MacFont;
 
@@ -81,6 +85,7 @@ typedef Common::Array<byte *> MacPatterns;
 
 struct MacPlotData {
 	Graphics::ManagedSurface *surface;
+	Graphics::ManagedSurface *mask;
 	MacPatterns *patterns;
 	uint fillType;
 	int fillOriginX;
@@ -88,8 +93,8 @@ struct MacPlotData {
 	int thickness;
 	uint bgColor;
 
-	MacPlotData(Graphics::ManagedSurface *s, MacPatterns *p, uint f, int fx, int fy, int t, uint bg) :
-		surface(s), patterns(p), fillType(f), fillOriginX(fx), fillOriginY(fy), thickness(t), bgColor(bg) {
+	MacPlotData(Graphics::ManagedSurface *s, Graphics::ManagedSurface *m, MacPatterns *p, uint f, int fx, int fy, int t, uint bg) :
+		surface(s), mask(m), patterns(p), fillType(f), fillOriginX(fx), fillOriginY(fy), thickness(t), bgColor(bg) {
 	}
 };
 
@@ -158,11 +163,13 @@ public:
 	 * Set delay in milliseconds when menu appears (works only with autohide menu)
 	 */
 	void setMenuDelay(int delay) { _menuDelay = delay; }
+
 	/**
 	 * Set the desired window state to active.
 	 * @param id ID of the window that has to be set to active.
 	 */
-	void setActive(int id);
+	void setActiveWindow(int id);
+
 	/**
 	 * Mark a window for removal.
 	 * Note that the window data will be destroyed.
@@ -206,12 +213,22 @@ public:
 	 */
 	MacPatterns &getPatterns() { return _patterns; }
 
+	/**
+	 * Sets an active widget, typically the one which steals the input
+	 * It also sends deactivation message to the previous one
+	 * @param widget Pointer to the widget to activate, nullptr for no widget
+	 */
+	void setActiveWidget(MacWidget *widget);
+
+	MacWidget *getActiveWidget() { return _activeWidget; }
+
 	void pushArrowCursor();
 	void pushBeamCursor();
 	void pushCrossHairCursor();
 	void pushCrossBarCursor();
 	void pushWatchCursor();
 	void pushCustomCursor(const byte *data, int w, int h, int hx, int hy, int transcolor);
+	void pushCustomCursor(const Graphics::Cursor *cursor);
 	void popCursor();
 
 	void pauseEngine(bool pause);
@@ -271,6 +288,8 @@ private:
 	void (*_redrawEngineCallback)(void *engine);
 
 	bool _cursorIsArrow;
+
+	MacWidget *_activeWidget;
 };
 
 } // End of namespace Graphics

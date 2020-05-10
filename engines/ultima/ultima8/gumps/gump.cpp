@@ -29,8 +29,6 @@
 #include "ultima/ultima8/games/game_data.h"
 #include "ultima/ultima8/gumps/gump_notify_process.h"
 #include "ultima/ultima8/kernel/kernel.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "ultima/ultima8/kernel/object_manager.h"
 #include "ultima/ultima8/gumps/scaler_gump.h"
 #include "ultima/ultima8/ultima8.h"
@@ -40,7 +38,10 @@ namespace Ultima8 {
 
 DEFINE_RUNTIME_CLASSTYPE_CODE(Gump, Object)
 
-Gump::Gump() : Object(), _parent(nullptr), _children() {
+Gump::Gump() : Object(), _parent(nullptr), _owner(0),
+	_x(0), _y(0), _flags(0), _layer(0), _index(-1),
+	_shape(nullptr), _frameNum(0), _focusChild(nullptr),
+	_notifier(0), _processResult(0) {
 }
 
 Gump::Gump(int inX, int inY, int width, int height, uint16 inOwner,
@@ -781,35 +782,35 @@ bool Gump::mustSave(bool toplevel) const {
 	return true;
 }
 
-void Gump::saveData(ODataSource *ods) {
-	Object::saveData(ods);
+void Gump::saveData(Common::WriteStream *ws) {
+	Object::saveData(ws);
 
-	ods->writeUint16LE(_owner);
-	ods->writeUint32LE(static_cast<uint32>(_x));
-	ods->writeUint32LE(static_cast<uint32>(_y));
-	ods->writeUint32LE(static_cast<uint32>(_dims.x));
-	ods->writeUint32LE(static_cast<uint32>(_dims.y));
-	ods->writeUint32LE(static_cast<uint32>(_dims.w));
-	ods->writeUint32LE(static_cast<uint32>(_dims.h));
-	ods->writeUint32LE(_flags);
-	ods->writeUint32LE(static_cast<uint32>(_layer));
-	ods->writeUint32LE(static_cast<uint32>(_index));
+	ws->writeUint16LE(_owner);
+	ws->writeUint32LE(static_cast<uint32>(_x));
+	ws->writeUint32LE(static_cast<uint32>(_y));
+	ws->writeUint32LE(static_cast<uint32>(_dims.x));
+	ws->writeUint32LE(static_cast<uint32>(_dims.y));
+	ws->writeUint32LE(static_cast<uint32>(_dims.w));
+	ws->writeUint32LE(static_cast<uint32>(_dims.h));
+	ws->writeUint32LE(_flags);
+	ws->writeUint32LE(static_cast<uint32>(_layer));
+	ws->writeUint32LE(static_cast<uint32>(_index));
 
 	uint16 flex = 0;
 	uint32 shapenum = 0;
 	if (_shape) {
 		_shape->getShapeId(flex, shapenum);
 	}
-	ods->writeUint16LE(flex);
-	ods->writeUint32LE(shapenum);
+	ws->writeUint16LE(flex);
+	ws->writeUint32LE(shapenum);
 
-	ods->writeUint32LE(_frameNum);
+	ws->writeUint32LE(_frameNum);
 	if (_focusChild)
-		ods->writeUint16LE(_focusChild->getObjId());
+		ws->writeUint16LE(_focusChild->getObjId());
 	else
-		ods->writeUint16LE(0);
-	ods->writeUint16LE(_notifier);
-	ods->writeUint32LE(_processResult);
+		ws->writeUint16LE(0);
+	ws->writeUint16LE(_notifier);
+	ws->writeUint32LE(_processResult);
 
 	unsigned int childcount = 0;
 	Std::list<Gump *>::iterator it;
@@ -819,48 +820,48 @@ void Gump::saveData(ODataSource *ods) {
 	}
 
 	// write children:
-	ods->writeUint32LE(childcount);
+	ws->writeUint32LE(childcount);
 	for (it = _children.begin(); it != _children.end(); ++it) {
 		if (!(*it)->mustSave(false)) continue;
 
-		(*it)->save(ods);
+		(*it)->save(ws);
 	}
 }
 
-bool Gump::loadData(IDataSource *ids, uint32 version) {
-	if (!Object::loadData(ids, version)) return false;
+bool Gump::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Object::loadData(rs, version)) return false;
 
-	_owner = ids->readUint16LE();
-	_x = static_cast<int32>(ids->readUint32LE());
-	_y = static_cast<int32>(ids->readUint32LE());
+	_owner = rs->readUint16LE();
+	_x = static_cast<int32>(rs->readUint32LE());
+	_y = static_cast<int32>(rs->readUint32LE());
 
-	int dx = static_cast<int32>(ids->readUint32LE());
-	int dy = static_cast<int32>(ids->readUint32LE());
-	int dw = static_cast<int32>(ids->readUint32LE());
-	int dh = static_cast<int32>(ids->readUint32LE());
+	int dx = static_cast<int32>(rs->readUint32LE());
+	int dy = static_cast<int32>(rs->readUint32LE());
+	int dw = static_cast<int32>(rs->readUint32LE());
+	int dh = static_cast<int32>(rs->readUint32LE());
 	_dims.Set(dx, dy, dw, dh);
 
-	_flags = ids->readUint32LE();
-	_layer = static_cast<int32>(ids->readUint32LE());
-	_index = static_cast<int32>(ids->readUint32LE());
+	_flags = rs->readUint32LE();
+	_layer = static_cast<int32>(rs->readUint32LE());
+	_index = static_cast<int32>(rs->readUint32LE());
 
 	_shape = nullptr;
-	ShapeArchive *flex = GameData::get_instance()->getShapeFlex(ids->readUint16LE());
-	uint32 shapenum = ids->readUint32LE();
+	ShapeArchive *flex = GameData::get_instance()->getShapeFlex(rs->readUint16LE());
+	uint32 shapenum = rs->readUint32LE();
 	if (flex) {
 		_shape = flex->getShape(shapenum);
 	}
 
-	_frameNum = ids->readUint32LE();
-	uint16 focusid = ids->readUint16LE();
+	_frameNum = rs->readUint32LE();
+	uint16 focusid = rs->readUint16LE();
 	_focusChild = nullptr;
-	_notifier = ids->readUint16LE();
-	_processResult = ids->readUint32LE();
+	_notifier = rs->readUint16LE();
+	_processResult = rs->readUint32LE();
 
 	// read children
-	uint32 childcount = ids->readUint32LE();
+	uint32 childcount = rs->readUint32LE();
 	for (unsigned int i = 0; i < childcount; ++i) {
-		Object *obj = ObjectManager::get_instance()->loadObject(ids, version);
+		Object *obj = ObjectManager::get_instance()->loadObject(rs, version);
 		Gump *child = p_dynamic_cast<Gump *>(obj);
 		if (!child) return false;
 

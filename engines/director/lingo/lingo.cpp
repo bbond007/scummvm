@@ -21,6 +21,7 @@
  */
 
 #include "common/file.h"
+#include "common/config-manager.h"
 #include "common/str-array.h"
 
 #include "director/director.h"
@@ -30,6 +31,7 @@
 #include "director/frame.h"
 #include "director/score.h"
 #include "director/sprite.h"
+#include "director/util.h"
 
 namespace Director {
 
@@ -48,12 +50,31 @@ Symbol::Symbol() {
 	archiveIndex = 0;
 }
 
+PCell::PCell() {
+	p = nullptr;
+	v = nullptr;
+}
+
+PCell::PCell(Datum &prop, Datum &val) {
+	p = new Datum;
+	p->type = prop.type;
+	p->u = prop.u;
+
+	v = new Datum;
+	v->type = val.type;
+	v->u = val.u;
+}
+
 Lingo::Lingo(DirectorEngine *vm) : _vm(vm) {
 	g_lingo = this;
 
 	_currentScript = 0;
 	_currentScriptType = kMovieScript;
+	_currentScriptContext = nullptr;
+	_currentScriptFunction = 0;
+
 	_currentEntityId = 0;
+	_currentChannelId = -1;
 	_pc = 0;
 	_returning = false;
 	_nextRepeat = false;
@@ -329,10 +350,10 @@ void Lingo::restartLingo() {
 int Lingo::alignTypes(Datum &d1, Datum &d2) {
 	int opType = VOID;
 
-	if (d1.type == REFERENCE)
+	if (d1.type == REFERENCE || d1.type == SYMBOL)
 		d1.makeString();
 
-	if (d2.type == REFERENCE)
+	if (d2.type == REFERENCE || d2.type == SYMBOL)
 		d2.makeString();
 
 	if (d1.type == STRING) {
@@ -512,9 +533,9 @@ Common::String *Datum::makeString(bool printonly) {
 			}
 
 			if (!printonly) {
-				*s = ((TextCast *)score->_loadedCast->getVal(idx))->_ptext;
+				*s = ((TextCast *)score->_loadedCast->getVal(idx))->getText();
 			} else {
-				*s = Common::String::format("reference: \"%s\"", ((TextCast *)score->_loadedCast->getVal(idx))->_ptext.c_str());
+				*s = Common::String::format("reference: \"%s\"", ((TextCast *)score->_loadedCast->getVal(idx))->getText().c_str());
 			}
 		}
 		break;
@@ -530,15 +551,26 @@ Common::String *Datum::makeString(bool printonly) {
 
 		*s += "]";
 		break;
+	case PARRAY:
+		*s = "[";
+		if (u.parr->size() == 0)
+			*s += ":";
+		for (uint i = 0; i < u.parr->size(); i++) {
+			if (i > 0)
+				*s += ", ";
+			Datum p = *u.parr->operator[](i).p;
+			Datum v = *u.parr->operator[](i).v;
+			*s += Common::String::format("%s:%s", p.makeString(printonly)->c_str(), v.makeString(printonly)->c_str());
+		}
+
+		*s += "]";
+		break;
 	default:
 		warning("Incorrect operation makeString() for type: %s", type2str());
 	}
 
 	if (printonly)
 		return s;
-
-	if (type == STRING)
-		delete u.s;
 
 	u.s = s;
 	type = STRING;
@@ -576,9 +608,16 @@ const char *Datum::type2str(bool isk) {
 	}
 }
 
-int Datum::compareTo(Datum d) {
+int Datum::compareTo(Datum d, bool ignoreCase) {
 	if (type == STRING && d.type == STRING) {
-		return u.s->compareTo(*d.u.s);
+		if (ignoreCase) {
+			return toLowercaseMac(u.s)->compareTo(*toLowercaseMac(d.u.s));
+		} else {
+			return u.s->compareTo(*d.u.s);
+		}
+	} else if (type == SYMBOL && d.type == SYMBOL) {
+		// TODO: Implement union comparisons
+		return ignoreCase ? u.sym->name.compareToIgnoreCase(d.u.sym->name) : u.sym->name.compareTo(d.u.sym->name);
 	} else if (g_lingo->alignTypes(*this, d) == FLOAT) {
 		if (u.f < d.u.f) {
 			return -1;
@@ -598,13 +637,6 @@ int Datum::compareTo(Datum d) {
 	}
 }
 
-int Datum::compareToIgnoreCase(Datum d) {
-	if (type == STRING && d.type == STRING) {
-		return u.s->compareToIgnoreCase(*d.u.s);
-	}
-	return compareTo(d);
-}
-
 void Lingo::parseMenu(const char *code) {
 	warning("STUB: parseMenu");
 }
@@ -615,12 +647,17 @@ void Lingo::runTests() {
 	SearchMan.listMatchingMembers(fsList, "*.lingo");
 	Common::StringArray fileList;
 
-	int counter = 1;
-
-	for (Common::ArchiveMemberList::iterator it = fsList.begin(); it != fsList.end(); ++it)
-		fileList.push_back((*it)->getName());
+	// Repurpose commandline option --start-movie to run a specific lingo script.
+	if (ConfMan.hasKey("start_movie")) {
+		fileList.push_back(ConfMan.get("start_movie"));
+	} else {
+		for (Common::ArchiveMemberList::iterator it = fsList.begin(); it != fsList.end(); ++it)
+			fileList.push_back((*it)->getName());
+	}
 
 	Common::sort(fileList.begin(), fileList.end());
+
+	int counter = 1;
 
 	for (uint i = 0; i < fileList.size(); i++) {
 		Common::SeekableReadStream *const  stream = SearchMan.createReadStreamForMember(fileList[i]);
@@ -655,7 +692,12 @@ void Lingo::runTests() {
 void Lingo::executeImmediateScripts(Frame *frame) {
 	for (uint16 i = 0; i <= _vm->getCurrentScore()->_numChannelsDisplayed; i++) {
 		if (_vm->getCurrentScore()->_immediateActions.contains(frame->_sprites[i]->_scriptId)) {
-			g_lingo->processEvent(kEventMouseUp, kFrameScript, frame->_sprites[i]->_scriptId);
+			// From D5 only explicit event handlers are processed
+			// Before that you could specify commands which will be executed on mouse up
+			if (_vm->getVersion() < 5)
+				g_lingo->processEvent(kEventNone, kFrameScript, frame->_sprites[i]->_scriptId, i);
+			else
+				g_lingo->processEvent(kEventMouseUp, kFrameScript, frame->_sprites[i]->_scriptId, i);
 		}
 	}
 }

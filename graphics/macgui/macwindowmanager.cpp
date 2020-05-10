@@ -158,6 +158,8 @@ MacWindowManager::MacWindowManager(uint32 mode) {
 	_activeWindow = -1;
 	_needsRemoval = false;
 
+	_activeWidget = nullptr;
+
 	_mode = mode;
 
 	_menu = 0;
@@ -210,13 +212,22 @@ void MacWindowManager::setMode(uint32 mode) {
 		_fontMan->forceBuiltinFonts();
 }
 
+void MacWindowManager::setActiveWidget(MacWidget *widget) {
+	if (_activeWidget)
+		_activeWidget->setActive(false);
+
+	_activeWidget = widget;
+
+	if (_activeWidget)
+		_activeWidget->setActive(true);
+}
 
 MacWindow *MacWindowManager::addWindow(bool scrollable, bool resizable, bool editable) {
 	MacWindow *w = new MacWindow(_lastId, scrollable, resizable, editable, this);
 
 	addWindowInitialized(w);
 
-	setActive(getNextId());
+	setActiveWindow(getNextId());
 
 	return w;
 }
@@ -226,7 +237,7 @@ MacTextWindow *MacWindowManager::addTextWindow(const MacFont *font, int fgcolor,
 
 	addWindowInitialized(w);
 
-	setActive(getNextId());
+	setActiveWindow(getNextId());
 
 	return w;
 }
@@ -272,7 +283,7 @@ bool MacWindowManager::isMenuActive() {
 	return _menu->isVisible();
 }
 
-void MacWindowManager::setActive(int id) {
+void MacWindowManager::setActiveWindow(int id) {
 	if (_activeWindow == id)
 		return;
 
@@ -313,6 +324,9 @@ void macDrawPixel(int x, int y, int color, void *data) {
 			*((byte *)p->surface->getBasePtr(xu, yu)) =
 				(pat[(yu - p->fillOriginY) % 8] & (1 << (7 - (xu - p->fillOriginX) % 8))) ?
 					color : p->bgColor;
+
+			if (p->mask)
+				*((byte *)p->mask->getBasePtr(xu, yu)) = 0xff;
 		}
 	} else {
 		int x1 = x;
@@ -328,6 +342,9 @@ void macDrawPixel(int x, int y, int color, void *data) {
 					*((byte *)p->surface->getBasePtr(xu, yu)) =
 						(pat[(yu - p->fillOriginY) % 8] & (1 << (7 - (xu - p->fillOriginX) % 8))) ?
 							color : p->bgColor;
+
+					if (p->mask)
+						*((byte *)p->mask->getBasePtr(xu, yu)) = 0xff;
 				}
 	}
 }
@@ -335,7 +352,7 @@ void macDrawPixel(int x, int y, int color, void *data) {
 void MacWindowManager::drawDesktop() {
 	Common::Rect r(_screen->getBounds());
 
-	MacPlotData pd(_screen, &_patterns, kPatternCheckers, 0, 0, 1, _colorWhite);
+	MacPlotData pd(_screen, nullptr, &_patterns, kPatternCheckers, 0, 0, 1, _colorWhite);
 
 	Graphics::drawRoundRect(r, kDesktopArc, _colorBlack, true, macDrawPixel, &pd);
 
@@ -428,7 +445,7 @@ bool MacWindowManager::processEvent(Common::Event &event) {
 		if (w->hasAllFocus() || (w->isEditable() && event.type == Common::EVENT_KEYDOWN) ||
 				w->getDimensions().contains(event.mouse.x, event.mouse.y)) {
 			if (event.type == Common::EVENT_LBUTTONDOWN || event.type == Common::EVENT_LBUTTONUP)
-				setActive(w->getId());
+				setActiveWindow(w->getId());
 
 			return w->processEvent(event);
 		}
@@ -510,6 +527,16 @@ void MacWindowManager::pushWatchCursor() {
 void MacWindowManager::pushCustomCursor(const byte *data, int w, int h, int hx, int hy, int transcolor) {
 	CursorMan.pushCursor(data, w, h, hx, hy, transcolor);
 	CursorMan.pushCursorPalette(cursorPalette, 0, 2);
+}
+
+void MacWindowManager::pushCustomCursor(const Graphics::Cursor *cursor) {
+	CursorMan.pushCursor(cursor->getSurface(), cursor->getWidth(), cursor->getHeight(), cursor->getHotspotX(),
+	                     cursor->getHotspotY(), cursor->getKeyColor());
+
+	if (cursor->getPalette())
+		CursorMan.pushCursorPalette(cursor->getPalette(), cursor->getPaletteStartIndex(), cursor->getPaletteCount());
+	else
+		CursorMan.pushCursorPalette(cursorPalette, 0, 2);
 }
 
 void MacWindowManager::popCursor() {

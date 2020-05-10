@@ -34,22 +34,21 @@
 #include "ultima/ultima8/usecode/uc_process.h"
 #include "ultima/ultima8/kernel/kernel.h"
 #include "ultima/ultima8/ultima8.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
 
 DEFINE_RUNTIME_CLASSTYPE_CODE(SliderGump, ModalGump)
 
-SliderGump::SliderGump() : ModalGump(), _renderedText(nullptr) {
+SliderGump::SliderGump() : ModalGump(), _renderedText(nullptr), _min(0), _max(0),
+		_delta(0), _value(0), _usecodeNotifyPID(0), _renderedValue(-1) {
 }
 
 
 SliderGump::SliderGump(int x, int y, int16 min, int16 max,
                        int16 value_, int16 delta)
 	: ModalGump(x, y, 5, 5), _min(min), _max(max), _delta(delta), _value(value_),
-	  _usecodeNotifyPID(0), _renderedText(nullptr) {
+	  _usecodeNotifyPID(0), _renderedText(nullptr), _renderedValue(-1) {
 }
 
 SliderGump::~SliderGump() {
@@ -242,11 +241,11 @@ void SliderGump::setUsecodeNotify(UCProcess *ucp) {
 	_usecodeNotifyPID = ucp->getPid();
 }
 
-void SliderGump::saveData(ODataSource *ods) {
+void SliderGump::saveData(Common::WriteStream *ws) {
 	CANT_HAPPEN_MSG("Trying to save ModalGump");
 }
 
-bool SliderGump::loadData(IDataSource *ids, uint32 version) {
+bool SliderGump::loadData(Common::ReadStream *rs, uint32 version) {
 	CANT_HAPPEN_MSG("Trying to load ModalGump");
 
 	return false;

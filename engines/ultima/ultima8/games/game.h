@@ -29,8 +29,6 @@
 namespace Ultima {
 namespace Ultima8 {
 
-class ODataSource;
-
 class Game {
 public:
 	Game();
@@ -50,7 +48,7 @@ public:
 	virtual bool startInitialUsecode(int saveSlot = -1) = 0;
 
 	//! write game-specific savegame info (avatar stats, equipment, ...)
-	virtual void writeSaveInfo(ODataSource *ods) = 0;
+	virtual void writeSaveInfo(Common::WriteStream *ws) = 0;
 
 	virtual ProcId playIntroMovie(bool fade) = 0;
 	virtual ProcId playEndgameMovie(bool fade) = 0;

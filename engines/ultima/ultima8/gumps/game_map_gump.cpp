@@ -34,8 +34,6 @@
 #include "ultima/ultima8/world/camera_process.h"
 #include "ultima/ultima8/ultima8.h"
 #include "ultima/ultima8/graphics/shape_info.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "ultima/ultima8/kernel/mouse.h"
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/world/actors/avatar_mover_process.h"
@@ -61,13 +59,15 @@ DEFINE_RUNTIME_CLASSTYPE_CODE(GameMapGump, Gump)
 bool GameMapGump::_highlightItems = false;
 
 GameMapGump::GameMapGump() :
-	Gump(), _displayDragging(false) {
+	Gump(), _displayDragging(false), _displayList(0), _draggingShape(0),
+		_draggingFrame(0), _draggingFlags(0) {
 	_displayList = new ItemSorter();
 }
 
 GameMapGump::GameMapGump(int x, int y, int width, int height) :
-	Gump(x, y, width, height, 0, FLAG_DONT_SAVE | FLAG_CORE_GUMP, LAYER_GAMEMAP),
-	_displayList(0), _displayDragging(false) {
+		Gump(x, y, width, height, 0, FLAG_DONT_SAVE | FLAG_CORE_GUMP, LAYER_GAMEMAP),
+		_displayList(0), _displayDragging(false), _draggingShape(0), _draggingFrame(0),
+		_draggingFlags(0) {
 	// Offset the gump. We want 0,0 to be the centre
 	_dims.x -= _dims.w / 2;
 	_dims.y -= _dims.h / 2;
@@ -152,13 +152,13 @@ void GameMapGump::PaintThis(RenderSurface *surf, int32 lerp_factor, bool scaled)
 					continue;
 				if (!paintEditorItems && item->getShapeInfo()->is_editor())
 					continue;
-				if (item->getFlags() & Item::FLG_INVISIBLE) {
+				if (item->hasFlags(Item::FLG_INVISIBLE)) {
 					// special case: invisible avatar _is_ drawn
 					// HACK: unless EXT_TRANSPARENT is also set.
 					// (Used for hiding the avatar when drawing a full area map)
 
 					if (item->getObjId() == 1) {
-						if (item->getExtFlags() & Item::EXT_TRANSPARENT)
+						if (item->hasExtFlags(Item::EXT_TRANSPARENT))
 							continue;
 
 						int32 x_, y_, z_;
@@ -577,11 +577,11 @@ void GameMapGump::RenderSurfaceChanged() {
 	Gump::RenderSurfaceChanged();
 }
 
-void GameMapGump::saveData(ODataSource *ods) {
+void GameMapGump::saveData(Common::WriteStream *ws) {
 	CANT_HAPPEN_MSG("Trying to save GameMapGump");
 }
 
-bool GameMapGump::loadData(IDataSource *ids, uint32 version) {
+bool GameMapGump::loadData(Common::ReadStream *rs, uint32 version) {
 	CANT_HAPPEN_MSG("Trying to load GameMapGump");
 
 	return false;

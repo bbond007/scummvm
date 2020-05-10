@@ -25,6 +25,7 @@
 
 #include "graphics/macgui/macfontmanager.h"
 #include "graphics/macgui/macwindowmanager.h"
+#include "graphics/macgui/maceditabletext.h"
 #include "graphics/primitives.h"
 
 #include "director/director.h"
@@ -273,7 +274,7 @@ void Frame::readChannels(Common::ReadStreamEndian *stream) {
 
 		if (_vm->getVersion() <= 4) {
 			sprite._scriptId = stream->readByte();
-			sprite._spriteType = stream->readByte();
+			sprite._spriteType = (SpriteType)stream->readByte();
 			sprite._enabled = sprite._spriteType != kInactiveSprite;
 			if (_vm->getVersion() == 4) {
 				sprite._foreColor = _vm->transformColor((uint8)stream->readByte());
@@ -292,10 +293,12 @@ void Frame::readChannels(Common::ReadStreamEndian *stream) {
 			sprite._startPoint.y = stream->readUint16();
 			sprite._startPoint.x = stream->readUint16();
 
+			sprite._currentPoint = sprite._startPoint;
+
 			sprite._height = stream->readUint16();
 			sprite._width = stream->readUint16();
 
-			if (_vm->getPlatform() == Common::kPlatformMacintosh && _vm->getVersion() == 4) {
+			if (_vm->getVersion() == 4) {
 				sprite._scriptId = stream->readUint16();
 				// & 0x0f scorecolor
 				// 0x10 forecolor is rgb
@@ -306,7 +309,7 @@ void Frame::readChannels(Common::ReadStreamEndian *stream) {
 				sprite._blendAmount = stream->readByte();
 			}
 		} else if (_vm->getVersion() == 5) {
-			sprite._spriteType = stream->readByte();
+			sprite._spriteType = (SpriteType)stream->readByte();
 			sprite._inkData = stream->readByte();
 
 			sprite._castIndex = stream->readUint16();
@@ -329,7 +332,7 @@ void Frame::readChannels(Common::ReadStreamEndian *stream) {
 			sprite._thickness = stream->readByte();
 			stream->readByte();	// unused
 		} else if (_vm->getVersion() == 6) {
-			sprite._spriteType = stream->readByte();
+			sprite._spriteType = (SpriteType)stream->readByte();
 			sprite._inkData = stream->readByte();
 
 			sprite._foreColor = _vm->transformColor((uint8)stream->readByte());
@@ -348,12 +351,13 @@ void Frame::readChannels(Common::ReadStreamEndian *stream) {
 
 			sprite._colorcode = stream->readByte();
 			sprite._blendAmount = stream->readByte();
-			sprite._moveable = ((sprite._colorcode & 0x80) == 0x80);
 			sprite._thickness = stream->readByte();
 			stream->readByte();	// unused
 		}
 
 		sprite._ink = static_cast<InkType>(sprite._inkData & 0x3f);
+		sprite._editable = ((sprite._colorcode & 0x40) == 0x40);
+		sprite._moveable = ((sprite._colorcode & 0x80) == 0x80);
 
 		if (sprite._inkData & 0x40)
 			sprite._trails = 1;
@@ -569,7 +573,7 @@ void Frame::renderSprites(Graphics::ManagedSurface &surface, bool renderTrail) {
 			case kOvalSprite:
 			case kLineTopBottomSprite:
 			case kLineBottomTopSprite:
-			case kOutlinedRectangleSprite:	// this is actually a mouse-over shape? I don't think it's a real button.
+			case kOutlinedRectangleSprite:
 			case kOutlinedRoundedRectangleSprite:
 			case kOutlinedOvalSprite:
 			case kCastMemberSprite:
@@ -631,26 +635,8 @@ void Frame::renderSprites(Graphics::ManagedSurface &surface, bool renderTrail) {
 				warning("Frame::renderSprites(): No cast surface for sprite %d", i);
 				continue;
 			}
-			InkType ink;
-			if (i == _vm->getCurrentScore()->_currentMouseDownSpriteId)
-				ink = kInkTypeReverse;
-			else
-				ink = _sprites[i]->_ink;
 
-			BitmapCast *bc = (BitmapCast *)_sprites[i]->_cast;
-
-			int32 regX = bc->_regX;
-			int32 regY = bc->_regY;
-			int32 rectLeft = bc->_initialRect.left;
-			int32 rectTop = bc->_initialRect.top;
-
-			int x = _sprites[i]->_startPoint.x - regX + rectLeft;
-			int y = _sprites[i]->_startPoint.y - regY + rectTop;
-			int height = _sprites[i]->_height;
-			int width = _vm->getVersion() > 4 ? bc->_initialRect.width() : _sprites[i]->_width;
-			Common::Rect drawRect(x, y, x + width, y + height);
-			addDrawRect(i, drawRect);
-			inkBasedBlit(surface, *(bc->_surface), ink, drawRect);
+			renderBitmap(surface, i);
 		}
 	}
 }
@@ -671,9 +657,7 @@ void Frame::renderShape(Graphics::ManagedSurface &surface, uint16 spriteId) {
 	byte backColor = sp->_backColor;
 	int lineSize = sp->_thickness & 0x3;
 
-	// D3 Shared Cast Members don't have these values specified, they're provided when you add
-	// them to the score in each movie.
-	if (_vm->getVersion() > 3 && spriteType == kCastMemberSprite) {
+	if (_vm->getVersion() >= 3 && spriteType == kCastMemberSprite) {
 		if (!sp->_cast) {
 			warning("Frame::renderShape(): kCastMemberSprite has no cast defined");
 			return;
@@ -698,10 +682,12 @@ void Frame::renderShape(Graphics::ManagedSurface &surface, uint16 spriteId) {
 				default:
 					break;
 				}
-				foreColor = sc->_fgCol;
-				backColor = sc->_bgCol;
-				lineSize = sc->_lineThickness;
-				ink = sc->_ink;
+				if (_vm->getVersion() > 3) {
+					foreColor = sc->_fgCol;
+					backColor = sc->_bgCol;
+					lineSize = sc->_lineThickness;
+					ink = sc->_ink;
+				}
 				// shapes should be rendered with transparency by default
 				if (ink == kInkTypeCopy) {
 					ink = kInkTypeTransparent;
@@ -717,19 +703,21 @@ void Frame::renderShape(Graphics::ManagedSurface &surface, uint16 spriteId) {
 	// for outlined shapes, line thickness of 1 means invisible.
 	lineSize -= 1;
 
-	Common::Rect shapeRect = Common::Rect(sp->_startPoint.x,
-		sp->_startPoint.y,
-		sp->_startPoint.x + sp->_width,
-		sp->_startPoint.y + sp->_height);
+	Common::Rect shapeRect = Common::Rect(sp->_currentPoint.x,
+		sp->_currentPoint.y,
+		sp->_currentPoint.x + sp->_width,
+		sp->_currentPoint.y + sp->_height);
 
-	Graphics::ManagedSurface tmpSurface;
+	Graphics::ManagedSurface tmpSurface, maskSurface;
 	tmpSurface.create(shapeRect.width(), shapeRect.height(), Graphics::PixelFormat::createFormatCLUT8());
-	tmpSurface.clear(255);
+	tmpSurface.clear(backColor);
 
+	maskSurface.create(shapeRect.width(), shapeRect.height(), Graphics::PixelFormat::createFormatCLUT8());
+	maskSurface.clear(0);
 
 	// Draw fill
 	Common::Rect fillRect((int)shapeRect.width(), (int)shapeRect.height());
-	Graphics::MacPlotData plotFill(&tmpSurface, &_vm->getPatterns(), sp->getPattern(), -shapeRect.left, -shapeRect.top, 1, backColor);
+	Graphics::MacPlotData plotFill(&tmpSurface, &maskSurface, &_vm->getPatterns(), sp->getPattern(), -shapeRect.left, -shapeRect.top, 1, backColor);
 	switch (spriteType) {
 	case kRectangleSprite:
 		Graphics::drawFilledRect(fillRect, foreColor, Graphics::macDrawPixel, &plotFill);
@@ -749,7 +737,7 @@ void Frame::renderShape(Graphics::ManagedSurface &surface, uint16 spriteId) {
 
 	// Draw stroke
 	Common::Rect strokeRect(MAX((int)shapeRect.width() - lineSize, 0), MAX((int)shapeRect.height() - lineSize, 0));
-	Graphics::MacPlotData plotStroke(&tmpSurface, &_vm->getPatterns(), 1, -shapeRect.left, -shapeRect.top, lineSize, backColor);
+	Graphics::MacPlotData plotStroke(&tmpSurface, &maskSurface, &_vm->getPatterns(), 1, -shapeRect.left, -shapeRect.top, lineSize, backColor);
 	switch (spriteType) {
 	case kLineTopBottomSprite:
 		Graphics::drawLine(strokeRect.left, strokeRect.top, strokeRect.right, strokeRect.bottom, foreColor, Graphics::macDrawPixel, &plotStroke);
@@ -778,8 +766,7 @@ void Frame::renderShape(Graphics::ManagedSurface &surface, uint16 spriteId) {
 	}
 
 	addDrawRect(spriteId, shapeRect);
-	inkBasedBlit(surface, tmpSurface, ink, shapeRect);
-
+	inkBasedBlit(surface, &maskSurface, tmpSurface, ink, shapeRect, spriteId);
 }
 
 void Frame::renderButton(Graphics::ManagedSurface &surface, uint16 spriteId) {
@@ -810,8 +797,8 @@ void Frame::renderButton(Graphics::ManagedSurface &surface, uint16 spriteId) {
 	uint32 rectLeft = button->_initialRect.left;
 	uint32 rectTop = button->_initialRect.top;
 
-	int x = _sprites[spriteId]->_startPoint.x;
-	int y = _sprites[spriteId]->_startPoint.y;
+	int x = _sprites[spriteId]->_currentPoint.x;
+	int y = _sprites[spriteId]->_currentPoint.y;
 
 	if (_vm->getVersion() > 3) {
 		x += rectLeft;
@@ -837,7 +824,7 @@ void Frame::renderButton(Graphics::ManagedSurface &surface, uint16 spriteId) {
 	if (!invert)
 		renderText(surface, spriteId, &textRect);
 
-	Graphics::MacPlotData plotStroke(&surface, &_vm->getPatterns(), 1, -_rect.left, -_rect.top, 1, 0);
+	Graphics::MacPlotData plotStroke(&surface, nullptr, &_vm->getPatterns(), 1, -_rect.left, -_rect.top, 1, 0);
 
 	switch (buttonType) {
 	case kCheckboxSprite:
@@ -848,7 +835,7 @@ void Frame::renderButton(Graphics::ManagedSurface &surface, uint16 spriteId) {
 		break;
 	case kButtonSprite: {
 			_rect = Common::Rect(x, y, x + width, y + height + 3);
-			Graphics::MacPlotData pd(&surface, &_vm->getMacWindowManager()->getPatterns(), Graphics::MacGUIConstants::kPatternSolid, 0, 0, 1, invert ? Graphics::kColorBlack : Graphics::kColorWhite);
+			Graphics::MacPlotData pd(&surface, nullptr, &_vm->getMacWindowManager()->getPatterns(), Graphics::MacGUIConstants::kPatternSolid, 0, 0, 1, invert ? Graphics::kColorBlack : Graphics::kColorWhite);
 
 			Graphics::drawRoundRect(_rect, 4, 0, invert, Graphics::macDrawPixel, &pd);
 			addDrawRect(spriteId, _rect);
@@ -870,9 +857,16 @@ void Frame::renderButton(Graphics::ManagedSurface &surface, uint16 spriteId) {
 
 void Frame::renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Common::Rect *textRect) {
 	TextCast *textCast = (TextCast*)_sprites[spriteId]->_cast;
+	if (textCast == nullptr) {
+		warning("Frame::renderText(): TextCast #%d is a nullptr", spriteId);
+		return;
+	}
 
-	int x = _sprites[spriteId]->_startPoint.x; // +rectLeft;
-	int y = _sprites[spriteId]->_startPoint.y; // +rectTop;
+	Score *score = _vm->getCurrentScore();
+	Sprite *sprite = _sprites[spriteId];
+
+	int x = sprite->_currentPoint.x; // +rectLeft;
+	int y = sprite->_currentPoint.y; // +rectTop;
 	int height = textCast->_initialRect.height(); //_sprites[spriteId]->_height;
 	int width;
 
@@ -894,6 +888,25 @@ void Frame::renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Commo
 
 	if (width == 0 || height == 0) {
 		warning("Frame::renderText(): Requested to draw on an empty surface: %d x %d", width, height);
+		return;
+	}
+
+	if (sprite->_editable) {
+		if (!textCast->_widget) {
+			warning("Creating MacEditableText with '%s'", toPrintable(textCast->_ftext).c_str());
+			textCast->_widget = new Graphics::MacEditableText(score->_window, x, y, width, height, g_director->_wm, textCast->_ftext, new Graphics::MacFont(), 0, 255, width);
+			warning("Finished creating MacEditableText");
+		}
+
+		textCast->_widget->draw();
+
+		InkType ink = sprite->_ink;
+
+		if (spriteId == score->_currentMouseDownSpriteId)
+			ink = kInkTypeReverse;
+
+		inkBasedBlit(surface, nullptr, textCast->_widget->getSurface()->rawSurface(), ink, Common::Rect(x, y, x + width, y + height), spriteId);
+
 		return;
 	}
 
@@ -953,9 +966,9 @@ void Frame::renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Commo
 		if (width % 2 != 0)
 			x++;
 
-		if (_sprites[spriteId]->_spriteType != kCastMemberSprite) {
+		if (sprite->_spriteType != kCastMemberSprite) {
 			y += 2;
-			switch (_sprites[spriteId]->_spriteType) {
+			switch (sprite->_spriteType) {
 			case kCheckboxSprite:
 				textX += 16;
 				break;
@@ -1001,7 +1014,7 @@ void Frame::renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Commo
 	}
 
 	Graphics::ManagedSurface textWithFeatures(width + (borderSize * 2) + boxShadow + textShadow, height + borderSize + boxShadow + textShadow);
-	textWithFeatures.fillRect(Common::Rect(textWithFeatures.w, textWithFeatures.h), _vm->getCurrentScore()->getStageColor());
+	textWithFeatures.fillRect(Common::Rect(textWithFeatures.w, textWithFeatures.h), score->getStageColor());
 
 	if (textRect == NULL && boxShadow > 0) {
 		textWithFeatures.fillRect(Common::Rect(boxShadow, boxShadow, textWithFeatures.w + boxShadow, textWithFeatures.h), 0);
@@ -1020,15 +1033,40 @@ void Frame::renderText(Graphics::ManagedSurface &surface, uint16 spriteId, Commo
 
 	textWithFeatures.transBlitFrom(textSurface->rawSurface(), Common::Point(textX, textY), 0xff);
 
-	InkType ink = _sprites[spriteId]->_ink;
+	InkType ink = sprite->_ink;
+
+	if (spriteId == score->_currentMouseDownSpriteId)
+		ink = kInkTypeReverse;
+
+	inkBasedBlit(surface, nullptr, textWithFeatures, ink, Common::Rect(x, y, x + width, y + height), spriteId);
+}
+
+void Frame::renderBitmap(Graphics::ManagedSurface &surface, uint16 spriteId) {
+	InkType ink;
+	Sprite *sprite = _sprites[spriteId];
 
 	if (spriteId == _vm->getCurrentScore()->_currentMouseDownSpriteId)
 		ink = kInkTypeReverse;
+	else
+		ink = sprite->_ink;
 
-	inkBasedBlit(surface, textWithFeatures, ink, Common::Rect(x, y, x + width, y + height));
+	BitmapCast *bc = (BitmapCast *)sprite->_cast;
+
+	int32 regX = bc->_regX;
+	int32 regY = bc->_regY;
+	int32 rectLeft = bc->_initialRect.left;
+	int32 rectTop = bc->_initialRect.top;
+
+	int x = sprite->_currentPoint.x - regX + rectLeft;
+	int y = sprite->_currentPoint.y - regY + rectTop;
+	int height = sprite->_height;
+	int width = _vm->getVersion() > 4 ? bc->_initialRect.width() : sprite->_width;
+	Common::Rect drawRect(x, y, x + width, y + height);
+	addDrawRect(spriteId, drawRect);
+	inkBasedBlit(surface, nullptr, *(bc->_surface), ink, drawRect, spriteId);
 }
 
-void Frame::inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics::Surface &spriteSurface, InkType ink, Common::Rect drawRect) {
+void Frame::inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics::ManagedSurface *maskSurface, const Graphics::Surface &spriteSurface, InkType ink, Common::Rect drawRect, uint spriteId) {
 	// drawRect could be bigger than the spriteSurface. Clip it
 	Common::Rect t(spriteSurface.w, spriteSurface.h);
 	t.moveTo(drawRect.left, drawRect.top);
@@ -1036,14 +1074,17 @@ void Frame::inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics
 
 	switch (ink) {
 	case kInkTypeCopy:
-		targetSurface.blitFrom(spriteSurface, Common::Point(drawRect.left, drawRect.top));
+		if (maskSurface)
+			targetSurface.transBlitFrom(spriteSurface, Common::Point(drawRect.left, drawRect.top), *maskSurface);
+		else
+			targetSurface.blitFrom(spriteSurface, Common::Point(drawRect.left, drawRect.top));
 		break;
 	case kInkTypeTransparent:
 		// FIXME: is it always white (last entry in pallette)?
 		targetSurface.transBlitFrom(spriteSurface, Common::Point(drawRect.left, drawRect.top), _vm->getPaletteColorCount() - 1);
 		break;
 	case kInkTypeBackgndTrans:
-		drawBackgndTransSprite(targetSurface, spriteSurface, drawRect);
+		drawBackgndTransSprite(targetSurface, spriteSurface, drawRect, spriteId);
 		break;
 	case kInkTypeMatte:
 		drawMatteSprite(targetSurface, spriteSurface, drawRect);
@@ -1052,7 +1093,7 @@ void Frame::inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics
 		drawGhostSprite(targetSurface, spriteSurface, drawRect);
 		break;
 	case kInkTypeReverse:
-		drawReverseSprite(targetSurface, spriteSurface, drawRect);
+		drawReverseSprite(targetSurface, spriteSurface, drawRect, spriteId);
 		break;
 	default:
 		warning("Frame::inkBasedBlit(): Unhandled ink type %d", ink);
@@ -1061,8 +1102,8 @@ void Frame::inkBasedBlit(Graphics::ManagedSurface &targetSurface, const Graphics
 	}
 }
 
-void Frame::drawBackgndTransSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect) {
-	uint8 skipColor = _vm->getPaletteColorCount() - 1; // FIXME is it always white (last entry in pallette) ?
+void Frame::drawBackgndTransSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect, int spriteId) {
+	byte skipColor = _sprites[spriteId]->_backColor;
 	Common::Rect srcRect(sprite.w, sprite.h);
 
 	if (!target.clip(srcRect, drawRect))
@@ -1103,7 +1144,7 @@ void Frame::drawGhostSprite(Graphics::ManagedSurface &target, const Graphics::Su
 	}
 }
 
-void Frame::drawReverseSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect) {
+void Frame::drawReverseSprite(Graphics::ManagedSurface &target, const Graphics::Surface &sprite, Common::Rect &drawRect, uint16 spriteId) {
 	Common::Rect srcRect(sprite.w, sprite.h);
 
 	if (!target.clip(srcRect, drawRect))
@@ -1113,23 +1154,37 @@ void Frame::drawReverseSprite(Graphics::ManagedSurface &target, const Graphics::
 	for (int ii = 0; ii < srcRect.height(); ii++) {
 		const byte *src = (const byte *)sprite.getBasePtr(srcRect.left, srcRect.top + ii);
 		byte *dst = (byte *)target.getBasePtr(drawRect.left, drawRect.top + ii);
+		byte srcColor = *src;
 
 		for (int j = 0; j < srcRect.width(); j++) {
-			if ((getSpriteIDFromPos(Common::Point(drawRect.left + j, drawRect.top + ii)) != 0)) {
-				if (*src != skipColor) {
-					*dst = _vm->transformColor(*src);
-#if 0
-					// TODO: Correctly implement reverse for fullColor... currently only works for black and white.
-					if (*src == *dst) {
-						*dst = 0xff - *src;
+			if (_sprites[spriteId]->_cast->_type == kCastShape)
+				srcColor = 0x0;
+			else
+				srcColor = *src;
+			uint16 targetSprite = getSpriteIDFromPos(Common::Point(drawRect.left + j, drawRect.top + ii));
+			if ((targetSprite != 0)) {
+				// TODO: This entire reverse colour attempt needs a lot more testing on
+				// a lot more colour depths.
+				if (srcColor != skipColor) {
+					if (_sprites[targetSprite]->_cast->_type != kCastBitmap) {
+						if (*dst == 0 || *dst == 255) {
+							*dst = _vm->transformColor(*dst);
+						} else if (srcColor == 255 || srcColor == 0) {
+							*dst = _vm->transformColor(*dst - 40);
+						} else {
+							*dst = _vm->transformColor(*src - 40);
+						}
+					} else {
+						if (*dst == 0 && _vm->getVersion() == 3 &&
+							((BitmapCast*)_sprites[spriteId]->_cast)->_bitsPerPixel > 1) {
+							*dst = _vm->transformColor(*src - 40);
+						} else {
+							*dst ^= _vm->transformColor(srcColor);
+						}
 					}
-					else {
-						*dst = *src;
-					}
-#endif
 				}
-			} else if (*src != skipColor) {
-				*dst = *src;
+			} else if (srcColor != skipColor) {
+				*dst = _vm->transformColor(srcColor);
 			}
 			src++;
 			dst++;
@@ -1149,17 +1204,16 @@ void Frame::drawMatteSprite(Graphics::ManagedSurface &target, const Graphics::Su
 	// Searching white color in the corners
 	int whiteColor = -1;
 
-	for (int corner = 0; corner < 4; corner++) {
-		int x = (corner & 0x1) ? tmp.w - 1 : 0;
-		int y = (corner & 0x2) ? tmp.h - 1 : 0;
+	for (int y = 0; y < tmp.h; y++) {
+		for (int x = 0; x < tmp.w; x++) {
+			byte color = *(byte *)tmp.getBasePtr(x, y);
 
-		byte color = *(byte *)tmp.getBasePtr(x, y);
-
-		if (_vm->getPalette()[color * 3 + 0] == 0xff &&
-			_vm->getPalette()[color * 3 + 1] == 0xff &&
-			_vm->getPalette()[color * 3 + 2] == 0xff) {
-			whiteColor = color;
-			break;
+			if (_vm->getPalette()[color * 3 + 0] == 0xff &&
+				_vm->getPalette()[color * 3 + 1] == 0xff &&
+				_vm->getPalette()[color * 3 + 2] == 0xff) {
+				whiteColor = color;
+				break;
+			}
 		}
 	}
 

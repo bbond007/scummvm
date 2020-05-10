@@ -31,8 +31,6 @@
 #include "ultima/ultima8/gumps/gump_notify_process.h"
 #include "ultima/ultima8/world/item.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 
 namespace Ultima {
 namespace Ultima8 {
@@ -42,12 +40,12 @@ DEFINE_RUNTIME_CLASSTYPE_CODE(ScrollGump, ModalGump)
 // TODO: Remove all the hacks
 
 ScrollGump::ScrollGump()
-	: ModalGump() {
+	: ModalGump(), _textWidget(0) {
 
 }
 
 ScrollGump::ScrollGump(ObjId owner_, Std::string msg) :
-	ModalGump(0, 0, 100, 100, owner_), _text(msg) {
+	ModalGump(0, 0, 100, 100, owner_), _text(msg), _textWidget(0) {
 }
 
 ScrollGump::~ScrollGump(void) {
@@ -98,11 +96,11 @@ uint32 ScrollGump::I_readScroll(const uint8 *args, unsigned int /*argsize*/) {
 	return gump->GetNotifyProcess()->getPid();
 }
 
-void ScrollGump::saveData(ODataSource *ods) {
+void ScrollGump::saveData(Common::WriteStream *ws) {
 	CANT_HAPPEN_MSG("Trying to save ModalGump");
 }
 
-bool ScrollGump::loadData(IDataSource *ids, uint32 version) {
+bool ScrollGump::loadData(Common::ReadStream *rs, uint32 version) {
 	CANT_HAPPEN_MSG("Trying to load ModalGump");
 
 	return false;

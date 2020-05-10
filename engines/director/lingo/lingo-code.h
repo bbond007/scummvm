@@ -85,6 +85,7 @@ namespace LC {
 	void c_swap();
 
 	void c_theentitypush();
+	void c_themenuentitypush();
 	void c_theentityassign();
 	void c_themenuitementityassign();
 	void c_objectfieldpush();
@@ -100,7 +101,7 @@ namespace LC {
 	void c_tell();
 	void c_telldone();
 	void c_exitRepeat();
-	Datum compareArrays(Datum (*compareFunc)(Datum, Datum), Datum d1, Datum d2);
+	Datum compareArrays(Datum (*compareFunc)(Datum, Datum), Datum d1, Datum d2, bool location = false, bool value = false);
 	Datum eqData(Datum d1, Datum d2);
 	void c_eq();
 	Datum neqData(Datum d1, Datum d2);
@@ -152,6 +153,9 @@ namespace LC {
 	void cb_localcall();
 	void cb_methodcall();
 	void cb_objectpush();
+	void cb_proplist();
+	void cb_stackpeek();
+	void cb_stackdrop();
 	void cb_varassign();
 	void cb_varpush();
 	void cb_v4assign();

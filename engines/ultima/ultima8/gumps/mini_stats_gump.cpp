@@ -33,9 +33,6 @@
 #include "ultima/ultima8/gumps/paperdoll_gump.h"
 #include "ultima/ultima8/world/get_object.h"
 
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
-
 namespace Ultima {
 namespace Ultima8 {
 
@@ -126,12 +123,12 @@ void MiniStatsGump::OnMouseDouble(int button, int32 mx, int32 my) {
 	Close();
 }
 
-void MiniStatsGump::saveData(ODataSource *ods) {
-	Gump::saveData(ods);
+void MiniStatsGump::saveData(Common::WriteStream *ws) {
+	Gump::saveData(ws);
 }
 
-bool MiniStatsGump::loadData(IDataSource *ids, uint32 version) {
-	if (!Gump::loadData(ids, version)) return false;
+bool MiniStatsGump::loadData(Common::ReadStream *rs, uint32 version) {
+	if (!Gump::loadData(rs, version)) return false;
 
 	return true;
 }

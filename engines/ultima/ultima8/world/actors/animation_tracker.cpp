@@ -33,8 +33,6 @@
 #include "ultima/ultima8/usecode/uc_list.h"
 #include "ultima/ultima8/world/loop_script.h"
 #include "ultima/ultima8/world/get_object.h"
-#include "ultima/ultima8/filesys/idata_source.h"
-#include "ultima/ultima8/filesys/odata_source.h"
 #include "ultima/ultima8/kernel/core_app.h"
 
 namespace Ultima {
@@ -46,43 +44,50 @@ namespace Ultima8 {
 static const int watchactor = WATCHACTOR;
 #endif
 
-AnimationTracker::AnimationTracker() {
+AnimationTracker::AnimationTracker() : _firstFrame(true), _done(false),
+	_blocked(false), _unsupported(false), _hitObject(0), _mode(NormalMode),
+	_actor(0), _dir(0), _animAction(nullptr), _x(0), _y(0), _z(0),
+	_prevX(0), _prevY(0), _prevZ(0), _startX(0), _startY(0), _startZ(0),
+	_targetDx(0), _targetDy(0), _targetDz(0), _targetOffGroundLeft(0),
+	_firstStep(false), _shapeFrame(0), _currentFrame(0), _startFrame(0),
+	_endFrame(0), _flipped(false) {
 }
 
 AnimationTracker::~AnimationTracker() {
 }
 
-bool AnimationTracker::init(Actor *actor_, Animation::Sequence action_,
-                            uint32 dir_, PathfindingState *state_) {
-	assert(actor_);
-	_actor = actor_->getObjId();
-	uint32 shape = actor_->getShape();
+bool AnimationTracker::init(const Actor *actor, Animation::Sequence action,
+                            uint32 dir, const PathfindingState *state) {
+	assert(actor);
+	_actor = actor->getObjId();
+	uint32 shape = actor->getShape();
 	_animAction = GameData::get_instance()->getMainShapes()->
-	             getAnim(shape, action_);
-	if (!_animAction) return false;
+	             getAnim(shape, action);
+	if (!_animAction)
+		return false;
 
-	_dir = dir_;
+	_dir = dir;
 
-	if (state_ == 0) {
-		_animAction->getAnimRange(actor_, _dir, _startFrame, _endFrame);
-		actor_->getLocation(_x, _y, _z);
-		_flipped = (actor_->getFlags() & Item::FLG_FLIPPED) != 0;
-		_firstStep = (actor_->getActorFlags() & Actor::ACT_FIRSTSTEP) != 0;
+	if (state == 0) {
+		_animAction->getAnimRange(actor, _dir, _startFrame, _endFrame);
+		actor->getLocation(_x, _y, _z);
+		_flipped = actor->hasFlags(Item::FLG_FLIPPED);
+		_firstStep = actor->hasActorFlags(Actor::ACT_FIRSTSTEP);
 	} else {
-		_animAction->getAnimRange(state_->_lastAnim, state_->_direction,
-		                         state_->_firstStep, _dir, _startFrame, _endFrame);
-		_flipped = state_->_flipped;
-		_firstStep = state_->_firstStep;
-		_x = state_->_x;
-		_y = state_->_y;
-		_z = state_->_z;
+		_animAction->getAnimRange(state->_lastAnim, state->_direction,
+		                         state->_firstStep, _dir, _startFrame, _endFrame);
+		_flipped = state->_flipped;
+		_firstStep = state->_firstStep;
+		_x = state->_x;
+		_y = state->_y;
+		_z = state->_z;
 	}
 	_startX = _x;
 	_startY = _y;
 	_startZ = _z;
 
 #ifdef WATCHACTOR
-	if (actor_ && actor_->getObjId() == watchactor) {
+	if (actor && actor->getObjId() == watchactor) {
 		pout << "AnimationTracker: playing " << _startFrame << "-" << _endFrame
 		     << " (_animAction flags: " << Std::hex << _animAction->flags
 		     << Std::dec << ")" << Std::endl;
@@ -104,7 +109,7 @@ bool AnimationTracker::init(Actor *actor_, Animation::Sequence action_,
 unsigned int AnimationTracker::getNextFrame(unsigned int frame) const {
 	frame++;
 
-	if (frame == _endFrame)
+	if (!_animAction || frame == _endFrame)
 		return _endFrame;
 
 	// loop if necessary
@@ -214,7 +219,7 @@ bool AnimationTracker::step() {
 	}
 
 	// determine footpad
-	bool actorflipped = (a->getFlags() & Item::FLG_FLIPPED) != 0;
+	bool actorflipped = a->hasFlags(Item::FLG_FLIPPED);
 	int32 xd, yd, zd;
 	a->getFootpadWorld(xd, yd, zd);
 	if (actorflipped != _flipped) {
@@ -314,13 +319,13 @@ bool AnimationTracker::step() {
 				descentdelta = -20;         // Descend
 
 			if (descentdelta) {
-				if (dy == 0 && dx != 0 && !(support->getFlags() & Item::FLG_FLIPPED)) {
+				if (dy == 0 && dx != 0 && !support->hasFlags(Item::FLG_FLIPPED)) {
 					// Moving left or right on horizontal bridge
 					// descentdelta = 60*dy/dx
 					// 60*dy = descentdelta * dx
 					// dy = descentdelta * dx / 60;
 					ty += descentdelta * dx / 60;
-				} else if (dx == 0 && dy != 0 && (support->getFlags() & Item::FLG_FLIPPED)) {
+				} else if (dx == 0 && dy != 0 && support->hasFlags(Item::FLG_FLIPPED)) {
 					// Moving up or down on vertical bridge
 					tx += descentdelta * dy / 60;
 				}
@@ -559,64 +564,64 @@ void AnimationTracker::getSpeed(int32 &dx, int32 &dy, int32 &dz) const {
 }
 
 
-void AnimationTracker::save(ODataSource *ods) {
-	ods->writeUint32LE(_startFrame);
-	ods->writeUint32LE(_endFrame);
+void AnimationTracker::save(Common::WriteStream *ws) {
+	ws->writeUint32LE(_startFrame);
+	ws->writeUint32LE(_endFrame);
 	uint8 ff = _firstFrame ? 1 : 0;
-	ods->writeByte(ff);
-	ods->writeUint32LE(_currentFrame);
+	ws->writeByte(ff);
+	ws->writeUint32LE(_currentFrame);
 
-	ods->writeUint16LE(_actor);
-	ods->writeByte(static_cast<uint8>(_dir));
+	ws->writeUint16LE(_actor);
+	ws->writeByte(static_cast<uint8>(_dir));
 
 	if (_animAction) {
-		ods->writeUint32LE(_animAction->_shapeNum);
-		ods->writeUint32LE(_animAction->_action);
+		ws->writeUint32LE(_animAction->_shapeNum);
+		ws->writeUint32LE(_animAction->_action);
 	} else {
-		ods->writeUint32LE(0);
-		ods->writeUint32LE(0);
+		ws->writeUint32LE(0);
+		ws->writeUint32LE(0);
 	}
 
-	ods->writeUint32LE(static_cast<uint32>(_prevX));
-	ods->writeUint32LE(static_cast<uint32>(_prevY));
-	ods->writeUint32LE(static_cast<uint32>(_prevZ));
-	ods->writeUint32LE(static_cast<uint32>(_x));
-	ods->writeUint32LE(static_cast<uint32>(_y));
-	ods->writeUint32LE(static_cast<uint32>(_z));
+	ws->writeUint32LE(static_cast<uint32>(_prevX));
+	ws->writeUint32LE(static_cast<uint32>(_prevY));
+	ws->writeUint32LE(static_cast<uint32>(_prevZ));
+	ws->writeUint32LE(static_cast<uint32>(_x));
+	ws->writeUint32LE(static_cast<uint32>(_y));
+	ws->writeUint32LE(static_cast<uint32>(_z));
 
-	ods->writeUint16LE(static_cast<uint16>(_mode));
+	ws->writeUint16LE(static_cast<uint16>(_mode));
 	if (_mode == TargetMode) {
-		ods->writeUint32LE(static_cast<uint32>(_targetDx));
-		ods->writeUint32LE(static_cast<uint32>(_targetDy));
-		ods->writeUint32LE(static_cast<uint32>(_targetDz));
-		ods->writeUint32LE(static_cast<uint32>(_targetOffGroundLeft));
+		ws->writeUint32LE(static_cast<uint32>(_targetDx));
+		ws->writeUint32LE(static_cast<uint32>(_targetDy));
+		ws->writeUint32LE(static_cast<uint32>(_targetDz));
+		ws->writeUint32LE(static_cast<uint32>(_targetOffGroundLeft));
 	}
 	uint8 fs = _firstStep ? 1 : 0;
-	ods->writeByte(fs);
+	ws->writeByte(fs);
 	uint8 fl = _flipped ? 1 : 0;
-	ods->writeByte(fl);
-	ods->writeUint32LE(_shapeFrame);
+	ws->writeByte(fl);
+	ws->writeUint32LE(_shapeFrame);
 
 	uint8 flag = _done ? 1 : 0;
-	ods->writeByte(flag);
+	ws->writeByte(flag);
 	flag = _blocked ? 1 : 0;
-	ods->writeByte(flag);
+	ws->writeByte(flag);
 	flag = _unsupported ? 1 : 0;
-	ods->writeByte(flag);
-	ods->writeUint16LE(_hitObject);
+	ws->writeByte(flag);
+	ws->writeUint16LE(_hitObject);
 }
 
-bool AnimationTracker::load(IDataSource *ids, uint32 version) {
-	_startFrame = ids->readUint32LE();
-	_endFrame = ids->readUint32LE();
-	_firstFrame = (ids->readByte() != 0);
-	_currentFrame = ids->readUint32LE();
+bool AnimationTracker::load(Common::ReadStream *rs, uint32 version) {
+	_startFrame = rs->readUint32LE();
+	_endFrame = rs->readUint32LE();
+	_firstFrame = (rs->readByte() != 0);
+	_currentFrame = rs->readUint32LE();
 
-	_actor = ids->readUint16LE();
-	_dir = ids->readByte();
+	_actor = rs->readUint16LE();
+	_dir = rs->readByte();
 
-	uint32 shapenum = ids->readUint32LE();
-	uint32 action = ids->readUint32LE();
+	uint32 shapenum = rs->readUint32LE();
+	uint32 action = rs->readUint32LE();
 	if (shapenum == 0) {
 		_animAction = nullptr;
 	} else {
@@ -625,20 +630,20 @@ bool AnimationTracker::load(IDataSource *ids, uint32 version) {
 		assert(_animAction);
 	}
 
-	_prevX = ids->readUint32LE();
-	_prevY = ids->readUint32LE();
-	_prevZ = ids->readUint32LE();
-	_x = ids->readUint32LE();
-	_y = ids->readUint32LE();
-	_z = ids->readUint32LE();
+	_prevX = rs->readUint32LE();
+	_prevY = rs->readUint32LE();
+	_prevZ = rs->readUint32LE();
+	_x = rs->readUint32LE();
+	_y = rs->readUint32LE();
+	_z = rs->readUint32LE();
 
-	_mode = static_cast<Mode>(ids->readUint16LE());
+	_mode = static_cast<Mode>(rs->readUint16LE());
 	if (_mode == TargetMode) {
-		_targetDx = ids->readUint32LE();
-		_targetDy = ids->readUint32LE();
+		_targetDx = rs->readUint32LE();
+		_targetDy = rs->readUint32LE();
 		if (version >= 5) {
-			_targetDz = ids->readUint32LE();
-			_targetOffGroundLeft = ids->readUint32LE();
+			_targetDz = rs->readUint32LE();
+			_targetOffGroundLeft = rs->readUint32LE();
 		} else {
 			// Versions before 5 stored the only _x,_y adjustment
 			// to be made per frame. This is less accurate and ignores _z.
@@ -659,14 +664,14 @@ bool AnimationTracker::load(IDataSource *ids, uint32 version) {
 		}
 	}
 
-	_firstStep = (ids->readByte() != 0);
-	_flipped = (ids->readByte() != 0);
-	_shapeFrame = ids->readUint32LE();
+	_firstStep = (rs->readByte() != 0);
+	_flipped = (rs->readByte() != 0);
+	_shapeFrame = rs->readUint32LE();
 
-	_done = (ids->readByte() != 0);
-	_blocked = (ids->readByte() != 0);
-	_unsupported = (ids->readByte() != 0);
-	_hitObject = ids->readUint16LE();
+	_done = (rs->readByte() != 0);
+	_blocked = (rs->readByte() != 0);
+	_unsupported = (rs->readByte() != 0);
+	_hitObject = rs->readUint16LE();
 
 	return true;
 }

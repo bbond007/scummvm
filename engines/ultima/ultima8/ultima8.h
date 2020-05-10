@@ -25,6 +25,7 @@
 #define ULTIMA8_ULTIMA8
 
 #include "common/scummsys.h"
+#include "common/stream.h"
 #include "common/system.h"
 #include "common/archive.h"
 #include "common/error.h"
@@ -49,12 +50,8 @@
 namespace Ultima {
 namespace Ultima8 {
 
-#define DEFAULT_SCREEN_WIDTH 640
-#define DEFAULT_SCREEN_HEIGHT 480
-
 class Debugger;
 class Kernel;
-class MemoryManager;
 class UCMachine;
 class Game;
 class Gump;
@@ -70,8 +67,6 @@ class ObjectManager;
 class FontManager;
 class Mouse;
 class AvatarMoverProcess;
-class IDataSource;
-class ODataSource;
 class Texture;
 class AudioMixer;
 
@@ -91,7 +86,6 @@ private:
 	Std::string _errorTitle;
 
 	Kernel *_kernel;
-	MemoryManager *_memoryManager;
 	ObjectManager *_objectManager;
 	UCMachine *_ucMachine;
 	RenderSurface *_screen;
@@ -143,13 +137,13 @@ private:
 
 private:
 	//! write savegame info (time, ..., game-specifics)
-	void writeSaveInfo(ODataSource *ods);
+	void writeSaveInfo(Common::WriteStream *ws);
 
 	//! save CoreApp/Ultima8Engine data
-	void save(ODataSource *ods);
+	void save(Common::WriteStream *ws);
 
 	//! load CoreApp/Ultima8Engine data
-	bool load(IDataSource *ids, uint32 version);
+	bool load(Common::ReadStream *rs, uint32 version);
 
 	//! reset engine (including World, UCMachine, a.o.)
 	void resetEngine();
@@ -216,6 +210,10 @@ public:
 		return _painting;
 	}
 
+	static const int U8_DEFAULT_SCREEN_WIDTH = 320;
+	static const int U8_DEFAULT_SCREEN_HEIGHT = 200;
+	static const int CRUSADER_DEFAULT_SCREEN_WIDTH = 640;
+	static const int CRUSADER_DEFAULT_SCREEN_HEIGHT = 480;
 
 	INTRINSIC(I_getCurrentTimerTick);
 	INTRINSIC(I_setAvatarInStasis);
