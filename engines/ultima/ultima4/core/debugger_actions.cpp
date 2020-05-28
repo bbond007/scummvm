@@ -156,8 +156,11 @@ bool DebuggerActions::getChestTrapHandler(int player) {
 			(g_ultima->_saveGame->_players[player]._dex + 25 < xu4_random(100))) {
 			if (trapType == EFFECT_LAVA) /* bomb trap */
 				g_context->_party->applyEffect(trapType);
-			else g_context->_party->member(player)->applyEffect(trapType);
-		} else g_screen->screenMessage("Evaded!\n");
+			else
+				g_context->_party->member(player)->applyEffect(trapType);
+		} else {
+			g_screen->screenMessage("Evaded!\n");
+		}
 
 		return true;
 	}
@@ -354,6 +357,10 @@ bool DebuggerActions::talkAt(const Coords &coords) {
 	conv._playerInput.clear();
 	talkRunConversation(conv, talker, false);
 
+	// Ensure the end of the conversation ends the line
+	if (g_context->_col != 0)
+		g_screen->screenMessage("\n");
+
 	return true;
 }
 
@@ -423,8 +430,7 @@ void DebuggerActions::talkRunConversation(Conversation &conv, Person *talker, bo
 
 		int maxlen;
 		switch (conv.getInputRequired(&maxlen)) {
-		case Conversation::INPUT_STRING:
-		{
+		case Conversation::INPUT_STRING: {
 			conv._playerInput = gameGetInput(maxlen);
 #ifdef IOS_ULTIMA4
 			g_screen->screenMessage("%s", conv.playerInput.c_str()); // Since we put this in a different window, we need to show it again.
@@ -434,8 +440,7 @@ void DebuggerActions::talkRunConversation(Conversation &conv, Person *talker, bo
 			showPrompt = true;
 			break;
 		}
-		case Conversation::INPUT_CHARACTER:
-		{
+		case Conversation::INPUT_CHARACTER: {
 			char message[2];
 #ifdef IOS_ULTIMA4
 			U4IOS::IOSConversationChoiceHelper yesNoHelper;

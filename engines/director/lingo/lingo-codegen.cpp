@@ -84,6 +84,9 @@ void Lingo::execute(uint pc) {
 			warning("Lingo::execute(): Bad PC (%d)", _pc);
 			break;
 		}
+
+		if (_vm->getCurrentScore() && _vm->getCurrentScore()->_stopPlay)
+			break;
 	}
 }
 
@@ -92,9 +95,30 @@ void Lingo::printStack(const char *s, uint pc) {
 
 	for (uint i = 0; i < _stack.size(); i++) {
 		Datum d = _stack[i];
-		stack += Common::String::format("<%s> ", d.getPrintable().c_str());
+		stack += Common::String::format("<%s> ", d.asString(true).c_str());
 	}
 	debugC(5, kDebugLingoExec, "[%3d]: %s", pc, stack.c_str());
+}
+
+void Lingo::printCallStack(uint pc) {
+	debugC(5, kDebugLingoExec, "Call stack:");
+	for (int i = 0; i < (int)g_lingo->_callstack.size(); i++) {
+		CFrame *frame = g_lingo->_callstack[i];
+		uint framePc = pc;
+		if (i < (int)g_lingo->_callstack.size() - 1)
+			framePc = g_lingo->_callstack[i + 1]->retpc;
+
+		if (frame->sp) {
+			debugC(5, kDebugLingoExec, "#%d %s:%d", i + 1,
+				g_lingo->_callstack[i]->sp->name.c_str(),
+				framePc
+			);
+		} else {
+			debugC(5, kDebugLingoExec, "#%d [unknown]:%d", i + 1,
+				framePc
+			);
+		}
+	}
 }
 
 Common::String Lingo::decodeInstruction(ScriptData *sd, uint pc, uint *newPc) {
@@ -259,9 +283,9 @@ Symbol *Lingo::define(Common::String &name, int nargs, ScriptData *code) {
 		sym->type = HANDLER;
 
 		if (!_eventHandlerTypeIds.contains(name)) {
-			_builtins[name] = sym;
+			_archives[_archiveIndex].functionHandlers[name] = sym;
 		} else {
-			_handlers[ENTITY_INDEX(_eventHandlerTypeIds[name.c_str()], _currentEntityId)] = sym;
+			_archives[_archiveIndex].eventHandlers[ENTITY_INDEX(_eventHandlerTypeIds[name.c_str()], _currentEntityId)] = sym;
 		}
 	} else {
 		// we don't want to be here. The getHandler call should have used the EntityId and the result
@@ -269,10 +293,10 @@ Symbol *Lingo::define(Common::String &name, int nargs, ScriptData *code) {
 		warning("Redefining handler '%s'", name.c_str());
 
 		// Do not attempt to remove code from built-ins
-		if (sym->type == HANDLER)
-			delete sym->u.defn;
-		else
-			sym->type = HANDLER;
+		sym->reset();
+		sym->refCount = new int;
+		*sym->refCount = 1;
+		sym->type = HANDLER;
 	}
 
 	sym->u.defn = code;
@@ -443,20 +467,14 @@ void Lingo::codeLabel(int label) {
 	debugC(4, kDebugLingoCompile, "codeLabel: Added label %d", label);
 }
 
-void Lingo::processIf(int startlabel, int endlabel, int finalElse) {
-	inst ielse1, iend;
-	int  else1 = 0;
+void Lingo::processIf(int toplabel, int endlabel) {
+	inst iend;
 
-	debugC(4, kDebugLingoCompile, "processIf(%d, %d, %d)", startlabel, endlabel, finalElse);
-
-	WRITE_UINT32(&iend, endlabel);
-
-	int finalElsePos = -1;
-	bool multiIf = _labelstack.size() > 1;
+	debugC(4, kDebugLingoCompile, "processIf(%d, %d)", toplabel, endlabel);
 
 	while (true) {
 		if (_labelstack.empty()) {
-			warning("Label stack underflow");
+			warning("Lingo::processIf(): Label stack underflow");
 			break;
 		}
 
@@ -467,28 +485,11 @@ void Lingo::processIf(int startlabel, int endlabel, int finalElse) {
 		if (!label)
 			break;
 
-		if (else1)
-			else1 = else1 - label;
+		debugC(4, kDebugLingoCompile, "processIf: label at %d", label);
 
-		// Store position of the last 'if', so we could set reference to the
-		// 'finalElse' part
-		if (finalElse && finalElsePos == -1) {
-			finalElsePos = label;
-		}
+		WRITE_UINT32(&iend, endlabel - label + 1);
 
-		debugC(4, kDebugLingoCompile, "processIf: %d: %d %d", label, else1 + label, endlabel + label);
-
-		WRITE_UINT32(&ielse1, else1);
-		(*_currentScript)[label + 2] = ielse1;    /* elsepart */
-		(*_currentScript)[label + 3] = iend;      /* end, if cond fails */
-
-		else1 = label;
-	}
-
-	if (multiIf && finalElsePos != -1) {
-		debugC(4, kDebugLingoCompile, "processIf: storing %d to %d", finalElse - finalElsePos + startlabel, finalElsePos);
-		WRITE_UINT32(&ielse1, finalElse - finalElsePos + startlabel);
-		(*_currentScript)[finalElsePos + 2] = ielse1;
+		(*_currentScript)[label] = iend;      /* end, if cond fails */
 	}
 }
 
@@ -506,11 +507,11 @@ int Lingo::castIdFetch(Datum &var) {
 		else
 			warning("castIdFetch: reference to non-existent cast member: %s", var.u.s->c_str());
 	} else if (var.type == INT || var.type == FLOAT) {
-		var.makeInt();
-		if (!score->_loadedCast->contains(var.u.i))
-			warning("castIdFetch: reference to non-existent cast ID: %d", var.u.i);
+		int castId = var.asInt();
+		if (!_vm->getCastMember(castId))
+			warning("castIdFetch: reference to non-existent cast ID: %d", castId);
 		else
-			id = var.u.i;
+			id = castId;
 	} else {
 		error("castIdFetch: was expecting STRING or INT, got %s", var.type2str());
 	}
@@ -538,27 +539,20 @@ void Lingo::varAssign(Datum &var, Datum &value) {
 			return;
 		}
 
-		if ((sym->type == STRING || sym->type == VOID) && sym->u.s) // Free memory if needed
-			delete var.u.sym->u.s;
-
-		if (sym->type == POINT || sym->type == RECT || sym->type == ARRAY)
-			delete var.u.sym->u.farr;
-		else if (sym->type == PARRAY)
-			delete var.u.sym->u.parr;
-
+		sym->reset();
+		sym->refCount = value.refCount;
+		*sym->refCount += 1;
 		sym->type = value.type;
 		if (value.type == INT) {
 			sym->u.i = value.u.i;
 		} else if (value.type == FLOAT) {
 			sym->u.f = value.u.f;
 		} else if (value.type == STRING) {
-			sym->u.s = new Common::String(*value.u.s);
-			delete value.u.s;
+			sym->u.s = value.u.s;
 		} else if (value.type == POINT || value.type == ARRAY) {
-			sym->u.farr = new DatumArray(*value.u.farr);
-			delete value.u.farr;
+			sym->u.farr = value.u.farr;
 		} else if (value.type == PARRAY) {
-			sym->u.parr = new PropertyArray(*value.u.parr);
+			sym->u.parr = value.u.parr;
 		} else if (value.type == SYMBOL) {
 			sym->u.s = value.u.s;
 		} else if (value.type == OBJECT) {
@@ -575,26 +569,19 @@ void Lingo::varAssign(Datum &var, Datum &value) {
 			warning("varAssign: Assigning to a reference to an empty score");
 			return;
 		}
-		if (!score->_loadedCast->contains(var.u.i)) {
-			if (!score->_loadedCast->contains(var.u.i - score->_castIDoffset)) {
-				warning("varAssign: Unknown REFERENCE %d", var.u.i);
-				return;
-			} else {
-				var.u.i -= score->_castIDoffset;
-			}
+		int referenceId = var.u.i;
+		Cast *member = g_director->getCastMember(referenceId);
+		if (!member) {
+			warning("varAssign: Unknown cast id %d", referenceId);
+			return;
 		}
-		Cast *cast = score->_loadedCast->getVal(var.u.i);
-		if (cast) {
-			switch (cast->_type) {
-			case kCastText:
-				value.makeString();
-				((TextCast *)cast)->setText(value.u.s->c_str());
-				delete value.u.s;
-				break;
-			default:
-				warning("varAssign: Unhandled cast type %s", tag2str(cast->_type));
-				break;
-			}
+		switch (member->_type) {
+		case kCastText:
+			((TextCast *)member)->setText(value.asString().c_str());
+			break;
+		default:
+			warning("varAssign: Unhandled cast type %s", tag2str(member->_type));
+			break;
 		}
 	}
 }
@@ -615,13 +602,16 @@ Datum Lingo::varFetch(Datum &var) {
 		}
 
 		result.type = sym->type;
+		delete result.refCount;
+		result.refCount = sym->refCount;
+		*result.refCount += 1;
 
 		if (sym->type == INT)
 			result.u.i = sym->u.i;
 		else if (sym->type == FLOAT)
 			result.u.f = sym->u.f;
 		else if (sym->type == STRING)
-			result.u.s = new Common::String(*sym->u.s);
+			result.u.s = sym->u.s;
 		else if (sym->type == POINT)
 			result.u.farr = sym->u.farr;
 		else if (sym->type == SYMBOL)
@@ -638,16 +628,7 @@ Datum Lingo::varFetch(Datum &var) {
 		}
 
 	} else if (var.type == REFERENCE) {
-		Score *score = g_director->getCurrentScore();
-		if (!score->_loadedCast->contains(var.u.i)) {
-			if (!score->_loadedCast->contains(var.u.i - score->_castIDoffset)) {
-				warning("varFetch: Unknown REFERENCE %d", var.u.i);
-				return result;
-			} else {
-				var.u.i -= score->_castIDoffset;
-			}
-		}
-		Cast *cast = score->_loadedCast->getVal(var.u.i);
+		Cast *cast = _vm->getCastMember(var.u.i);
 		if (cast) {
 			switch (cast->_type) {
 			case kCastText:
@@ -658,6 +639,8 @@ Datum Lingo::varFetch(Datum &var) {
 				warning("varFetch: Unhandled cast type %s", tag2str(cast->_type));
 				break;
 			}
+		} else {
+			warning("varFetch: Unknown cast id %d", var.u.i);
 		}
 
 	}
@@ -677,7 +660,7 @@ void Lingo::codeFactory(Common::String &name) {
 	sym->parens = true;
 	sym->u.bltin = LB::b_factory;
 
-	_handlers[ENTITY_INDEX(_eventHandlerTypeIds[name.c_str()], _currentEntityId)] = sym;
+	_archives[_archiveIndex].eventHandlers[ENTITY_INDEX(_eventHandlerTypeIds[name.c_str()], _currentEntityId)] = sym;
 }
 
 }

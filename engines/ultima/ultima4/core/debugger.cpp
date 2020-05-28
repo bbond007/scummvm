@@ -59,6 +59,7 @@ Debugger::Debugger() : Shared::Debugger() {
 	registerCmd("board", WRAP_METHOD(Debugger, cmdBoard));
 	registerCmd("camp", WRAP_METHOD(Debugger, cmdCamp));
 	registerCmd("cast", WRAP_METHOD(Debugger, cmdCastSpell));
+	registerCmd("spell", WRAP_METHOD(Debugger, cmdCastSpell));
 	registerCmd("climb", WRAP_METHOD(Debugger, cmdClimb));
 	registerCmd("descend", WRAP_METHOD(Debugger, cmdDescend));
 	registerCmd("enter", WRAP_METHOD(Debugger, cmdEnter));
@@ -308,7 +309,7 @@ bool Debugger::cmdBoard(int argc, const char **argv) {
 
 bool Debugger::cmdCastSpell(int argc, const char **argv) {
 	int player = -1;
-	if (argc == 2)
+	if (argc >= 2)
 		player = strToInt(argv[1]);
 
 	print("Cast Spell!");
@@ -328,9 +329,22 @@ bool Debugger::cmdCastSpell(int argc, const char **argv) {
 	// ### Put the iPad thing too.
 	U4IOS::IOSCastSpellHelper castSpellController;
 #endif
-	int spell = AlphaActionController::get('z', "Spell: ");
-	if (spell == -1)
+	int spell;
+	if (argc == 3) {
+		printN("Spell: ");
+		if (Common::isAlpha(argv[2][0])) {
+			spell = tolower(argv[2][0]) - 'a';
+		} else {
+			spell = -1;
+		}
+	} else {
+		spell = AlphaActionController::get('z', "Spell: ");
+	}
+
+	if (spell == -1) {
+		print("");
 		return isDebuggerActive();
+	}
 
 	print("%s!", g_spells->spellGetName(spell)); // Prints spell name at prompt
 
@@ -453,7 +467,7 @@ bool Debugger::cmdCastSpell(int argc, const char **argv) {
 	}
 	}
 
-	return isDebuggerActive();
+	return false;
 }
 
 bool Debugger::cmdCamp(int argc, const char **argv) {
@@ -948,6 +962,7 @@ bool Debugger::cmdReadyWeapon(int argc, const char **argv) {
 		print("");
 		return isDebuggerActive();
 	}
+
 	switch (p->setWeapon(w)) {
 	case EQUIP_SUCCEEDED:
 		print("%s", w->getName().c_str());
@@ -987,6 +1002,15 @@ bool Debugger::cmdSearch(int argc, const char **argv) {
 		dungeonSearch();
 	} else if (g_context->_party->isFlying()) {
 		print("Searching...\n%cDrift only!%c", FG_GREY, FG_WHITE);
+	} else if (g_context->_location->_map->_id == MAP_SCUMMVM &&
+			g_context->_location->_coords == Coords(52, 5, 0)) {
+		// Special hack for the ScummVM easter egg map. Searching on
+		// the given tile triggers the cheat to allow teleporting
+		print("Searching...\nFound teleport point!");
+		g_game->exitToParentMap();
+		g_music->playMapMusic();
+
+		return cmdGoto(argc, argv);
 	} else {
 		print("Searching...");
 
@@ -999,6 +1023,8 @@ bool Debugger::cmdSearch(int argc, const char **argv) {
 					print("You find...\n%s!", item->_name);
 				(g_items->*(item->_putItemInInventory))(item->_data);
 			}
+		} else if (usePortalAt(g_context->_location, g_context->_location->_coords, ACTION_ENTER)) {
+			print("");
 		} else {
 			print("%cNothing Here!%c", FG_GREY, FG_WHITE);
 		}
@@ -1164,6 +1190,7 @@ bool Debugger::cmdWearArmor(int argc, const char **argv) {
 		print("");
 		return isDebuggerActive();
 	}
+
 	switch (p->setArmor(a)) {
 	case EQUIP_SUCCEEDED:
 		print("%s", a->getName().c_str());
@@ -1384,6 +1411,8 @@ bool Debugger::cmdGoto(int argc, const char **argv) {
 	}
 
 	dest.toLowercase();
+	if (dest == "britain")
+		dest = "britannia";
 
 	bool found = false;
 	p = strToInt(dest.c_str());
@@ -1492,7 +1521,29 @@ bool Debugger::cmdLeave(int argc, const char **argv) {
 bool Debugger::cmdLocation(int argc, const char **argv) {
 	const MapCoords &pos = g_context->_location->_coords;
 
-	if (isDebuggerActive()) {
+	if (argc == 3) {
+		Coords newPos;
+
+		if (strlen(argv[1]) == 2 && strlen(argv[2]) == 2
+				&& Common::isAlpha(argv[1][0]) && Common::isAlpha(argv[1][1])
+			&& Common::isAlpha(argv[2][0]) && Common::isAlpha(argv[2][1])
+		) {
+			newPos.y = (toupper(argv[1][0]) - 'A') * 16 + (toupper(argv[1][1]) - 'A');
+			newPos.x = (toupper(argv[2][0]) - 'A') * 16 + (toupper(argv[2][1]) - 'A');
+		} else {
+			newPos.x = strToInt(argv[1]);
+			newPos.y = strToInt(argv[2]);
+		}
+
+		if (newPos.x >= 0 && newPos.y >= 0
+				&& newPos.x < (int)g_context->_location->_map->_width
+				&& newPos.y < (int)g_context->_location->_map->_height) {
+			g_context->_location->_coords = newPos;
+			return false;
+		} else {
+			print("Invalid location!");
+		}
+	} else if (isDebuggerActive()) {
 		if (g_context->_location->_map->isWorldMap())
 			print("Location: %s x: %d, y: %d",
 				"World Map", pos.x, pos.y);
@@ -1578,6 +1629,7 @@ bool Debugger::cmdFullStats(int argc, const char **argv) {
 		}
 	}
 
+	g_context->_stats->update();
 	print("Full Stats given");
 	return isDebuggerActive();
 }

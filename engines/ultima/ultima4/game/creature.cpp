@@ -324,7 +324,6 @@ bool Creature::specialAction() {
 	int broadsidesDirs = 0;
 
 	switch (_id) {
-
 	case LAVA_LIZARD_ID:
 	case SEA_SERPENT_ID:
 	case HYDRA_ID:
@@ -379,7 +378,6 @@ bool Creature::specialEffect() {
 	bool retval = false;
 
 	switch (_id) {
-
 	case STORM_ID: {
 		ObjectDeque::iterator i;
 
@@ -808,7 +806,8 @@ void Creature::removeStatus(StatusType s) {
 	for (i = _status.begin(); i != _status.end();) {
 		if (*i == s)
 			i = _status.erase(i);
-		else i++;
+		else
+			i++;
 	}
 
 	// Just to be sure, if a player is poisoned from a savegame, then they won't have
@@ -833,7 +832,6 @@ bool Creature::applyDamage(int damage, bool byplayer) {
 		AdjustValueMin(_hp, -damage, 0);
 
 	switch (getState()) {
-
 	case MSTAT_DEAD:
 		if (byplayer)
 			g_screen->screenMessage("%c%s Killed!%c\nExp. %d\n", FG_RED, _name.c_str(), FG_WHITE, _xp);
@@ -928,7 +926,8 @@ Creature *CreatureMgr::getById(CreatureId id) {
 	CreatureMap::const_iterator i = _creatures.find(id);
 	if (i != _creatures.end())
 		return i->_value;
-	else return nullptr;
+	else
+		return nullptr;
 }
 
 Creature *CreatureMgr::getByName(Common::String name) {
@@ -1008,7 +1007,8 @@ Creature *CreatureMgr::randomAmbushing() {
 				if (numAmbushingCreatures == randCreature)
 					return i->_value;
 				/* move on to the next creature */
-				else numAmbushingCreatures++;
+				else
+					numAmbushingCreatures++;
 			}
 		}
 	}

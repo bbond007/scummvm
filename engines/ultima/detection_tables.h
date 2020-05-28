@@ -85,7 +85,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("britain.ult", "304fe52ce5f34b9181052363d74d7505", 1280),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOSPEECH)
 		},
 		GAME_ULTIMA4,
@@ -100,7 +100,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("britain.ult", "304fe52ce5f34b9181052363d74d7505", 1280),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOSPEECH)
 		},
 		GAME_ULTIMA4,
@@ -115,7 +115,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("converse.a", "5065716423ef1389e3f7b4946d815c26", 162615),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO0()
 		},
 		GAME_ULTIMA6,
@@ -130,7 +130,37 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("converse.a", "5065716423ef1389e3f7b4946d815c26", 162615),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
+			GUIO0()
+		},
+		GAME_ULTIMA6,
+		GF_VGA_ENHANCED
+	},
+
+	// Ultima VI - German Patch https://sirjohn.de/ultima-6/
+	{
+		{
+			"ultima6",
+			0,
+			AD_ENTRY1s("converse.a", "ae979230b97f8813bdf8f82698847435", 198627),
+			Common::DE_DEU,
+			Common::kPlatformDOS,
+			ADGF_TESTING,
+			GUIO0()
+		},
+		GAME_ULTIMA6,
+		0
+	},
+
+	// Ultima VI - German Patch https://sirjohn.de/ultima-6/
+    {
+		{
+			"ultima6_enh",
+			0,
+			AD_ENTRY1s("converse.a", "ae979230b97f8813bdf8f82698847435", 198627),
+			Common::DE_DEU,
+			Common::kPlatformDOS,
+			ADGF_TESTING,
 			GUIO0()
 		},
 		GAME_ULTIMA6,
@@ -160,7 +190,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("eusecode.flx", "87c8b584e2947e5e4d99bd8bff6cea2e", 1251108),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOMIDI)
 		},
 		GAME_ULTIMA8,
@@ -175,7 +205,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("eusecode.flx", "c61f1dacde591cb39d452264e281f234", 1251108),
 			Common::EN_ANY,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOMIDI)
 		},
 		GAME_ULTIMA8,
@@ -189,7 +219,7 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("fusecode.flx", "4017eb8678ee24af0ce8c7647a05509b", 1300957),
 			Common::FR_FRA,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOMIDI)
 		},
 		GAME_ULTIMA8,
@@ -203,7 +233,36 @@ static const UltimaGameDescription GAME_DESCRIPTIONS[] = {
 			AD_ENTRY1s("gusecode.flx", "d69599a46870b66c1b7c02710ed185bd", 1378604),
 			Common::DE_DEU,
 			Common::kPlatformDOS,
-			ADGF_UNSTABLE,
+			ADGF_TESTING,
+			GUIO1(GUIO_NOMIDI)
+		},
+		GAME_ULTIMA8,
+		0
+	},
+
+	// German CD version
+	{
+		{
+			"ultima8",
+			"",
+			AD_ENTRY1s("gusecode.flx", "dc981f82c6303548ad1c967cdef1a0ea", 1335445),
+			Common::DE_DEU,
+			Common::kPlatformDOS,
+			ADGF_TESTING,
+			GUIO1(GUIO_NOMIDI)
+		},
+		GAME_ULTIMA8,
+		0
+	},
+
+	{
+		{
+			"ultima8",
+			"",
+			AD_ENTRY1s("eusecode.flx", "1abad7a58e052ff3d9664df1ab2ddb86", 1136206),
+			Common::ES_ESP,
+			Common::kPlatformDOS,
+			ADGF_TESTING,
 			GUIO1(GUIO_NOMIDI)
 		},
 		GAME_ULTIMA8,

@@ -59,7 +59,7 @@ static const char *TRACK_FILE_NAMES[] = {
 };
 
 // p_dynamic_cast stuff
-DEFINE_RUNTIME_CLASSTYPE_CODE(RemorseMusicProcess, MusicProcess)
+DEFINE_RUNTIME_CLASSTYPE_CODE(RemorseMusicProcess)
 
 RemorseMusicProcess::RemorseMusicProcess() : MusicProcess(), _currentTrack(0), _savedTrack(0), _playingStream(nullptr), _combatMusicActive(false) {
 }
@@ -69,7 +69,8 @@ RemorseMusicProcess::~RemorseMusicProcess() {
 		Audio::Mixer *mixer = Ultima8Engine::get_instance()->_mixer;
 		assert(mixer);
 		mixer->stopHandle(_soundHandle);
-		delete _playingStream;
+		// FIXME: Some destruction order problem here..
+		//delete _playingStream;
 	}
 }
 
@@ -133,7 +134,7 @@ void RemorseMusicProcess::playMusic_internal(int track) {
 			return;
 		}
 
-		Audio::AudioStream *_playingStream = Audio::makeModXmS3mStream(rs, DisposeAfterUse::YES);
+		_playingStream = Audio::makeModXmS3mStream(rs, DisposeAfterUse::YES);
 		if (!_playingStream) {
 			error("Couldn't create stream from AMF file: %s", fname.c_str());
 			return;

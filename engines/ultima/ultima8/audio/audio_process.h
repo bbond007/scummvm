@@ -76,6 +76,7 @@ public:
 
 	INTRINSIC(I_playSFX);
 	INTRINSIC(I_playAmbientSFX);
+	INTRINSIC(I_playSFXCru);
 	INTRINSIC(I_playAmbientSFXCru);
 	INTRINSIC(I_isSFXPlaying);
 	INTRINSIC(I_setVolumeSFX);
@@ -119,9 +120,9 @@ public:
 	void stopAllExceptSpeech();
 
 	bool loadData(Common::ReadStream *rs, uint32 version);
+	void saveData(Common::WriteStream *ws) override;
 
 private:
-	void saveData(Common::WriteStream *ws) override;
 	uint32 _paused;
 
 	//! play the next speech sample for the text in this SampleInfo

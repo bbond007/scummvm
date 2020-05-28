@@ -87,6 +87,10 @@ DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gam
 	_wm = nullptr;
 
 	const Common::FSNode gameDataDir(ConfMan.get("path"));
+
+	// Meet Mediaband could have up to 5 levels of directories
+	SearchMan.addDirectory(gameDataDir.getPath(), gameDataDir, 0, 5);
+
 	SearchMan.addSubDirectoryMatching(gameDataDir, "data");
 	SearchMan.addSubDirectoryMatching(gameDataDir, "install");
 	SearchMan.addSubDirectoryMatching(gameDataDir, "main");		// Meet Mediaband
@@ -136,7 +140,7 @@ Common::Error DirectorEngine::run() {
 	_lingo = new Lingo(this);
 	_soundManager = new DirectorSound();
 
-	if (getGameID() == GID_TEST) {
+	if (getGameGID() == GID_TEST) {
 		_mainArchive = nullptr;
 		_currentScore = nullptr;
 
@@ -148,7 +152,7 @@ Common::Error DirectorEngine::run() {
 		_lingo->runTests();
 
 		return Common::kNoError;
-	} else if (getGameID() == GID_TESTALL) {
+	} else if (getGameGID() == GID_TESTALL) {
 		enqueueAllMovies();
 	}
 
@@ -177,7 +181,7 @@ Common::Error DirectorEngine::run() {
 
 	debug(0, "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\nObtaining score name\n");
 
-	if (getGameID() == GID_TESTALL)  {
+	if (getGameGID() == GID_TESTALL)  {
 		_nextMovie = getNextMovieFromQueue();
 		loadInitialMovie(_nextMovie.movie);
 	} else {
@@ -231,7 +235,7 @@ Common::Error DirectorEngine::run() {
 			debug(0, "@@@@   Score name '%s' in '%s'", _currentScore->getMacName().c_str(), _currentPath.c_str());
 			debug(0, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 
-			_currentScore->loadArchive();
+			bool goodMovie = _currentScore->loadArchive();
 
 			// If we came in a loop, then skip as requested
 			if (!_nextMovie.frameS.empty()) {
@@ -244,7 +248,7 @@ Common::Error DirectorEngine::run() {
 				_nextMovie.frameI = -1;
 			}
 
-			if (!debugChannelSet(-1, kDebugLingoCompileOnly)) {
+			if (!debugChannelSet(-1, kDebugLingoCompileOnly) && goodMovie) {
 				debugC(1, kDebugEvents, "Starting playback of score '%s'", _currentScore->getMacName().c_str());
 
 				_currentScore->startLoop();
@@ -253,7 +257,7 @@ Common::Error DirectorEngine::run() {
 			}
 		}
 
-		if (getGameID() == GID_TESTALL) {
+		if (getGameGID() == GID_TESTALL) {
 			_nextMovie = getNextMovieFromQueue();
 		}
 
@@ -281,7 +285,7 @@ Common::Error DirectorEngine::run() {
 			if (!mov) {
 				warning("nextMovie: No score is loaded");
 
-				if (getGameID() == GID_TESTALL) {
+				if (getGameGID() == GID_TESTALL) {
 					loop = true;
 					continue;
 				}

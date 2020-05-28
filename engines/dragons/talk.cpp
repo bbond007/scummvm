@@ -138,7 +138,7 @@ uint8 Talk::conversation_related_maybe(uint16 *dialogText, uint16 x, uint16 y, u
 	uint16 *dialogTextLinePtr;
 	uint16 *puVar18;
 	uint16 *curDialogTextPtr;
-	int unaff_s4;
+	int unaff_s4 = 0;
 	uint16 uVar19;
 	short sVar20;
 	uint32 maxLineLengthMaybe;
@@ -348,7 +348,7 @@ uint8 Talk::conversation_related_maybe(uint16 *dialogText, uint16 x, uint16 y, u
 			if (0x16 < (short)uVar19) {
 				uVar19 = 0x16;
 			}
-			uVar11 = sVar20 * _dat_800726ec_tfont_field0 + 3 & 0xfffe;
+			uVar11 = (sVar20 * _dat_800726ec_tfont_field0 + 3) & 0xfffe;
 			sVar20 = (short)uVar11 >> 1;
 			if ((short)x < 0x14) {
 				_dat_8008e7e8_dialogBox_x1 = (x - sVar20) + 1;
@@ -427,7 +427,7 @@ uint8 Talk::conversation_related_maybe(uint16 *dialogText, uint16 x, uint16 y, u
 	}
 	if (param_5 != 0) {
 		if (_vm->isFlagSet(ENGINE_FLAG_8000)) {
-			_vm->_sound->PauseCDMusic();
+			_vm->_sound->resumeMusic();
 		}
 		if (isFlag8Set) {
 			_vm->setFlags(ENGINE_FLAG_8);
@@ -644,7 +644,7 @@ bool Talk::talkToActor(ScriptOpCall &scriptOpCall) {
 
 TalkDialogEntry *Talk::displayTalkDialogMenu(Common::Array<TalkDialogEntry*> dialogEntries) {
 	bool bVar1;
-	short sVar2;
+	int16 sVar2;
 	uint uVar3;
 	uint uVar4;
 	uint16 y;
@@ -659,7 +659,7 @@ TalkDialogEntry *Talk::displayTalkDialogMenu(Common::Array<TalkDialogEntry*> dia
 	uint16 numEntries;
 	uint16 local_60;
 	uint16 local_58;
-	short local_50;
+	int16 local_50;
 	uint16 *local_40;
 	uint local_38;
 	bool hasDialogEntries;
@@ -694,7 +694,7 @@ TalkDialogEntry *Talk::displayTalkDialogMenu(Common::Array<TalkDialogEntry*> dia
 			uVar3 = (uint)uVar8;
 		} while (uVar8 < numEntries);
 	}
-	drawDialogBox(1, 0x17 - (uint) local_58 & 0xffff, 0x26, 0x18, 1);
+	drawDialogBox(1, (0x17 - (uint) local_58) & 0xffff, 0x26, 0x18, 1);
 	uVar8 = 0;
 	_vm->_cursor->updateSequenceID(3);
 	local_50 = -2;
@@ -777,7 +777,7 @@ TalkDialogEntry *Talk::displayTalkDialogMenu(Common::Array<TalkDialogEntry*> dia
 					uVar4 = FindLastPositionOf5cChar(_dat_80083104);
 					uVar4 = FUN_80031c28(_dat_80083104, local_40, uVar4 & 0xffff, 0x20);
 					_dat_80083104 = local_40;
-					if ((int)sVar2 == (uint)uVar8) {
+					if (sVar2 == uVar8) {
 						uVar7 = 0;
 						if (uVar6 < (uVar4 & 0xffff)) {
 							do {

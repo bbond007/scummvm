@@ -412,6 +412,7 @@ MODULE_OBJS := \
 	ultima8/games/game_data.o \
 	ultima8/games/game_info.o \
 	ultima8/games/remorse_game.o \
+	ultima8/games/start_crusader_process.o \
 	ultima8/games/start_u8_process.o \
 	ultima8/games/treasure_loader.o \
 	ultima8/games/u8_game.o \
@@ -458,6 +459,13 @@ MODULE_OBJS := \
 	ultima8/gumps/book_gump.o \
 	ultima8/gumps/container_gump.o \
 	ultima8/gumps/credits_gump.o \
+	ultima8/gumps/cru_ammo_gump.o \
+	ultima8/gumps/cru_energy_gump.o \
+	ultima8/gumps/cru_health_gump.o \
+	ultima8/gumps/cru_inventory_gump.o \
+	ultima8/gumps/cru_stat_gump.o \
+	ultima8/gumps/cru_status_gump.o \
+	ultima8/gumps/cru_weapon_gump.o \
 	ultima8/gumps/desktop_gump.o \
 	ultima8/gumps/fast_area_vis_gump.o \
 	ultima8/gumps/game_map_gump.o \
@@ -490,7 +498,6 @@ MODULE_OBJS := \
 	ultima8/gumps/widgets/text_widget.o \
 	ultima8/kernel/core_app.o \
 	ultima8/kernel/delay_process.o \
-	ultima8/kernel/hid_keys.o \
 	ultima8/kernel/kernel.o \
 	ultima8/kernel/mouse.o \
 	ultima8/kernel/object.o \

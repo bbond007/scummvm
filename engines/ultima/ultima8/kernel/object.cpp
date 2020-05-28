@@ -32,7 +32,7 @@ namespace Ultima {
 namespace Ultima8 {
 
 // p_dynamic_cast stuff
-DEFINE_RUNTIME_CLASSTYPE_CODE_BASE_CLASS(Object)
+DEFINE_RUNTIME_CLASSTYPE_CODE(Object)
 
 Object::~Object() {
 	if (_objId != 0xFFFF)
@@ -63,20 +63,6 @@ ProcId Object::callUsecode(uint16 classid, uint16 offset,
 	uint32 objptr = UCMachine::objectToPtr(getObjId());
 	UCProcess *p = new UCProcess(classid, offset, objptr, 2, args, argsize);
 	return Kernel::get_instance()->addProcess(p);
-}
-
-
-void Object::save(Common::WriteStream *ws) {
-	writeObjectHeader(ws);
-	saveData(ws); // virtual
-}
-
-void Object::writeObjectHeader(Common::WriteStream *ws) const {
-	const char *cname = GetClassType()._className; // note: virtual
-	uint16 clen = strlen(cname);
-
-	ws->writeUint16LE(clen);
-	ws->write(cname, clen);
 }
 
 void Object::saveData(Common::WriteStream *ws) {

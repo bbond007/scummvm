@@ -29,18 +29,18 @@ namespace LC {
 	void c_xpop();
 	void c_printtop();
 
-	Datum mapBinaryOp(Datum (*func)(Datum, Datum), Datum d1, Datum d2);
-	Datum addData(Datum d1, Datum d2);
+	Datum mapBinaryOp(Datum (*func)(Datum &, Datum &), Datum &d1, Datum &d2);
+	Datum addData(Datum &d1, Datum &d2);
 	void c_add();
-	Datum subData(Datum d1, Datum d2);
+	Datum subData(Datum &d1, Datum &d2);
 	void c_sub();
-	Datum mulData(Datum d1, Datum d2);
+	Datum mulData(Datum &d1, Datum &d2);
 	void c_mul();
-	Datum divData(Datum d1, Datum d2);
+	Datum divData(Datum &d1, Datum &d2);
 	void c_div();
-	Datum modData(Datum d1, Datum d2);
+	Datum modData(Datum &d1, Datum &d2);
 	void c_mod();
-	Datum negateData(Datum d1);
+	Datum negateData(Datum &d1);
 	void c_negate();
 
 	void c_and();
@@ -92,10 +92,8 @@ namespace LC {
 	void c_objectfieldassign();
 	void c_objectrefpush();
 
-	void c_repeatwhilecode();
 	void c_repeatwithcode();
 	void c_nextRepeat();
-	void c_ifcode();
 	void c_whencode();
 	void c_tellcode();
 	void c_tell();
@@ -146,19 +144,27 @@ namespace LC {
 
 	// bytecode-related instructions
 	void cb_call();
+	void cb_delete();
 	void cb_field();
 	void cb_globalassign();
 	void cb_globalpush();
 	void cb_list();
 	void cb_localcall();
 	void cb_methodcall();
+	void cb_objectfieldassign();
+	void cb_objectfieldpush();
 	void cb_objectpush();
+	void cb_theassign();
+	void cb_theassign2();
+	void cb_thepush();
+	void cb_thepush2();
 	void cb_proplist();
 	void cb_stackpeek();
 	void cb_stackdrop();
 	void cb_varassign();
 	void cb_varpush();
 	void cb_v4assign();
+	void cb_v4assign2();
 	void cb_v4theentitypush();
 	void cb_v4theentitynamepush();
 	void cb_v4theentityassign();

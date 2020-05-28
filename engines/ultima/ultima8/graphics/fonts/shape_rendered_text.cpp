@@ -29,9 +29,6 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(ShapeRenderedText, RenderedText)
-
-
 ShapeRenderedText::ShapeRenderedText(const Std::list<PositionedText> &lines,
                                      int width, int height, int vLead,
                                      ShapeFont *font)

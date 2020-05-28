@@ -33,7 +33,9 @@ namespace Ultima8 {
 
 class ShapeArchive;
 
-
+/**
+ * A tool for viewing the shapes in the game, for debugging purposes.
+ */
 class ShapeViewerGump : public ModalGump {
 public:
 	ENABLE_RUNTIME_CLASSTYPE()
@@ -55,9 +57,9 @@ public:
 	static void U8ShapeViewer();
 
 	bool loadData(Common::ReadStream *rs);
-protected:
 	void saveData(Common::WriteStream *ws) override;
 
+protected:
 	Std::vector<Std::pair<Std::string, ShapeArchive *> > _flexes;
 	unsigned int _curFlex;
 	ShapeArchive *_flex;

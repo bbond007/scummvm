@@ -32,8 +32,6 @@ namespace Ultima8 {
 
 class MusicFlex : public Archive {
 public:
-	ENABLE_RUNTIME_CLASSTYPE()
-
 	struct SongInfo {
 		SongInfo();
 		~SongInfo();
@@ -67,10 +65,6 @@ public:
 	void cache(uint32 index) override;
 	void uncache(uint32 index) override;
 	bool isCached(uint32 index) const override;
-
-	uint8 *getRawObject(uint32 index, uint32 *sizep = 0) {
-		return Archive::getRawObject(index, sizep);
-	}
 
 private:
 	SongInfo   *_info[128];

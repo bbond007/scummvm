@@ -128,7 +128,7 @@ Common::Error Pink::PinkEngine::run() {
 
 			switch (event.type) {
 			case Common::EVENT_QUIT:
-			case Common::EVENT_RTL:
+			case Common::EVENT_RETURN_TO_LAUNCHER:
 				return Common::kNoError;
 			case Common::EVENT_MOUSEMOVE:
 				_actor->onMouseMove(event.mouse);
@@ -157,17 +157,6 @@ Common::Error Pink::PinkEngine::run() {
 	}
 
 	return Common::kNoError;
-}
-
-void PinkEngine::pauseEngine(void *engine, bool pause) {
-	Engine *vm = (Engine *)engine;
-	if (pause) {
-		vm->pauseEngine(true);
-	} else {
-		while (vm->isPaused()) {
-			vm->pauseEngine(false);
-		}
-	}
 }
 
 void PinkEngine::load(Archive &archive) {
@@ -289,7 +278,7 @@ bool PinkEngine::canSaveGameStateCurrently() {
 
 bool PinkEngine::hasFeature(Engine::EngineFeature f) const {
 	return
-		f == kSupportsRTL ||
+		f == kSupportsReturnToLauncher ||
 		f == kSupportsLoadingDuringRuntime ||
 		f == kSupportsSavingDuringRuntime;
 }

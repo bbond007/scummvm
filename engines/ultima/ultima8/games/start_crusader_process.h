@@ -20,60 +20,41 @@
  *
  */
 
-#ifndef ULTIMA8_GRAPHICS_GRAPHICSERRORS_H
-#define ULTIMA8_GRAPHICS_GRAPHICSERRORS_H
+#ifndef ULTIMA8_GAMES_STARTCRUSADERPROCESS_H
+#define ULTIMA8_GAMES_STARTCRUSADERPROCESS_H
 
-
-////////////////////////////////////
-//                                //
-// Graphics Subsystem Error Codes //
-//                                //
-////////////////////////////////////
-
-#include "ultima/ultima8/misc/errors.h"
+#include "ultima/ultima8/kernel/process.h"
+#include "ultima/ultima8/misc/p_dynamic_cast.h"
 
 namespace Ultima {
 namespace Ultima8 {
 
-//
-// Graphics Error Code Bases
-//
+class Item;
 
-// Software Rendering Error Code Base
-#define GR_SOFT_ERROR_BASE                      (GRAPHICS_ERROR_BASE-0x1000)
+class StartCrusaderProcess : public Process {
+public:
+	enum CruInitStage {
+		PlayFirstMovie,
+		PlaySecondMovie,
+		ShowMenu
+	};
 
-// OpenGL Rendering Error Code Base
-#define GR_OGL_ERROR_BASE                       (GRAPHICS_ERROR_BASE-0x2000)
+protected:
+	CruInitStage _initStage;
+	bool _skipStart;
+	int _saveSlot;
 
-// Texture Error Code Base
-#define GR_TEX_ERROR_BASE                       (GRAPHICS_ERROR_BASE-0x3000)
+public:
+	StartCrusaderProcess(int saveSlot = -1);
 
+	// p_dynamic_cast stuff
+	ENABLE_RUNTIME_CLASSTYPE()
 
-//
-// Generic Graphics Errors
-//
+	void run() override;
 
-
-//
-// SoftRenderSurface Error Codes
-//
-
-// Surface Locked with NULL SoftRenderSurface::pixels pointer
-#define GR_SOFT_ERROR_LOCKED_NULL_PIXELS        (GR_SOFT_ERROR_BASE-1)
-
-// BeginPainting()/EndPainting() Mismatch
-#define GR_SOFT_ERROR_BEGIN_END_MISMATCH        (GR_SOFT_ERROR_BASE-3)
-
-
-//
-// OpenGL Error Codes
-//
-
-
-
-//
-// Texturing Error Codes
-//
+	bool loadData(Common::ReadStream *rs, uint32 version);
+	void saveData(Common::WriteStream *ws) override;
+};
 
 } // End of namespace Ultima8
 } // End of namespace Ultima

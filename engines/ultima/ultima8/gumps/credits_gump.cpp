@@ -35,7 +35,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(CreditsGump, ModalGump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(CreditsGump)
 
 CreditsGump::CreditsGump()
 	: ModalGump(), _parSkip(0), _timer(0), _title(nullptr),
@@ -102,7 +102,7 @@ void CreditsGump::Close(bool no_del) {
 
 void CreditsGump::extractLine(Std::string &text_,
                               char &modifier, Std::string &line) {
-	if (!text_.empty() and (text_[0] == '+' || text_[0] == '&' || text_[0] == '}' ||
+	if (!text_.empty() && (text_[0] == '+' || text_[0] == '&' || text_[0] == '}' ||
 							text_[0] == '~' || text_[0] == '@')) {
 		modifier = text_[0];
 		text_.erase(0, 1);

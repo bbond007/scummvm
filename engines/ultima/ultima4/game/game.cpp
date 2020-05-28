@@ -244,9 +244,8 @@ bool fireAt(const Coords &coords, bool originAvatar) {
 
 	obj = g_context->_location->_map->objectAt(coords);
 	Creature *m = dynamic_cast<Creature *>(obj);
-	assert(m);
 
-	if (obj && obj->getType() == Object::CREATURE && m->isAttackable())
+	if (obj && obj->getType() == Object::CREATURE && m && m->isAttackable())
 		validObject = true;
 	/* See if it's an object to be destroyed (the avatar cannot destroy the balloon) */
 	else if (obj &&
@@ -447,7 +446,6 @@ bool creatureRangeAttack(const Coords &coords, Creature *m) {
 	// See if the attack hits the avatar
 	Object *obj = g_context->_location->_map->objectAt(coords);
 	m = dynamic_cast<Creature *>(obj);
-	assert(m);
 
 	// Does the attack hit the avatar?
 	if (coords == g_context->_location->_coords) {
@@ -457,13 +455,14 @@ bool creatureRangeAttack(const Coords &coords, Creature *m) {
 		/* FIXME: check actual damage from u4dos -- values here are guessed */
 		if (g_context->_transportContext == TRANSPORT_SHIP)
 			gameDamageShip(-1, 10);
-		else gameDamageParty(10, 25);
+		else
+			gameDamageParty(10, 25);
 
 		return true;
 	}
 	// Destroy objects that were hit
 	else if (obj) {
-		if ((obj->getType() == Object::CREATURE && m->isAttackable()) ||
+		if ((obj->getType() == Object::CREATURE && m && m->isAttackable()) ||
 		        obj->getType() == Object::UNKNOWN) {
 
 			GameController::flashTile(coords, tile, 3);
@@ -633,8 +632,11 @@ bool gameSpawnCreature(const Creature *m) {
 				        (m->walks() && tile->isCreatureWalkable()) ||
 				        (m->flies() && tile->isFlyable()))
 					ok = true;
-				else tries++;
-			} else ok = true;
+				else
+					tries++;
+			} else {
+				ok = true;
+			}
 		}
 
 		if (ok)
@@ -687,8 +689,11 @@ void gameDestroyAllCreatures(void) {
 				// The skull does not destroy Lord British
 				if (m->getId() != LORDBRITISH_ID)
 					current = map->removeObject(current);
-				else current++;
-			} else current++;
+				else
+					current++;
+			} else {
+				current++;
+			}
 		}
 	}
 

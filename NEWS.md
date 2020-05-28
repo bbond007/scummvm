@@ -20,6 +20,9 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Fixed inventory item descriptions display.
    - Added English translation.
 
+ Queen:
+   - Fixed loading a save game from the launcher.
+
  SCUMM:
    - Fixed palette issues leading to incorrect colors in MM NES intro and dark rooms.
    - Fixed the rendering of the flashlight in MM NES to match the original version.
@@ -27,6 +30,9 @@ For a more comprehensive changelog of the latest experimental code, see:
    - Added a new GUI option to switch to an alternative NES palette based on the NES Classic.
    - Improved colors in Apple //gs Maniac Mansion.
    - Fixed crash when entering garage in Apple //gs Maniac Mansion.
+
+ Sky:
+   - Fixed syncing of music volume between native settings panel and ScummVM configuration.
 
  Sword1:
    - Added support for localized menus in Novy Disk Russian Trilogy release.
@@ -36,9 +42,10 @@ For a more comprehensive changelog of the latest experimental code, see:
 
  Xeen:
    - Add missing sprite drawer for enemies hit by Energy Blast.
-   - Fixed freeze due to bad mob data at the top of Witches Tower
-   - Fix crash loading some savegames directly from the launcher
-   - Fix curing the well in Nightshadow
+   - Fixed freeze due to bad mob data at the top of Witches Tower.
+   - Fix crash loading some savegames directly from the launcher.
+   - Fix curing the well in Nightshadow.
+   - Fix loading of wall items from savegames.
 
  Linux port:
    - Added option to use the system file browser instead of the ScummVM file browser.

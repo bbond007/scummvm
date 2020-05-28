@@ -29,6 +29,9 @@
 namespace Ultima {
 namespace Ultima8 {
 
+/**
+ * A virtual gump which contains all the regular game components.
+ */
 class DesktopGump : public Gump {
 	static bool _fadedModal;
 public:
@@ -46,6 +49,7 @@ public:
 	void StopDraggingChild(Gump *gump) override;
 
 	bool loadData(Common::ReadStream *rs, uint32 version);
+	void saveData(Common::WriteStream *ws) override;
 
 	void RenderSurfaceChanged(RenderSurface *surf);
 
@@ -54,7 +58,6 @@ public:
 	}
 
 protected:
-	void saveData(Common::WriteStream *ws) override;
 	void RenderSurfaceChanged() override;
 };
 

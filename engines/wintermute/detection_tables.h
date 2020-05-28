@@ -30,6 +30,7 @@ static const PlainGameDescriptor wintermuteGames[] = {
 	{"5ma",             "Five Magical Amulets"},
 	{"actualdest",      "Actual Destination"},
 	{"agustin",         "Boredom of Agustin Cordes"},
+	{"alavi",           "Informer Alavi - Murder of Miss Rojan"},
 	{"alimardan1",      "Alimardan's Mischief"},
 	{"alimardan2",      "Alimardan Meets Merlin"},
 	{"alphapolaris",    "Alpha Polaris"},
@@ -237,6 +238,11 @@ static const WMEGameDescription gameDescriptions[] = {
 	// Actual Destination
 	WME_WINENTRY("actualdest", "",
 		WME_ENTRY1s("data.dcp", "6926f44b26f21ceb1d840eaab9aeb510", 9081740), Common::EN_ANY, ADGF_UNSTABLE, WME_1_8_11),
+
+	// Informer Alavi - Murder of Miss Rojan (Persian) (Try version)
+	// NOTE: This is a 2.5D game that is out of ScummVM scope
+	WME_WINENTRY("alavi", "Try version",
+		WME_ENTRY1s("data.dcp", "07b847ebafbf8e58daa341d60598c84b", 36628230), Common::FA_IRN, ADGF_UNSTABLE | ADGF_DEMO, WME_ANDISHE_VARAN),
 
 	// Alimardan's Mischief
 	WME_WINENTRY("alimardan1", "",
@@ -1031,6 +1037,66 @@ static const WMEGameDescription gameDescriptions[] = {
 	WME_WINENTRY("foxtail", "1.2.527.3391",
 		WME_ENTRY1s("data.dcp", "e5d06fa058cd9d6f20d6206356e5854d", 109503303), Common::UA_UKR, ADGF_UNSTABLE, FOXTAIL_1_2_527),
 
+	// FoxTail 1.2.896.4370 (English)
+	WME_WINENTRY("foxtail", "1.2.896.4370",
+		WME_ENTRY1s("data.dcp", "cee21687240aa160b8ebf1e0cccaef59", 154006218), Common::EN_ANY, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4370 (German)
+	WME_WINENTRY("foxtail", "1.2.896.4370",
+		WME_ENTRY1s("data.dcp", "cee21687240aa160b8ebf1e0cccaef59", 154006218), Common::DE_DEU, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4370 (Polish)
+	WME_WINENTRY("foxtail", "1.2.896.4370",
+		WME_ENTRY1s("data.dcp", "cee21687240aa160b8ebf1e0cccaef59", 154006218), Common::PL_POL, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4370 (Russian)
+	WME_WINENTRY("foxtail", "1.2.896.4370",
+		WME_ENTRY1s("data.dcp", "cee21687240aa160b8ebf1e0cccaef59", 154006218), Common::RU_RUS, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4370 (Ukranian)
+	WME_WINENTRY("foxtail", "1.2.896.4370",
+		WME_ENTRY1s("data.dcp", "cee21687240aa160b8ebf1e0cccaef59", 154006218), Common::UA_UKR, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4371 (English)
+	WME_WINENTRY("foxtail", "1.2.896.4371",
+		WME_ENTRY1s("data.dcp", "ca9842a6461cc7b00e63b5bc11813971", 154006242), Common::EN_ANY, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4371 (German)
+	WME_WINENTRY("foxtail", "1.2.896.4371",
+		WME_ENTRY1s("data.dcp", "ca9842a6461cc7b00e63b5bc11813971", 154006242), Common::DE_DEU, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4371 (Polish)
+	WME_WINENTRY("foxtail", "1.2.896.4371",
+		WME_ENTRY1s("data.dcp", "ca9842a6461cc7b00e63b5bc11813971", 154006242), Common::PL_POL, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4371 (Russian)
+	WME_WINENTRY("foxtail", "1.2.896.4371",
+		WME_ENTRY1s("data.dcp", "ca9842a6461cc7b00e63b5bc11813971", 154006242), Common::RU_RUS, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.896.4371 (Ukranian)
+	WME_WINENTRY("foxtail", "1.2.896.4371",
+		WME_ENTRY1s("data.dcp", "ca9842a6461cc7b00e63b5bc11813971", 154006242), Common::UA_UKR, ADGF_UNSTABLE, FOXTAIL_1_2_896),
+
+	// FoxTail 1.2.902.4379 (English)
+	WME_WINENTRY("foxtail", "1.2.902.4379",
+		WME_ENTRY1s("data.dcp", "a4a5458afa42ac1d90f4050b033421a4", 153987445), Common::EN_ANY, ADGF_UNSTABLE, FOXTAIL_1_2_902),
+
+	// FoxTail 1.2.902.4379 (German)
+	WME_WINENTRY("foxtail", "1.2.902.4379",
+		WME_ENTRY1s("data.dcp", "a4a5458afa42ac1d90f4050b033421a4", 153987445), Common::DE_DEU, ADGF_UNSTABLE, FOXTAIL_1_2_902),
+
+	// FoxTail 1.2.902.4379 (Polish)
+	WME_WINENTRY("foxtail", "1.2.902.4379",
+		WME_ENTRY1s("data.dcp", "a4a5458afa42ac1d90f4050b033421a4", 153987445), Common::PL_POL, ADGF_UNSTABLE, FOXTAIL_1_2_902),
+
+	// FoxTail 1.2.902.4379 (Russian)
+	WME_WINENTRY("foxtail", "1.2.902.4379",
+		WME_ENTRY1s("data.dcp", "a4a5458afa42ac1d90f4050b033421a4", 153987445), Common::RU_RUS, ADGF_UNSTABLE, FOXTAIL_1_2_902),
+
+	// FoxTail 1.2.902.4379 (Ukranian)
+	WME_WINENTRY("foxtail", "1.2.902.4379",
+		WME_ENTRY1s("data.dcp", "a4a5458afa42ac1d90f4050b033421a4", 153987445), Common::UA_UKR, ADGF_UNSTABLE, FOXTAIL_1_2_902),
+
 	// Framed (Beta)
 	WME_WINENTRY("framed", "Beta",
 		WME_ENTRY1s("data.dcp", "e7259fb36f2c6f9f28242291e0c3de98", 34690568), Common::EN_ANY, ADGF_UNSTABLE | ADGF_DEMO, WME_1_8_11),
@@ -1174,6 +1240,28 @@ static const WMEGameDescription gameDescriptions[] = {
 	// James Peris: No License Nor Control (Spanish)
 	WME_WINENTRY("jamesperis", "Version 1.8",
 		WME_ENTRY1s("data.dcp", "d6049dfb5dbe812bae1e96924a012500", 225299340), Common::ES_ESP, ADGF_UNSTABLE, WME_1_9_1),
+
+	// James Peris: No License Nor Control - Definitive Edition (English) (Steam 2020-03-12)
+	WME_WINENTRY("jamesperis", "Version 1.9",
+		WME_ENTRY2s("data.dcp", "60568c88c9dc5653bfc94a8cbf228748", 225299678,
+					"parche9.dcp", "05363aa13cb8aa5a3fafc68adb4dda5a", 207640138), Common::EN_ANY, ADGF_UNSTABLE, WME_1_9_3),
+
+	// James Peris: No License Nor Control - Definitive Edition (Spanish) (Steam 2020-03-12)
+	WME_WINENTRY("jamesperis", "Version 1.9",
+		WME_ENTRY2s("data.dcp", "60568c88c9dc5653bfc94a8cbf228748", 225299678,
+					"parche9.dcp", "05363aa13cb8aa5a3fafc68adb4dda5a", 207640138), Common::ES_ESP, ADGF_UNSTABLE, WME_1_9_3),
+
+	// James Peris: No License Nor Control - Definitive Edition (English) (Steam 2020-04-27)
+	WME_WINENTRY("jamesperis", "Version 1.9.1e",
+		WME_ENTRY3s("data.dcp", "60568c88c9dc5653bfc94a8cbf228748", 225299678,
+					"parche9.dcp", "05363aa13cb8aa5a3fafc68adb4dda5a", 207640138,
+					"parche91e.dcp", "ee21819363fb32a38b9f5fcf8545e374", 72496832), Common::EN_ANY, ADGF_UNSTABLE, WME_1_9_3),
+
+	// James Peris: No License Nor Control - Definitive Edition (Spanish) (Steam 2020-04-27)
+	WME_WINENTRY("jamesperis", "Version 1.9.1e",
+		WME_ENTRY3s("data.dcp", "60568c88c9dc5653bfc94a8cbf228748", 225299678,
+					"parche9.dcp", "05363aa13cb8aa5a3fafc68adb4dda5a", 207640138,
+					"parche91e.dcp", "ee21819363fb32a38b9f5fcf8545e374", 72496832), Common::ES_ESP, ADGF_UNSTABLE, WME_1_9_3),
 
 	// James Peris: No License Nor Control (Demo) (English)
 	WME_WINENTRY("jamesperis", "Demo",

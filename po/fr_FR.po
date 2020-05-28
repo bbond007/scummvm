@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: ScummVM 1.8.0git\n"
 "Report-Msgid-Bugs-To: scummvm-devel@lists.scummvm.org\n"
 "POT-Creation-Date: 2020-05-10 07:57+0200\n"
-"PO-Revision-Date: 2020-03-24 21:01+0000\n"
+"PO-Revision-Date: 2020-05-23 16:32+0000\n"
 "Last-Translator: Thierry Crozat <criezy@scummvm.org>\n"
 "Language-Team: French <https://translations.scummvm.org/projects/scummvm/"
 "scummvm/fr/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=iso-8859-1\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 3.11\n"
+"X-Generator: Weblate 4.0.4\n"
 "X-Language-name: Francais\n"
 
 #: gui/about.cpp:102
@@ -408,7 +408,7 @@ msgstr "Sauvegardes :"
 
 #: gui/editgamedialog.cpp:340 engines/dialogs.cpp:338
 msgid "Achievements"
-msgstr ""
+msgstr "Succès"
 
 #: gui/editgamedialog.cpp:364 gui/editgamedialog.cpp:454
 #: gui/editgamedialog.cpp:516 gui/editgamedialog.cpp:577 gui/options.cpp:1861
@@ -919,12 +919,12 @@ msgstr "Zone inactive du joystick :"
 #: gui/options.cpp:1169
 #, c-format
 msgid "%d hidden achievements remaining"
-msgstr ""
+msgstr "%d succès cachés restants"
 
 #: gui/options.cpp:1174
 #, c-format
 msgid "Achievements unlocked: %d/%d"
-msgstr ""
+msgstr "Succès débloqués : %d/%d"
 
 #: gui/options.cpp:1193
 msgid "HW Shader:"
@@ -4534,7 +4534,7 @@ msgstr "~M~enu Principal"
 
 #: engines/mohawk/dialogs.cpp:248
 msgid "The new language will be applied after restarting the game."
-msgstr ""
+msgstr "La nouvelle langue sera activée après le redémarrage du jeu."
 
 #: engines/mohawk/dialogs.cpp:320
 msgid "~W~ater Effect Enabled"
@@ -4581,9 +4581,8 @@ msgid "Show options menu"
 msgstr "Afficher le menu des options"
 
 #: engines/mohawk/myst.cpp:613
-#, fuzzy
 msgid "Drop page"
-msgstr "~L~acher la Page"
+msgstr "Lâcher la Page"
 
 #: engines/mohawk/myst.cpp:619
 msgid "Show map"
@@ -5160,13 +5159,14 @@ msgid "Show the names of objects at the bottom of the screen"
 msgstr "Afficher le nom des objets en bas de l'écran"
 
 #: engines/scumm/detection.cpp:1376
-#, fuzzy
 msgid "Use NES Classic Palette"
-msgstr "Utiliser une palette alternative"
+msgstr "Utiliser la palette NES Classique"
 
 #: engines/scumm/detection.cpp:1377
 msgid "Use a more neutral color palette that closely emulates the NES Classic"
 msgstr ""
+"Utilise une palette de couleurs plus neutre qui reproduit au plus près la "
+"NES Classique"
 
 #: engines/scumm/dialogs.cpp:172
 #, c-format
@@ -6154,15 +6154,15 @@ msgstr "Transfert de personnage"
 
 #: engines/ultima/ultima8/meta_engine.cpp:96
 msgid "Ultima VIII"
-msgstr ""
+msgstr "Ultima VIII"
 
 #: engines/ultima/ultima8/meta_engine.cpp:126
 msgid "Ultima VIII Cheats"
-msgstr ""
+msgstr "Triches pour Ultima VIII"
 
 #: engines/ultima/ultima8/meta_engine.cpp:140
 msgid "Ultima VIII Debug"
-msgstr ""
+msgstr "Débogage pour Ultima VIII"
 
 #: engines/ultima/ultima8/gumps/u8_save_gump.cpp:304
 msgid "[corrupt]"

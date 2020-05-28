@@ -44,7 +44,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(ContainerGump, ItemRelativeGump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(ContainerGump)
 
 ContainerGump::ContainerGump()
 	: ItemRelativeGump(), _displayDragging(false), _draggingShape(0),
@@ -234,7 +234,7 @@ void ContainerGump::GetItemLocation(int32 lerp_factor) {
 		topitem = p;
 	}
 
-	Gump *gump = GetRootGump()->FindGump(GameMapGump::ClassType);
+	Gump *gump = GetRootGump()->FindGump<GameMapGump>();
 	assert(gump);
 	gump->GetLocationOfItem(topitem->getObjId(), gx, gy, lerp_factor);
 
@@ -300,8 +300,8 @@ Container *ContainerGump::getTargetContainer(Item *item, int mx, int my) {
 }
 
 
-Gump *ContainerGump::OnMouseDown(int button, int32 mx, int32 my) {
-	Gump *handled = Gump::OnMouseDown(button, mx, my);
+Gump *ContainerGump::onMouseDown(int button, int32 mx, int32 my) {
+	Gump *handled = Gump::onMouseDown(button, mx, my);
 	if (handled) return handled;
 
 	// only interested in left clicks
@@ -311,7 +311,7 @@ Gump *ContainerGump::OnMouseDown(int button, int32 mx, int32 my) {
 	return nullptr;
 }
 
-void ContainerGump::OnMouseClick(int button, int32 mx, int32 my) {
+void ContainerGump::onMouseClick(int button, int32 mx, int32 my) {
 	if (button == Shared::BUTTON_LEFT) {
 		if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
 			pout << "Can't: avatarInStasis" << Std::endl;
@@ -330,7 +330,7 @@ void ContainerGump::OnMouseClick(int button, int32 mx, int32 my) {
 	}
 }
 
-void ContainerGump::OnMouseDouble(int button, int32 mx, int32 my) {
+void ContainerGump::onMouseDouble(int button, int32 mx, int32 my) {
 	if (button == Shared::BUTTON_LEFT) {
 		if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
 			pout << "Can't: avatarInStasis" << Std::endl;
@@ -442,7 +442,7 @@ void ContainerGump::DropItem(Item *item, int mx, int my) {
 	GumpToParent(px, py);
 	// see what the item is being dropped on
 	Item *targetitem = getItem(TraceObjId(px, py));
-	Container *targetcontainer = p_dynamic_cast<Container *>(targetitem);
+	Container *targetcontainer = dynamic_cast<Container *>(targetitem);
 
 
 	if (item->getShapeInfo()->hasQuantity() &&

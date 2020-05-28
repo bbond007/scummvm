@@ -34,6 +34,7 @@
 #include "ultima/ultima4/filesys/u4file.h"
 #include "ultima/ultima4/gfx/imagemgr.h"
 #include "ultima/ultima4/gfx/screen.h"
+#include "ultima/ultima4/map/mapmgr.h"
 #include "ultima/ultima4/map/shrine.h"
 #include "ultima/ultima4/map/tileset.h"
 #include "ultima/ultima4/map/tilemap.h"
@@ -188,6 +189,10 @@ IntroController::IntroController() : Controller(1),
 		_useProfile(false) {
 	Common::fill(&_questionTree[0], &_questionTree[15], -1);
 
+	// Setup a separate image surface for rendering the animated map on
+	_mapScreen = Image::create(g_screen->w, g_screen->h, false, Image::HARDWARE);
+	_mapArea.setDest(_mapScreen);
+
 	// initialize menus
 	_confMenu.setTitle("XU4 Configuration:", 0, 0);
 	_confMenu.add(MI_CONF_VIDEO,               "\010 Video Options",              2,  2,/*'v'*/  2);
@@ -283,6 +288,10 @@ IntroController::IntroController() : Controller(1),
 	_interfaceMenu.addShortcutKey(CANCEL, ' ');
 	_interfaceMenu.setClosesMenu(USE_SETTINGS);
 	_interfaceMenu.setClosesMenu(CANCEL);
+}
+
+IntroController::~IntroController() {
+	delete _mapScreen;
 }
 
 bool IntroController::init() {
@@ -510,6 +519,14 @@ void IntroController::drawMap() {
 				   ---------------------------------------------- */
 				drawMapStatic();
 				drawMapAnimated();
+
+				_mapScreen->drawSubRect(
+					SCALED(8),
+					SCALED(13 * 8),
+					SCALED(8),
+					SCALED(13 * 8),
+					SCALED(38 * 8),
+					SCALED(10 * 8));
 
 				/* set sleep cycles */
 				_sleepCycles = _binData->_scriptTable[_scrPos] & 0xf;
@@ -1135,15 +1152,6 @@ void IntroController::updateInputMenu(MenuEvent &event) {
 			// save settings
 			settings.setData(_settingsChanged);
 			settings.write();
-
-#ifdef SLACK_ON_SDL_AGNOSTICISM
-			if (settings.mouseOptions.enabled) {
-				SDL_ShowCursor(SDL_ENABLE);
-			} else {
-				SDL_ShowCursor(SDL_DISABLE);
-			}
-#endif
-
 			break;
 		case CANCEL:
 			// discard settings
@@ -1316,14 +1324,15 @@ void IntroController::initPlayers(SaveGame *saveGame) {
 	saveGame->_players[0]._class = static_cast<ClassType>(_questionTree[14]);
 
 	ASSERT((int)saveGame->_players[0]._class < 8, "bad class: %d", saveGame->_players[0]._class);
+	saveGame->_positions.resize(1);
+	saveGame->_positions[0] = LocationCoords(MAP_WORLD,
+		initValuesForClass[saveGame->_players[0]._class].x,
+		initValuesForClass[saveGame->_players[0]._class].y,
+		0);
 
 	saveGame->_players[0]._weapon = initValuesForClass[saveGame->_players[0]._class].weapon;
 	saveGame->_players[0]._armor = initValuesForClass[saveGame->_players[0]._class].armor;
 	saveGame->_players[0]._xp = initValuesForClass[saveGame->_players[0]._class].xp;
-	saveGame->_pos.x = initValuesForClass[saveGame->_players[0]._class].x;
-	saveGame->_pos.y = initValuesForClass[saveGame->_players[0]._class].y;
-	saveGame->_pos.z = 0;
-
 	saveGame->_players[0]._str = 15;
 	saveGame->_players[0]._dex = 15;
 	saveGame->_players[0]._intel = 15;
@@ -1432,7 +1441,7 @@ void IntroController::initTitles() {
 	eventHandler->getTimer()->reset(settings._titleSpeedOther);
 }
 
-void IntroController::addTitle(int x, int y, int w, int h, AnimType method, int delay, int duration) {
+void IntroController::addTitle(int x, int y, int w, int h, AnimType method, uint32 delay, int duration) {
 	AnimElement data = {
 		x, y,               // source x and y
 		w, h,               // source width and height
@@ -1505,7 +1514,7 @@ void IntroController::getTitleSourceData() {
 		switch (_titles[i]._method) {
 		case SIGNATURE: {
 			// PLOT: "Lord British"
-			srcData = g_intro->getSigData();
+			srcData = getSigData();
 			RGBA color = info->_image->setColor(0, 255, 255);    // cyan for EGA
 			int x = 0, y = 0;
 
@@ -1607,20 +1616,6 @@ void IntroController::getTitleSourceData() {
 	info->_image = scaled;
 }
 
-
-
-#ifdef SLACK_ON_SDL_AGNOSTICISM
-int getTicks() {
-	return SDL_GetTicks();
-}
-#elif !defined(IOS_ULTIMA4)
-static int ticks = 0;
-int getTicks() {
-	ticks += 1000;
-	return ticks;
-}
-#endif
-
 bool IntroController::updateTitle() {
 #ifdef IOS_ULTIMA4
 	static bool firstTime = true;
@@ -1632,7 +1627,7 @@ bool IntroController::updateTitle() {
 
 	int animStepTarget = 0;
 
-	int timeCurrent = getTicks();
+	uint32 timeCurrent = g_system->getMillis();
 	float timePercent = 0;
 
 	if (_title->_animStep == 0 && !_bSkipTitles) {
@@ -1715,7 +1710,7 @@ bool IntroController::updateTitle() {
 			_title->_animStep = _title->_animStepMax;
 		else {
 			_title->_animStep++;
-			_title->_timeDelay = getTicks() - _title->_timeBase + 100;
+			_title->_timeDelay = g_system->getMillis() - _title->_timeBase + 100;
 		}
 
 		// blit src to the canvas one row at a time, bottom up
@@ -1735,7 +1730,7 @@ bool IntroController::updateTitle() {
 			_title->_animStep = _title->_animStepMax;
 		else {
 			_title->_animStep++;
-			_title->_timeDelay = getTicks() - _title->_timeBase + 100;
+			_title->_timeDelay = g_system->getMillis() - _title->_timeBase + 100;
 		}
 
 		// blit src to the canvas one row at a time, top down
@@ -1786,7 +1781,7 @@ bool IntroController::updateTitle() {
 			_title->_animStep = _title->_animStepMax;
 		else {
 			_title->_animStep++;
-			_title->_timeDelay = getTicks() - _title->_timeBase + 100;
+			_title->_timeDelay = g_system->getMillis() - _title->_timeBase + 100;
 		}
 
 		// blit src to the canvas one row at a time, center out
@@ -1807,7 +1802,7 @@ bool IntroController::updateTitle() {
 			_title->_animStep = _title->_animStepMax;
 		else {
 			_title->_animStep++;
-			_title->_timeDelay = getTicks() - _title->_timeBase + 100;
+			_title->_timeDelay = g_system->getMillis() - _title->_timeBase + 100;
 		}
 
 		int step = (_title->_animStep == _title->_animStepMax ? _title->_animStepMax - 1 : _title->_animStep);
@@ -1831,16 +1826,13 @@ bool IntroController::updateTitle() {
 		    SCALED(_title->_srcImage->height()));
 
 
-		// create a destimage for the map tiles
-		int newtime = getTicks();
+		// Create a destimage for the map tiles
+		int newtime = g_system->getMillis();
 		if (newtime > _title->_timeDuration + 250 / 4) {
-			// grab the map from the screen
-			Image *screen = imageMgr->get("screen")->_image;
+			// Draw the updated map display
+			drawMapStatic();
 
-			// draw the updated map display
-			g_intro->drawMapStatic();
-
-			screen->drawSubRectOn(
+			_mapScreen->drawSubRectOn(
 			    _title->_srcImage,
 			    SCALED(8),
 			    SCALED(8),

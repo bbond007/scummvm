@@ -54,7 +54,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(GameMapGump, Gump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(GameMapGump)
 
 bool GameMapGump::_highlightItems = false;
 
@@ -280,14 +280,14 @@ bool GameMapGump::GetLocationOfItem(uint16 itemid, int32 &gx, int32 &gy,
 	return true;
 }
 
-Gump *GameMapGump::OnMouseDown(int button, int32 mx, int32 my) {
+Gump *GameMapGump::onMouseDown(int button, int32 mx, int32 my) {
 	int32 sx = mx, sy = my;
 	ParentToGump(sx, sy);
 	GumpToScreenSpace(sx, sy);
 
 	AvatarMoverProcess *amp = Ultima8Engine::get_instance()->getAvatarMoverProcess();
 	if (button == Shared::BUTTON_RIGHT || button == Shared::BUTTON_LEFT) {
-		amp->OnMouseDown(button, sx, sy);
+		amp->onMouseDown(button, sx, sy);
 	}
 
 	if (button == Shared::BUTTON_LEFT || button == Shared::BUTTON_RIGHT ||
@@ -299,14 +299,14 @@ Gump *GameMapGump::OnMouseDown(int button, int32 mx, int32 my) {
 	return nullptr;
 }
 
-void GameMapGump::OnMouseUp(int button, int32 mx, int32 my) {
+void GameMapGump::onMouseUp(int button, int32 mx, int32 my) {
 	AvatarMoverProcess *amp = Ultima8Engine::get_instance()->getAvatarMoverProcess();
 	if (button == Shared::BUTTON_RIGHT || button == Shared::BUTTON_LEFT) {
-		amp->OnMouseUp(button);
+		amp->onMouseUp(button);
 	}
 }
 
-void GameMapGump::OnMouseClick(int button, int32 mx, int32 my) {
+void GameMapGump::onMouseClick(int button, int32 mx, int32 my) {
 	MainActor *avatar = getMainActor();
 	switch (button) {
 	case Shared::BUTTON_LEFT: {
@@ -345,8 +345,8 @@ void GameMapGump::OnMouseClick(int button, int32 mx, int32 my) {
 //			PathfinderProcess* pfp = new PathfinderProcess(devon, objID, false);
 			Kernel::get_instance()->addProcess(pfp);
 #elif 0
-			if (p_dynamic_cast<Actor *>(item)) {
-				p_dynamic_cast<Actor *>(item)->die(0);
+			if (dynamic_cast<Actor *>(item)) {
+				dynamic_cast<Actor *>(item)->die(0);
 			} else {
 				item->destroy();
 			}
@@ -374,7 +374,7 @@ void GameMapGump::OnMouseClick(int button, int32 mx, int32 my) {
 	}
 }
 
-void GameMapGump::OnMouseDouble(int button, int32 mx, int32 my) {
+void GameMapGump::onMouseDouble(int button, int32 mx, int32 my) {
 	MainActor *avatar = getMainActor();
 	switch (button) {
 	case Shared::BUTTON_LEFT: {
@@ -394,7 +394,7 @@ void GameMapGump::OnMouseDouble(int button, int32 mx, int32 my) {
 			item->getLocation(xv, yv, zv);
 			item->dumpInfo();
 
-			if (p_dynamic_cast<Actor *>(item) ||
+			if (dynamic_cast<Actor *>(item) ||
 			        avatar->canReach(item, 128)) { // CONSTANT!
 				// call the 'use' event
 				item->use();

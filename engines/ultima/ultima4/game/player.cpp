@@ -103,18 +103,22 @@ Common::String PartyMember::translate(Std::vector<Common::String> &parts) {
 			if (parts[1] == "cure") {
 				if (getStatus() == STAT_POISONED)
 					return "true";
-				else return "false";
+				else
+					return "false";
 			} else if (parts[1] == "heal" || parts[1] == "fullheal") {
 				if (getHp() < getMaxHp())
 					return "true";
-				else return "false";
+				else
+					return "false";
 			} else if (parts[1] == "resurrect") {
 				if (getStatus() == STAT_DEAD)
 					return "true";
-				else return "false";
+				else
+					return "false";
 			}
 		}
 	}
+
 	return "";
 }
 
@@ -281,7 +285,6 @@ void PartyMember::awardXp(int xp) {
 
 bool PartyMember::heal(HealType type) {
 	switch (type) {
-
 	case HT_NONE:
 		return true;
 
@@ -549,7 +552,8 @@ MapTile PartyMember::tileForClass(int klass) {
 /*-------------------------------------------------------------------*/
 
 Party::Party(SaveGame *s) : _saveGame(s), _transport(0), _torchDuration(0), _activePlayer(-1) {
-	if (MAP_DECEIT <= _saveGame->_location && _saveGame->_location <= MAP_ABYSS)
+	MapId map = _saveGame->_positions.back()._map;
+	if (map >= MAP_DECEIT && map <= MAP_ABYSS)
 		_torchDuration = _saveGame->_torchDuration;
 	for (int i = 0; i < _saveGame->_members; i++) {
 		// add the members to the party

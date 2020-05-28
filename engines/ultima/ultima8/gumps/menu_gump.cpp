@@ -50,7 +50,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(MenuGump, ModalGump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(MenuGump)
 
 MenuGump::MenuGump(bool nameEntryMode_)
 	: ModalGump(0, 0, 5, 5, 0, FLAG_DONT_SAVE) {
@@ -194,9 +194,8 @@ bool MenuGump::OnKeyDown(int key, int mod) {
 }
 
 void MenuGump::ChildNotify(Gump *child, uint32 message) {
-	if (child->IsOfType<EditWidget>() && message == EditWidget::EDIT_ENTER) {
-		EditWidget *editwidget = p_dynamic_cast<EditWidget *>(child);
-		assert(editwidget);
+	EditWidget *editwidget = dynamic_cast<EditWidget *>(child);
+	if (editwidget && message == EditWidget::EDIT_ENTER) {
 		Std::string name = editwidget->getText();
 		if (!name.empty()) {
 			MainActor *av = getMainActor();
@@ -205,7 +204,8 @@ void MenuGump::ChildNotify(Gump *child, uint32 message) {
 		}
 	}
 
-	if (child->IsOfType<ButtonWidget>() && message == ButtonWidget::BUTTON_CLICK) {
+	ButtonWidget *buttonWidget = dynamic_cast<ButtonWidget *>(child);
+	if (buttonWidget && message == ButtonWidget::BUTTON_CLICK) {
 		selectEntry(child->GetIndex());
 	}
 }

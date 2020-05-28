@@ -100,10 +100,10 @@ void ObjectManager::reset() {
 	for (i = 0; i < _objects.size(); ++i) {
 		if (_objects[i] == 0) continue;
 #if 0
-		Item *item = p_dynamic_cast<Item *>(_objects[i]);
+		Item *item = dynamic_cast<Item *>(_objects[i]);
 		if (item && item->getParent()) continue; // will be deleted by parent
 #endif
-		Gump *gump = p_dynamic_cast<Gump *>(_objects[i]);
+		Gump *gump = dynamic_cast<Gump *>(_objects[i]);
 		if (gump && gump->GetParent()) continue; // will be deleted by parent
 		delete _objects[i];
 	}
@@ -218,18 +218,18 @@ void ObjectManager::save(Common::WriteStream *ws) {
 		if (!object) continue;
 
 		// child items/gumps are saved by their parent.
-		Item *item = p_dynamic_cast<Item *>(object);
+		Item *item = dynamic_cast<Item *>(object);
 		if (item && item->getParent()) continue;
-		Gump *gump = p_dynamic_cast<Gump *>(object);
+		Gump *gump = dynamic_cast<Gump *>(object);
 
 		// don't save Gumps with DONT_SAVE and Gumps with parents, unless
 		// the parent is a core gump
 		// FIXME: This leaks _objIDs. See comment in ObjectManager::load().
 		if (gump && !gump->mustSave(true)) continue;
 
-		object->save(ws);
+		saveObject(ws, object);
 	}
-
+ 
 	ws->writeUint16LE(0);
 }
 
@@ -253,7 +253,7 @@ bool ObjectManager::load(Common::ReadStream *rs, uint32 version) {
 		if (!obj) return false;
 
 		// top level gumps have to be added to the correct core gump
-		Gump *gump = p_dynamic_cast<Gump *>(obj);
+		Gump *gump = dynamic_cast<Gump *>(obj);
 		if (gump) {
 			Ultima8Engine::get_instance()->addGump(gump);
 		}
@@ -286,6 +286,20 @@ bool ObjectManager::load(Common::ReadStream *rs, uint32 version) {
 	pout << "Reclaimed " << count << " _objIDs on load." << Std::endl;
 
 	return true;
+}
+
+void ObjectManager::saveObject(Common::WriteStream *ws, Object *obj) const {
+	const Std::string & classname = obj->GetClassType()._className; // note: virtual
+
+	Std::map<Common::String, ObjectLoadFunc>::iterator iter;
+	iter = _objectLoaders.find(classname);
+	if (iter == _objectLoaders.end()) {
+		error("Object class cannot save without registered loader: %s", classname.c_str());
+	}
+
+	ws->writeUint16LE(classname.size());
+	ws->write(classname.c_str(), classname.size());
+	obj->saveData(ws);
 }
 
 Object *ObjectManager::loadObject(Common::ReadStream *rs, uint32 version) {

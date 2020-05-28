@@ -60,11 +60,9 @@ public:
 	};
 
 private:
-	void saveData(Common::WriteStream *ws) override;
-
 	//! Play a music track
 	//! \param track The track number to play. Pass 0 to stop music
-	void playMusic_internal(int track);
+	void playMusic_internal(int track) override;
 
 	MidiPlayer *_midiPlayer;
 	PlaybackStates _state;
@@ -94,20 +92,20 @@ public:
 	}
 
 	//! Play some background music. Does not change the current track if combat music is active.  If another track is currently queued, just queues this track for play.
-	void playMusic(int track);
+	void playMusic(int track) override;
 	//! Play some combat music - the last played track will be remembered
-	void playCombatMusic(int track);
+	void playCombatMusic(int track) override;
 	//! Queue a track to start once the current one finishes
-	void queueMusic(int track);
+	void queueMusic(int track) override;
 	//! Clear any queued track (does not affect currently playing track)
-	void unqueueMusic();
+	void unqueueMusic() override;
 	//! Restore the last requested non-combat track (eg, at the end of combat)
-	void restoreMusic();
+	void restoreMusic() override;
 
 	//! Save the current track state - used when the menu is opened
-	void saveTrackState();
+	void saveTrackState() override;
 	//! Bring back the track state from before it was put on hold
-	void restoreTrackState();
+	void restoreTrackState() override;
 
 	//! Get the state of tracks (wanted, requested, queued)
 	void getTrackState(TrackState &trackState) const;
@@ -117,6 +115,7 @@ public:
 	void run() override;
 
 	bool loadData(Common::ReadStream *rs, uint32 version);
+	void saveData(Common::WriteStream *ws) override;
 };
 
 } // End of namespace Ultima8

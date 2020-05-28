@@ -93,6 +93,7 @@ namespace LB {
 	void b_HMStoFrames(int nargs);
 	void b_param(int nargs);
 	void b_printFrom(int nargs);
+	void b_put(int nargs);
 	void b_showGlobals(int nargs);
 	void b_showLocals(int nargs);
 	void b_value(int nargs);
@@ -134,6 +135,7 @@ namespace LB {
 	void b_nothing(int nargs);
 	void b_pass(int nargs);
 	void b_pause(int nargs);
+	void b_play(int nargs);
 	void b_playAccel(int nargs);
 	void b_preLoad(int nargs);
 	void b_preLoadCast(int nargs);

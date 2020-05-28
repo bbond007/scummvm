@@ -1508,12 +1508,60 @@ static const uint16 ecoquest2PatchEcorderLily[] = {
 	PATCH_END
 };
 
+// Objects that you can hide behind in rooms 530 and 560 all have messages that
+//  are supposed to display when clicking Do after Gonzales leaves camp, but
+//  their doVerb methods are missing a call to super:doVerb. We fix this by
+//  patching the doVerb methods to call super:doVerb instead of doing nothing.
+//
+// Applies to: All versions
+// Responsible methods: crates:doVerb, barrel1-4:doVerb, refuse:doVerb in 530,
+//  bullldozer:doVerb, barrel1-5:doVerb, crates:doVerb in 560
+static const uint16 ecoquest2SignatureCampMessages1[] = {
+	0x30, SIG_UINT16(0x0033),           // bnt 0033 [ end of method ]
+	SIG_ADDTOOFFSET(+10),
+	0x30, SIG_UINT16(0x0026),           // bnt 0026 [ end of method ]
+	SIG_ADDTOOFFSET(+8),
+	0x30, SIG_UINT16(0x001b),           // bnt 001b [ end of method ]
+	0x38, SIG_SELECTOR16(setScript),    // pushi setScript
+	0x39, SIG_MAGICDWORD, 0x03,         // pushi 03
+	0x72, SIG_UINT16(0x00cc),           // lofsa sRunHide
+	SIG_ADDTOOFFSET(+10),
+	0x38, SIG_SELECTOR16(doVerb),       // pushi doVerb
+	SIG_END
+};
+
+static const uint16 ecoquest2PatchCampMessages1[] = {
+	0x30, PATCH_UINT16(0x002a),         // bnt 002a [ super doVerb: verb ]
+	PATCH_ADDTOOFFSET(+10),
+	0x30, PATCH_UINT16(0x001d),         // bnt 001d [ super doVerb: verb ]
+	PATCH_ADDTOOFFSET(+8),
+	0x30, PATCH_UINT16(0x0012),         // bnt 0012 [ super doVerb: verb ]
+	PATCH_END
+};
+
+static const uint16 ecoquest2SignatureCampMessages2[] = {
+	0x30, SIG_UINT16(0x001b),           // bnt 001b [ end of method ]
+	0x38, SIG_SELECTOR16(setScript),    // pushi setScript
+	0x39, SIG_MAGICDWORD, 0x03,         // pushi 03
+	0x72, SIG_UINT16(0x0154),           // lofsa sRunHide
+	SIG_ADDTOOFFSET(+10),
+	0x38, SIG_SELECTOR16(doVerb),       // pushi doVerb
+	SIG_END
+};
+
+static const uint16 ecoquest2PatchCampMessages2[] = {
+	0x30, PATCH_UINT16(0x0012),         // bnt 0012 [ super doVerb: verb ]
+	PATCH_END
+};
+
 //          script, description,                                        signature                          patch
 static const SciScriptPatcherEntry ecoquest2Signatures[] = {
 	{  true,     0, "icon bar tutorial",                            10, ecoquest2SignatureIconBarTutorial, ecoquest2PatchIconBarTutorial },
 	{  true,    50, "initial text not removed on ecorder",           1, ecoquest2SignatureEcorder,         ecoquest2PatchEcorder },
 	{  true,   333, "initial text not removed on ecorder tutorial",  1, ecoquest2SignatureEcorderTutorial, ecoquest2PatchEcorderTutorial },
 	{  true,   500, "room 500 items reappear",                       1, ecoquest2SignatureRoom500Items,    ecoquest2PatchRoom500Items },
+	{  true,   530, "missing camp messages",                         6, ecoquest2SignatureCampMessages1,   ecoquest2PatchCampMessages1 },
+	{  true,   560, "missing camp messages",                         7, ecoquest2SignatureCampMessages2,   ecoquest2PatchCampMessages2 },
 	{  true,   702, "ecorder not highlighting lilies",               3, ecoquest2SignatureEcorderLily,     ecoquest2PatchEcorderLily },
 	SCI_SIGNATUREENTRY_TERMINATOR
 };
@@ -15794,6 +15842,42 @@ static const SciScriptPatcherEntry qfg4Signatures[] = {
 
 #endif
 
+// Space Quest 3 has some strings hard coded in the scripts file
+// We need to patch them for the Hebrew translation
+
+// Replace "Enter input" prompt with Hebrew
+static const uint16 sq3HebrewEnterInputSignature[] = {
+	SIG_MAGICDWORD,
+	0x45, 0x6e, 0x74, 0x65, 0x72, 0x20, 0x69, 0x6e, 0x70, 0x75, 0x74, 0,
+	SIG_END
+};
+
+static const uint16 sq3HebrewEnterInputPatch[] = {
+	0xe4, 0xf7, 0xf9, 0x20, 0xf4, 0xf7, 0xe5, 0xe3, 0xe4, 0x3a, 0,
+	PATCH_END
+};
+
+// Replace "Space Quest ]I[" in status bar with Hebrew
+static const uint16 sq3HebrewStatusBarNameSignature[] = {
+	SIG_MAGICDWORD,
+	0x53, 0x70, 0x61, 0x63, 0x65, 0x20, 0x51, 0x75, 0x65, 0x73, 0x74, 0x20, 0x0b,		// "Space Quest " + special ]I[ char
+	SIG_END
+};
+
+static const uint16 sq3HebrewStatusBarNamePatch[] = {
+	0xee, 0xf1, 0xf2, 0x20, 0xe1, 0xe7, 0xec, 0xec, 0x20, 0x0b, 0x20, 0x20, 0x20,		// 'Space Quest' in Hebrew: 'Masa Bahalal ' + special ]I[ char
+	PATCH_END
+};
+
+//          script, description,                                      signature                                      patch
+static const SciScriptPatcherEntry sq3Signatures[] = {
+	{  false,   0, "Hebrew: Replace name in status bar",    1, sq3HebrewStatusBarNameSignature,                     sq3HebrewStatusBarNamePatch },
+	{  false, 996, "Hebrew: Replace 'Enter input' prompt",  1, sq3HebrewEnterInputSignature,                        sq3HebrewEnterInputPatch },
+	SCI_SIGNATUREENTRY_TERMINATOR
+};
+
+
+
 // ===========================================================================
 //  script 298 of sq4/floppy has an issue. object "nest" uses another property
 //   which isn't included in property count. We return 0 in that case, so that
@@ -19092,6 +19176,9 @@ void ScriptPatcher::processScript(uint16 scriptNr, SciSpan<byte> scriptData) {
 	case GID_SQ1:
 		signatureTable = sq1vgaSignatures;
 		break;
+	case GID_SQ3:
+		signatureTable = sq3Signatures;
+		break;
 	case GID_SQ4:
 		signatureTable = sq4Signatures;
 		break;
@@ -19166,6 +19253,12 @@ void ScriptPatcher::processScript(uint16 scriptNr, SciSpan<byte> scriptData) {
 					enablePatch(signatureTable, "Floppy: fix guild tunnel access (3/3)");
 					enablePatch(signatureTable, "Floppy: fix crest bookshelf");
 					enablePatch(signatureTable, "Floppy: fix peer bats, upper door (2/2)");
+				}
+				break;
+			case GID_SQ3:
+				if (g_sci->getLanguage() == Common::HE_ISR) {
+					enablePatch(signatureTable, "Hebrew: Replace name in status bar");
+					enablePatch(signatureTable, "Hebrew: Replace 'Enter input' prompt");
 				}
 				break;
 			case GID_SQ4:

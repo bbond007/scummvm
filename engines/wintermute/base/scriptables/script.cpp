@@ -35,9 +35,15 @@
 #include "engines/wintermute/base/gfx/base_renderer.h"
 #include "engines/wintermute/ext/externals.h"
 #include "common/memstream.h"
+
+#ifdef ENABLE_FOXTAIL
+#include "engines/wintermute/base/scriptables/script_opcodes.h"
+#endif
+
 #if EXTENDED_DEBUGGER_ENABLED
 #include "engines/wintermute/base/scriptables/debuggable/debuggable_script.h"
 #endif
+
 namespace Wintermute {
 
 IMPLEMENT_PERSISTENT(ScScript, false)
@@ -98,6 +104,10 @@ ScScript::ScScript(BaseGame *inGame, ScEngine *engine) : BaseClass(inGame) {
 	_parentScript = nullptr;
 
 	_tracingMode = false;
+
+#ifdef ENABLE_FOXTAIL
+	initOpcodesType();	
+#endif
 }
 
 
@@ -512,6 +522,39 @@ char *ScScript::getString() {
 	return ret;
 }
 
+#ifdef ENABLE_FOXTAIL
+//////////////////////////////////////////////////////////////////////////
+void ScScript::initOpcodesType() {
+	_opcodesType = BaseEngine::instance().isFoxTail(FOXTAIL_1_2_896, FOXTAIL_1_2_896) ? OPCODES_FOXTAIL_1_2_896 :
+	               BaseEngine::instance().isFoxTail(FOXTAIL_1_2_902, FOXTAIL_LATEST_VERSION) ? OPCODES_FOXTAIL_1_2_902 :
+	               OPCODES_UNCHANGED;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+// FoxTail 1.2.896+ is using unusual opcodes tables, let's map them here
+// NOTE: Those opcodes are never used at FoxTail 1.2.896 and 1.2.902:
+//   II_CMP_STRICT_EQ
+//   II_CMP_STRICT_NE
+//   II_DEF_CONST_VAR
+//   II_DBG_LINE
+//   II_PUSH_VAR_THIS
+//////////////////////////////////////////////////////////////////////////
+uint32 ScScript::decodeAltOpcodes(uint32 inst) {
+	if (inst > 46) {
+		return (uint32)(-1);
+	}
+
+	switch (_opcodesType) {
+	case OPCODES_FOXTAIL_1_2_896:
+		return foxtail_1_2_896_mapping[inst];
+	case OPCODES_FOXTAIL_1_2_902:
+		return foxtail_1_2_902_mapping[inst];
+	default:
+		return inst;
+	}
+}
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 bool ScScript::executeInstruction() {
@@ -527,6 +570,12 @@ bool ScScript::executeInstruction() {
 	ScValue *op2;
 
 	uint32 inst = getDWORD();
+
+#ifdef ENABLE_FOXTAIL
+	if (_opcodesType) {
+		inst = decodeAltOpcodes(inst);
+	}
+#endif
 
 	preInstHook(inst);
 
@@ -1315,6 +1364,9 @@ bool ScScript::persist(BasePersistenceManager *persistMgr) {
 
 	if (!persistMgr->getIsSaving()) {
 		_tracingMode = false;
+#ifdef ENABLE_FOXTAIL
+		initOpcodesType();	
+#endif
 	}
 
 	return STATUS_OK;

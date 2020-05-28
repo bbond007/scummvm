@@ -44,9 +44,11 @@ namespace Ultima4 {
 bool MapCoords::operator==(const MapCoords &a) const {
 	return (x == a.x) && (y == a.y) && (z == a.z);
 }
+
 bool MapCoords::operator!=(const MapCoords &a) const {
 	return !operator==(a);
 }
+
 bool MapCoords::operator<(const MapCoords &a)  const {
 	if (x > a.x)
 		return false;
@@ -54,7 +56,6 @@ bool MapCoords::operator<(const MapCoords &a)  const {
 		return false;
 	return z < a.z;
 }
-
 
 MapCoords &MapCoords::wrap(const Map *map) {
 	if (map && map->_borderBehavior == Map::BORDER_WRAP) {
@@ -174,9 +175,9 @@ Direction MapCoords::pathTo(const MapCoords &c, int valid_directions, bool towar
 	// Get the new direction to move
 	if (directionsToObject > DIR_NONE)
 		return dirRandomDir(directionsToObject);
-
 	// There are no valid directions that lead to our target, just move wherever we can!
-	else return dirRandomDir(valid_directions);
+	else
+		return dirRandomDir(valid_directions);
 }
 
 Direction MapCoords::pathAway(const MapCoords &c, int valid_directions) const {
@@ -198,14 +199,16 @@ int MapCoords::movementDistance(const MapCoords &c, const Map *map) const {
 		if (me.x != c.x) {
 			if (dirmask & MASK_DIR_WEST)
 				me.move(DIR_WEST, map);
-			else me.move(DIR_EAST, map);
+			else
+				me.move(DIR_EAST, map);
 
 			dist++;
 		}
 		if (me.y != c.y) {
 			if (dirmask & MASK_DIR_NORTH)
 				me.move(DIR_NORTH, map);
-			else me.move(DIR_SOUTH, map);
+			else
+				me.move(DIR_SOUTH, map);
 
 			dist++;
 		}
@@ -230,7 +233,7 @@ int MapCoords::distance(const MapCoords &c, const Map *map) const {
 Map::Map() : _id(0), _type(WORLD), _width(0), _height(0), _levels(1),
 		_chunkWidth(0), _chunkHeight(0), _offset(0), _flags(0),
 		_borderBehavior(BORDER_WRAP), _music(Music::NONE),
-		_tileSet(nullptr), _tileMap(nullptr) {
+		_tileSet(nullptr), _tileMap(nullptr), _blank(0) {
 	_annotations = new AnnotationMgr();
 }
 
@@ -278,10 +281,8 @@ const Portal *Map::portalAt(const Coords &coords, int actionFlags) {
 }
 
 MapTile *Map::getTileFromData(const Coords &coords) {
-	static MapTile blank(0);
-
 	if (MAP_IS_OOB(this, coords))
-		return &blank;
+		return &_blank;
 
 	int index = coords.x + (coords.y * _width) + (_width * _height * coords.z);
 	return &_data[index];
@@ -711,7 +712,8 @@ bool Map::fillMonsterTable() {
 			// Whirlpools and storms are separated from other moving objects
 			if (c->getId() == WHIRLPOOL_ID || c->getId() == STORM_ID)
 				monsters.push_back(obj);
-			else other_creatures.push_back(obj);
+			else
+				other_creatures.push_back(obj);
 		} else inanimate_objects.push_back(obj);
 	}
 
@@ -746,14 +748,15 @@ bool Map::fillMonsterTable() {
 	/**
 	 * Fill in our monster table
 	 */
+	TileMap *base = g_tileMaps->get("base");
 	for (i = 0; i < MONSTERTABLE_SIZE; i++) {
 		Coords c = monsters[i]->getCoords(),
-		       prevc = monsters[i]->getPrevCoords();
+			prevc = monsters[i]->getPrevCoords();
 
-		_monsterTable[i]._tile = translateToRawTileIndex(monsters[i]->getTile());
+		_monsterTable[i]._tile = base->untranslate(monsters[i]->getTile());
 		_monsterTable[i]._x = c.x;
 		_monsterTable[i]._y = c.y;
-		_monsterTable[i]._prevTile = translateToRawTileIndex(monsters[i]->getPrevTile());
+		_monsterTable[i]._prevTile = base->untranslate(monsters[i]->getPrevTile());
 		_monsterTable[i]._prevX = prevc.x;
 		_monsterTable[i]._prevY = prevc.y;
 	}
@@ -768,6 +771,8 @@ MapTile Map::translateFromRawTileIndex(int raw) const {
 }
 
 uint Map::translateToRawTileIndex(MapTile &tile) const {
+	g_tileSets;
+
 	return _tileMap->untranslate(tile);
 }
 

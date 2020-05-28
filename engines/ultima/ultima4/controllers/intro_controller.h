@@ -82,6 +82,7 @@ public:
 class IntroController : public Controller, public Observer<Menu *, MenuEvent &> {
 public:
 	IntroController();
+	~IntroController() override;
 
 	/**
 	 * Initializes intro state and loads in introduction graphics, text
@@ -98,7 +99,7 @@ public:
 	/**
 	 * Handles keystrokes during the introduction.
 	 */
-	bool keyPressed(int key);
+	bool keyPressed(int key) override;
 
 	/**
 	 * Mouse button was pressed
@@ -116,7 +117,7 @@ public:
 	 * Timer callback for the intro sequence.  Handles animating the intro
 	 * map, the beasties, etc..
 	 */
-	void timerFired();
+	void timerFired() override;
 
 	/**
 	 * Preload map tiles
@@ -128,7 +129,7 @@ public:
 	 * activated.
 	 * TODO: Reduce duped code.
 	 */
-	void update(Menu *menu, MenuEvent &event);
+	void update(Menu *menu, MenuEvent &event) override;
 	void updateConfMenu(MenuEvent &event);
 	void updateVideoMenu(MenuEvent &event);
 	void updateGfxMenu(MenuEvent &event);
@@ -321,6 +322,7 @@ private:
 	TextView _extendedMenuArea;
 	TextView _questionArea;
 	TileView _mapArea;
+	Image *_mapScreen;
 
 	// menus
 	Menu _mainMenu;
@@ -375,13 +377,13 @@ private:
 	struct AnimElement {
 		void shufflePlotData();
 
-		int _rx, _ry;                         // screen/source x and y
-		int _rw, _rh;                         // source width and height
+		int _rx, _ry;                        // screen/source x and y
+		int _rw, _rh;                        // source width and height
 		AnimType _method;                    // render method
 		int _animStep;                       // tracks animation position
 		int _animStepMax;
 		int _timeBase;                       // initial animation time
-		int _timeDelay;                      // delay before rendering begins
+		uint32 _timeDelay;                   // delay before rendering begins
 		int _timeDuration;                   // total animation time
 		Image *_srcImage;                    // storage for the source image
 		Image *_destImage;                   // storage for the animation frame
@@ -392,7 +394,7 @@ private:
 	/**
 	 * Add the intro element to the element list
 	 */
-	void addTitle(int x, int y, int w, int h, AnimType method, int delay, int duration);
+	void addTitle(int x, int y, int w, int h, AnimType method, uint32 delay, int duration);
 
 	/**
 	 * The title element has finished drawing all frames, so delete, remove,

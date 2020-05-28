@@ -271,10 +271,10 @@ void SpecialOpcodes::spcCastleGardenLogic() {
 		sceneUpdater.iniIDTbl[3][0] = 0x145;
 		sceneUpdater.iniIDTbl[4][0] = 0x144;
 	} else {
-		sceneUpdater.sequenceIDTbl[0][0] = -1;
-		sceneUpdater.sequenceIDTbl[1][0] = -1;
-		sceneUpdater.sequenceIDTbl[2][0] = -1;
-		sceneUpdater.sequenceIDTbl[3][0] = -1;
+		sceneUpdater.sequenceIDTbl[0][0] = 0xffff;
+		sceneUpdater.sequenceIDTbl[1][0] = 0xffff;
+		sceneUpdater.sequenceIDTbl[2][0] = 0xffff;
+		sceneUpdater.sequenceIDTbl[3][0] = 0xffff;
 		sceneUpdater.iniIDTbl[3][0] = 0x83;
 		sceneUpdater.iniIDTbl[4][0] = 0x74;
 	}
@@ -330,7 +330,7 @@ void SpecialOpcodes::spcLadyOfTheLakeCapturedSceneLogic() {
 
 void SpecialOpcodes::spcStopLadyOfTheLakeCapturedSceneLogic() {
 	_vm->clearSceneUpdateFunction();
-	_vm->_sound->PauseCDMusic();
+	_vm->_sound->resumeMusic();
 	if ((_dat_80083148 != 0) || (_uint16_t_80083154 != 0)) {
 		//TODO FUN_8001ac5c((uint)_dat_80083148, (uint)DAT_80083150, (uint)_uint16_t_80083154, (uint)DAT_80083158);
 	}
@@ -1503,8 +1503,8 @@ void castleBuildingBlackDragon2UpdateFunction() {
 			ini->counter = 0x68;
 			ini->objectState = 1;
 		} else if (ini->objectState == 1) {
-			ini->actor->updateSequence(4);
-			ini->counter = vm->getRand(0xb4);
+			vm->_dragonINIResource->getRecord(0x234)->actor->updateSequence(4);
+			ini->counter = vm->getRand(0xb4) + 900;
 			ini->objectState = 0;
 		}
 	}

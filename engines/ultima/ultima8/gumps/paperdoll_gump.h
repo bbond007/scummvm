@@ -31,6 +31,9 @@ namespace Ultima8 {
 
 class RenderedText;
 
+/**
+ * The gump activated by 'Z', which shows the avatar with current armor, and stats
+ */
 class PaperdollGump : public ContainerGump {
 public:
 	ENABLE_RUNTIME_CLASSTYPE()
@@ -64,9 +67,9 @@ public:
 	void DropItem(Item *item, int mx, int my) override;
 
 	bool loadData(Common::ReadStream *rs, uint32 version);
-protected:
 	void saveData(Common::WriteStream *ws) override;
 
+protected:
 	//! Paint the stats
 	void PaintStats(RenderSurface *, int32 lerp_factor);
 

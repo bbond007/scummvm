@@ -31,7 +31,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(BarkGump, ItemRelativeGump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(BarkGump)
 
 // TODO: Remove all the hacks
 
@@ -50,24 +50,24 @@ BarkGump::BarkGump(uint16 owner, const Std::string &msg, uint32 speechShapeNum) 
 BarkGump::~BarkGump(void) {
 }
 
-void BarkGump::InitGump(Gump *newparent, bool take_focus) {
+int BarkGump::dialogFontForActor(uint16 actor) {
 	// OK, this is a bit of a hack, but it's how it has to be
-	int fontnum;
-	if (_owner == 1) fontnum = 6;
-	else if (_owner > 256) fontnum = 8;
-	else switch (_owner % 3) {
-		case 1:
-			fontnum = 5;
-			break;
+	if (actor == 1)
+		return 6;
+	if (actor > 256)
+		return 8;
+	switch (actor % 3) {
+	case 1:
+		return 5;
+	case 2:
+		return 7;
+	default:
+		return 0;
+	}
+}
 
-		case 2:
-			fontnum = 7;
-			break;
-
-		default:
-			fontnum = 0;
-			break;
-		}
+void BarkGump::InitGump(Gump *newparent, bool take_focus) {
+	int fontnum = dialogFontForActor(_owner);
 
 	// This is a hack. We init the gump twice...
 	ItemRelativeGump::InitGump(newparent, take_focus);
@@ -115,7 +115,7 @@ void BarkGump::InitGump(Gump *newparent, bool take_focus) {
 }
 
 bool BarkGump::NextText() {
-	TextWidget *widget = p_dynamic_cast<TextWidget *>(getGump(_textWidget));
+	TextWidget *widget = dynamic_cast<TextWidget *>(getGump(_textWidget));
 	assert(widget);
 	if (widget->setupNextText()) {
 		// This is just a hack
@@ -162,8 +162,8 @@ void BarkGump::run() {
 	}
 }
 
-Gump *BarkGump::OnMouseDown(int button, int32 mx, int32 my) {
-	Gump *g = ItemRelativeGump::OnMouseDown(button, mx, my);
+Gump *BarkGump::onMouseDown(int button, int32 mx, int32 my) {
+	Gump *g = ItemRelativeGump::onMouseDown(button, mx, my);
 	if (g) return g;
 
 	// Scroll to next text, if possible
@@ -209,7 +209,7 @@ bool BarkGump::loadData(Common::ReadStream *rs, uint32 version) {
 		_barked = "";
 	}
 
-	TextWidget *widget = p_dynamic_cast<TextWidget *>(getGump(_textWidget));
+	TextWidget *widget = dynamic_cast<TextWidget *>(getGump(_textWidget));
 	if (!widget)
 		return false;
 

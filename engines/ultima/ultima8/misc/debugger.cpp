@@ -81,7 +81,16 @@ Debugger::Debugger() : Shared::Debugger() {
 	registerCmd("Ultima8Engine::togglePaintEditorItems", WRAP_METHOD(Debugger, cmdTogglePaintEditorItems));
 	registerCmd("Ultima8Engine::toggleShowTouchingItems", WRAP_METHOD(Debugger, cmdToggleShowTouchingItems));
 	registerCmd("Ultima8Engine::closeItemGumps", WRAP_METHOD(Debugger, cmdCloseItemGumps));
+
 	registerCmd("AvatarMoverProcess::setFakeBothButtonClick", WRAP_METHOD(Debugger, cmdBothButtonClick));
+	registerCmd("AvatarMoverProcess::startTurnLeft", WRAP_METHOD(Debugger, cmdStartTurnLeft));
+	registerCmd("AvatarMoverProcess::startTurnRight", WRAP_METHOD(Debugger, cmdStartTurnRight));
+	registerCmd("AvatarMoverProcess::startMoveForward", WRAP_METHOD(Debugger, cmdStartMoveForward));
+	registerCmd("AvatarMoverProcess::startMoveBack", WRAP_METHOD(Debugger, cmdStartMoveBack));
+	registerCmd("AvatarMoverProcess::stopTurnLeft", WRAP_METHOD(Debugger, cmdStopTurnLeft));
+	registerCmd("AvatarMoverProcess::stopTurnRight", WRAP_METHOD(Debugger, cmdStopTurnRight));
+	registerCmd("AvatarMoverProcess::stopMoveForward", WRAP_METHOD(Debugger, cmdStopMoveForward));
+	registerCmd("AvatarMoverProcess::stopMoveBack", WRAP_METHOD(Debugger, cmdStopMoveBack));
 
 	registerCmd("AudioProcess::listSFX", WRAP_METHOD(Debugger, cmdListSFX));
 	registerCmd("AudioProcess::playSFX", WRAP_METHOD(Debugger, cmdPlaySFX));
@@ -510,7 +519,7 @@ bool Debugger::cmdCheatItems(int argc, const char **argv) {
 	bagitem->setGumpLocation(70, 40);
 
 	bagitem = ItemFactory::createItem(637, 0, 0, 0, 0, 0, 0, true);
-	Container *bag = p_dynamic_cast<Container *>(bagitem);
+	Container *bag = dynamic_cast<Container *>(bagitem);
 
 	Item *reagents = ItemFactory::createItem(395, 0, 50, 0, 0, 0, 0, true);
 	reagents->moveToContainer(bag);
@@ -536,7 +545,7 @@ bool Debugger::cmdCheatItems(int argc, const char **argv) {
 
 	// theurgy foci
 	bagitem = ItemFactory::createItem(637, 0, 0, 0, 0, 0, 0, true);
-	bag = p_dynamic_cast<Container *>(bagitem);
+	bag = dynamic_cast<Container *>(bagitem);
 
 	Item *focus = ItemFactory::createItem(396, 8, 0, 0, 0, 0, 0, true);
 	focus->moveToContainer(bag);
@@ -1106,6 +1115,110 @@ bool Debugger::cmdBothButtonClick(int argc, const char **argv) {
 	return false;
 }
 
+bool Debugger::cmdStartTurnLeft(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't turn left: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryTurnLeft(true);
+	}
+	return false;
+}
+
+bool Debugger::cmdStartTurnRight(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't turn right: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryTurnRight(true);
+	}
+	return false;
+}
+
+bool Debugger::cmdStartMoveForward(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't move forward: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryMoveForward(true);
+	}
+	return false;
+}
+
+bool Debugger::cmdStartMoveBack(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't move back: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryMoveBack(true);
+	}
+	return false;
+}
+
+bool Debugger::cmdStopTurnLeft(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't turn left: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryTurnLeft(false);
+	}
+	return false;
+}
+
+bool Debugger::cmdStopTurnRight(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't turn right: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryTurnRight(false);
+	}
+	return false;
+}
+
+bool Debugger::cmdStopMoveForward(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't move forward: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryMoveForward(false);
+	}
+	return false;
+}
+
+bool Debugger::cmdStopMoveBack(int argc, const char **argv) {
+	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
+		debugPrintf("Can't move back: avatarInStasis\n");
+		return false;
+	}
+	AvatarMoverProcess *proc = Ultima8Engine::get_instance()->getAvatarMoverProcess();
+
+	if (proc) {
+		proc->tryMoveBack(false);
+	}
+	return false;
+}
+
 bool Debugger::cmdToggleCombat(int argc, const char **argv) {
 	if (Ultima8Engine::get_instance()->isAvatarInStasis()) {
 		debugPrintf("Can't toggle combat: avatarInStasis\n");
@@ -1390,7 +1503,7 @@ bool Debugger::cmdShowMenu(int argc, const char **argv) {
 bool Debugger::cmdToggleFastArea(int argc, const char **argv) {
 	Ultima8Engine *app = Ultima8Engine::get_instance();
 	Gump *desktop = app->getDesktopGump();
-	Gump *favg = desktop->FindGump(FastAreaVisGump::ClassType);
+	Gump *favg = desktop->FindGump<FastAreaVisGump>();
 
 	if (!favg) {
 		favg = new FastAreaVisGump;
@@ -1445,7 +1558,7 @@ bool Debugger::cmdPlayMusic(int argc, const char **argv) {
 bool Debugger::cmdToggleMinimap(int argc, const char **argv) {
 	Ultima8Engine *app = Ultima8Engine::get_instance();
 	Gump *desktop = app->getDesktopGump();
-	Gump *mmg = desktop->FindGump(MiniMapGump::ClassType);
+	Gump *mmg = desktop->FindGump<MiniMapGump>();
 
 	if (!mmg) {
 		mmg = new MiniMapGump(4, 4);

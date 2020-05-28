@@ -42,7 +42,6 @@
 #include "ultima/ultima8/misc/args.h"
 #include "ultima/ultima8/kernel/core_app.h"
 #include "ultima/ultima8/kernel/mouse.h"
-#include "ultima/ultima8/kernel/hid_keys.h"
 #include "ultima/ultima8/misc/p_dynamic_cast.h"
 #include "ultima/ultima8/graphics/point_scaler.h"
 #include "common/events.h"
@@ -121,9 +120,8 @@ private:
 	int32 _timeOffset;
 	bool _hasCheated;
 	bool _cheatsEnabled;
-	uint32 _lastDown[HID_LAST+1];
-	bool _down[HID_LAST+1];
 	unsigned int _inversion;
+	bool _alertActive; //!< is intruder alert active (Crusader)
 private:
 	/**
 	 * Does engine deinitialization
@@ -172,14 +170,12 @@ protected:
 public:
 	PointScaler point_scaler;
 public:
-	ENABLE_RUNTIME_CLASSTYPE()
-
 	Ultima8Engine(OSystem *syst, const Ultima::UltimaGameDescription *gameDesc);
 	~Ultima8Engine() override;
 	void GUIError(const Common::String &msg);
 
 	static Ultima8Engine *get_instance() {
-		return p_dynamic_cast<Ultima8Engine *>(_application);
+		return dynamic_cast<Ultima8Engine *>(_application);
 	}
 
 	void startup();
@@ -225,6 +221,7 @@ public:
 	INTRINSIC(I_avatarCanCheat);
 	INTRINSIC(I_makeAvatarACheater);
 	INTRINSIC(I_closeItemGumps);
+	INTRINSIC(I_getAlertActive); // for Crusader
 
 	void setAvatarInStasis(bool stat) {
 		_avatarInStasis = stat;
@@ -246,6 +243,13 @@ public:
 	}
 	void toggleShowTouchingItems() {
 		_showTouching = !_showTouching;
+	}
+
+	bool isAlertActive() const {
+		return _alertActive;
+	}
+	void setAlertActive(bool active) {
+		_alertActive = active;
 	}
 
 	uint32 getGameTimeInSeconds();

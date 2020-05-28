@@ -35,7 +35,7 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(BookGump, ModalGump)
+DEFINE_RUNTIME_CLASSTYPE_CODE(BookGump)
 
 // TODO: Remove all the hacks
 
@@ -75,8 +75,8 @@ void BookGump::InitGump(Gump *newparent, bool take_focus) {
 }
 
 void BookGump::NextText() {
-	TextWidget *widgetL = p_dynamic_cast<TextWidget *>(getGump(_textWidgetL));
-	TextWidget *widgetR = p_dynamic_cast<TextWidget *>(getGump(_textWidgetR));
+	TextWidget *widgetL = dynamic_cast<TextWidget *>(getGump(_textWidgetL));
+	TextWidget *widgetR = dynamic_cast<TextWidget *>(getGump(_textWidgetR));
 	assert(widgetL);
 	assert(widgetR);
 	if (!widgetR->setupNextText()) {
@@ -87,12 +87,12 @@ void BookGump::NextText() {
 	widgetR->setupNextText();
 }
 
-void BookGump::OnMouseClick(int button, int32 mx, int32 my) {
+void BookGump::onMouseClick(int button, int32 mx, int32 my) {
 	// Scroll to next text, if possible
 	NextText();
 }
 
-void BookGump::OnMouseDouble(int button, int32 mx, int32 my) {
+void BookGump::onMouseDouble(int button, int32 mx, int32 my) {
 	Close();
 }
 

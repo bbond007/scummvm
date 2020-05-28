@@ -28,7 +28,7 @@ namespace Ultima {
 namespace Ultima8 {
 
 // p_dynamic_cast stuff
-DEFINE_RUNTIME_CLASSTYPE_CODE_BASE_CLASS(Process)
+DEFINE_RUNTIME_CLASSTYPE_CODE(Process)
 
 Process::Process(ObjId it, uint16 ty)
 	: _pid(0xFFFF), _flags(0), _itemNum(it), _type(ty), _result(0) {
@@ -115,19 +115,6 @@ void Process::dumpInfo() const {
 	}
 
 	g_debugger->debugPrintf("%s\n", info.c_str());
-}
-
-void Process::save(Common::WriteStream *ws) {
-	writeProcessHeader(ws);
-	saveData(ws); // virtual
-}
-
-void Process::writeProcessHeader(Common::WriteStream *ws) {
-	const char *cname = GetClassType()._className; // virtual
-	uint16 clen = strlen(cname);
-
-	ws->writeUint16LE(clen);
-	ws->write(cname, clen);
 }
 
 void Process::saveData(Common::WriteStream *ws) {

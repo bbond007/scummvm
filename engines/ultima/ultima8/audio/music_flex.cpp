@@ -29,9 +29,6 @@
 namespace Ultima {
 namespace Ultima8 {
 
-DEFINE_RUNTIME_CLASSTYPE_CODE(MusicFlex, Archive)
-
-
 MusicFlex::MusicFlex(Common::SeekableReadStream *rs) : Archive(rs) {
 	Std::memset(_info, 0, sizeof(SongInfo *) * 128);
 	_songs = new XMidiData *[_count];
@@ -79,7 +76,10 @@ void MusicFlex::cache(uint32 index) {
 	uint32 size;
 	uint8 *data = getRawObject(index, &size);
 	if (!data) {
-		error("Unable to cache song %d from sound/music.flx", index);
+		// Note: multiple sorcerer scenes (such as MALCHIR::03F2)
+		// request track 122, which is blank in the Gold Edition
+		// music flex.
+		warning("Unable to cache song %d from sound/music.flx", index);
 		return;
 	}
 	_songs[index] = new XMidiData(data, size);

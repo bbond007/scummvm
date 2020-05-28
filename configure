@@ -169,6 +169,7 @@ _iconv=auto
 _tts=auto
 _gtk=auto
 _fribidi=auto
+_test_cpp11=no
 # Default option behavior yes/no
 _debug_build=auto
 _release_build=auto
@@ -260,6 +261,7 @@ add_feature vorbis "Vorbis file support" "_vorbis _tremor"
 add_feature zlib "zlib" "_zlib"
 add_feature lua "lua" "_lua"
 add_feature fribidi "FriBidi" "_fribidi"
+add_feature test_cpp11 "Test C++11" "_test_cpp11"
 
 # Directories for installing ScummVM.
 # This list is closely based on what GNU autoconf does,
@@ -1240,6 +1242,8 @@ for ac_option in $@; do
 	--disable-mad)                _mad=no                ;;
 	--enable-fribidi)             _fribidi=yes           ;;
 	--disable-fribidi)            _fribidi=no            ;;
+	--enable-test-cpp11)          _test_cpp11=yes        ;;
+	--disable-test-cpp11)         _test_cpp11=no         ;;
 	--enable-zlib)                _zlib=yes              ;;
 	--disable-zlib)               _zlib=no               ;;
 	--enable-sparkle)             _sparkle=yes           ;;
@@ -1985,22 +1989,30 @@ if test "$_host_os" = android; then
 		_android_toolchain="$ANDROID_TOOLCHAIN"
 	fi
 
+	case $_host_cpu in
+	arm | i686)
+		_android_version=16
+		;;
+	aarch64 | x86_64)
+		# Platform version 21 is needed as earlier versions of platform do not support this architecture.
+		_android_version=21
+		;;
+	esac
+
 	# If CXX environment variable is not set, try to set known to work defaults
 	if test -z "$CXX"; then
 		case $_host_cpu in
 		arm)
-			_android_target="armv7a-linux-androideabi16"
+			_android_target="armv7a-linux-androideabi$_android_version"
 			;;
 		aarch64)
-			# Platform version 21 is needed as earlier versions of platform do not support this architecture.
-			_android_target="aarch64-linux-android21"
+			_android_target="aarch64-linux-android$_android_version"
 			;;
 		i686)
-			_android_target="i686-linux-android16"
+			_android_target="i686-linux-android$_android_version"
 			;;
 		x86_64)
-			# Platform version 21 is needed as earlier versions of platform do not support this architecture.
-			_android_target="x86_64-linux-android21"
+			_android_target="x86_64-linux-android$_android_version"
 			;;
 		esac
 
@@ -2018,6 +2030,10 @@ if test "$_host_os" = android; then
 	if test -z "$STRINGS"; then
 		STRINGS="$_android_toolchain/bin/$_host_alias-strings"
 	fi
+	if test -z "$PKG_CONFIG_LIBDIR"; then
+		export PKG_CONFIG_LIBDIR="$_android_toolchain/sysroot/usr/lib/$_host_alias/$_android_version/pkgconfig"
+	fi
+	_libcurlpath="$_android_toolchain/sysroot/usr/bin/$_host_alias/$_android_version:$_libcurlpath"
 fi
 
 #
@@ -3707,7 +3723,7 @@ case $_backend in
 		;;
 	ps2)
 		append_var DEFINES "-D_EE"
-		append_var DEFINES "-DFORCE_RTL"
+		append_var DEFINES "-DFORCE_RETURN_TO_LAUNCHER"
 		append_var INCLUDES "-I$PS2SDK/ee/include"
 		append_var INCLUDES "-I$PS2SDK/common/include"
 		append_var INCLUDES "-I$PS2SDK/ports/include"
@@ -3928,7 +3944,7 @@ fi
 # Enable 16bit support only for backends which support it
 #
 case $_backend in
-	3ds | android | androidsdl | dingux | dc | gph | iphone | ios7 | maemo | openpandora | psp | psp2 | samsungtv | sdl | switch | tizen | webos | wii)
+	3ds | android | androidsdl | dingux | dc | gph | iphone | ios7 | maemo | null | openpandora | psp | psp2 | samsungtv | sdl | switch | tizen | webos | wii)
 		if test "$_16bit" = auto ; then
 			_16bit=yes
 		else
@@ -5557,6 +5573,12 @@ fi
 define_in_config_if_yes "$_fribidi" 'USE_FRIBIDI'
 echo "$_fribidi"
 
+#
+# Test C++11 Compatibility
+#
+define_in_config_if_yes "$_test_cpp11" 'ENABLE_TEST_CPP_11'
+echo_n "Test C++11 compatibility during compilation... "
+echo "$_test_cpp11"
 
 # Default to plain text output for pandoc
 if test -z "$_pandocformat" -o "$_pandocformat" = "default"; then
