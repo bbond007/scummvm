@@ -26,6 +26,7 @@
 #include "petka/interfaces/main.h"
 #include "petka/petka.h"
 #include "petka/objects/object_cursor.h"
+#include "petka/objects/object_star.h"
 #include "petka/objects/heroes.h"
 #include "petka/q_system.h"
 #include "petka/big_dialogue.h"
@@ -66,7 +67,7 @@ void DialogInterface::start(uint id, QMessageObject *sender) {
 }
 
 void DialogInterface::initCursor() {
-	QObjectCursor *cursor = _qsys->_cursor.get();
+	QObjectCursor *cursor = _qsys->getCursor();
 
 	_savedCursorId = cursor->_resourceId;
 	_savedCursorActType = cursor->_actionType;
@@ -80,7 +81,7 @@ void DialogInterface::initCursor() {
 }
 
 void DialogInterface::restoreCursor() {
-	QObjectCursor *cursor = _qsys->_cursor.get();
+	QObjectCursor *cursor = _qsys->getCursor();
 	cursor->_isShown = _wasCursorShown;
 	cursor->_animate = _wasCursorAnim;
 	cursor->_resourceId = _savedCursorId;
@@ -100,7 +101,7 @@ void DialogInterface::next(int choice) {
 	}
 	_afterUserMsg = _isUserMsg;
 
-	_qsys->_cursor->_isShown = false;
+	_qsys->getCursor()->_isShown = false;
 	if (_isUserMsg)
 		return;
 	if (_firstTime)
@@ -158,7 +159,7 @@ void DialogInterface::startUserMsg(uint16 arg) {
 	sendMsg(kSaid);
 	_isUserMsg = true;
 	restoreCursor();
-	_qsys->addMessage(_qsys->_chapayev->_id, kUserMsg, arg);
+	_qsys->addMessage(_qsys->getChapay()->_id, kUserMsg, arg);
 }
 
 bool DialogInterface::isActive() {
@@ -193,7 +194,7 @@ void DialogInterface::playSound(const Common::String &name) {
 			Common::Rect bounds = flc->getBounds();
 			s->setBalance(bounds.left + _talker->_x + bounds.width(), 640);
 		}
-		s->play(0);
+		s->play(false);
 	}
 }
 
@@ -239,7 +240,7 @@ void DialogInterface::onMenuOpcode() {
 	_dialog->getMenuChoices(choices);
 	_qsys->_mainInterface->setTextChoice(choices, 0xFFFF, g_system->getScreenFormat().RGBToColor(0xFF, 0, 0));
 
-	_qsys->_cursor->_isShown = true;
+	_qsys->getCursor()->_isShown = true;
 	_state = kMenu;
 }
 
@@ -248,6 +249,12 @@ void DialogInterface::onUserMsgOpcode() {
 	removeSound();
 	_talker = nullptr;
 	_state = kPlaying;
+}
+
+void DialogInterface::fixCursor() {
+	_isUserMsg = false;
+	_qsys->getCursor()->show(true);
+	_qsys->getStar()->_isActive = true;
 }
 
 } // End of namespace Petka

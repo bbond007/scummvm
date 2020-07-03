@@ -90,10 +90,10 @@ Common::Error PetkaEngine::run() {
 
 	_console.reset(new Console(this));
 	_fileMgr.reset(new FileMgr());
-	_soundMgr.reset(new SoundMgr());
-	_vsys.reset(new VideoSystem());
+	_soundMgr.reset(new SoundMgr(*this));
+	_vsys.reset(new VideoSystem(*this));
 
-	loadPart(isDemo() ? 1 : 0);
+	loadPart(2);
 
 	while (!shouldQuit()) {
 		Common::Event event;
@@ -102,20 +102,8 @@ Common::Error PetkaEngine::run() {
 			case Common::EVENT_QUIT:
 			case Common::EVENT_RETURN_TO_LAUNCHER:
 				return Common::kNoError;
-			case Common::EVENT_MOUSEMOVE:
-				_qsystem->_currInterface->onMouseMove(event.mouse);
-				break;
-			case Common::EVENT_LBUTTONDOWN:
-				_qsystem->_currInterface->onLeftButtonDown(event.mouse);
-				break;
-			case Common::EVENT_LBUTTONUP:
-				break;
-			case Common::EVENT_RBUTTONDOWN:
-				_qsystem->_currInterface->onRightButtonDown(event.mouse);
-				break;
-			case Common::EVENT_KEYDOWN:
-				break;
 			default:
+				_qsystem->onEvent(event);
 				break;
 			}
 		}
@@ -183,13 +171,13 @@ Common::RandomSource &PetkaEngine::getRnd() {
 }
 
 void PetkaEngine::playVideo(Common::SeekableReadStream *stream) {
-	g_system->getMixer()->pauseAll(true);
-	Graphics::PixelFormat fmt = _system->getScreenFormat();
-
 	Video::AVIDecoder decoder;
-	if (!decoder.loadStream(stream)) {
+	if (stream && !decoder.loadStream(stream)) {
 		return;
 	}
+
+	g_system->getMixer()->pauseAll(true);
+	Graphics::PixelFormat fmt = _system->getScreenFormat();
 
 	decoder.start();
 	while (!decoder.endOfVideo()) {
@@ -249,8 +237,8 @@ void PetkaEngine::loadPart(byte part) {
 
 	_resMgr.reset(new QManager(*this));
 	_resMgr->init();
-	_dialogMan.reset(new BigDialogue());
-	_qsystem.reset(new QSystem());
+	_dialogMan.reset(new BigDialogue(*this));
+	_qsystem.reset(new QSystem(*this));
 	_qsystem->init();
 }
 
@@ -278,8 +266,8 @@ void PetkaEngine::loadChapter(byte chapter) {
 
 	_fileMgr->openStore(_chapterStoreName);
 
-	Common::ScopedPtr<Common::SeekableReadStream> namesStream(g_vm->openFile("Names.ini", true));
-	Common::ScopedPtr<Common::SeekableReadStream> castStream(g_vm->openFile("Cast.ini", true));
+	Common::ScopedPtr<Common::SeekableReadStream> namesStream(openFile("Names.ini", true));
+	Common::ScopedPtr<Common::SeekableReadStream> castStream(openFile("Cast.ini", true));
 
 	Common::INIFile namesIni;
 	Common::INIFile castIni;

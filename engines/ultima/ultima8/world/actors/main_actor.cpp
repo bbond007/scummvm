@@ -41,6 +41,7 @@
 #include "ultima/ultima8/world/world.h"
 #include "ultima/ultima8/world/get_object.h"
 #include "ultima/ultima8/usecode/uc_list.h"
+#include "ultima/ultima8/usecode/uc_machine.h"
 #include "ultima/ultima8/world/loop_script.h"
 #include "ultima/ultima8/world/actors/avatar_gravity_process.h"
 #include "ultima/ultima8/audio/music_process.h"
@@ -52,7 +53,7 @@ namespace Ultima8 {
 DEFINE_RUNTIME_CLASSTYPE_CODE(MainActor)
 
 MainActor::MainActor() : _justTeleported(false), _accumStr(0), _accumDex(0),
-	_accumInt(0) {
+	_accumInt(0), _cruBatteryType(ChemicalBattery), _keycards(0) {
 }
 
 MainActor::~MainActor() {
@@ -391,6 +392,26 @@ void MainActor::getWeaponOverlay(const WeaponOverlayFrame *&frame_, uint32 &shap
 	if (frame_ == 0) shape_ = 0;
 }
 
+int16 MainActor::getMaxEnergy() {
+	switch (_cruBatteryType) {
+		case ChemicalBattery:
+			return 0x9c4; // docs say 2500, code says otherwise..
+		case FissionBattery:
+			return 5000;
+		case FusionBattery:
+			return 10000;
+		default:
+			return 0;
+	}
+}
+
+bool MainActor::hasKeycard(int num) {
+	if (num > 31)
+		return 0;
+
+	return _keycards & (1 << num);
+}
+
 void MainActor::saveData(Common::WriteStream *ws) {
 	Actor::saveData(ws);
 	uint8 jt = _justTeleported ? 1 : 0;
@@ -398,6 +419,12 @@ void MainActor::saveData(Common::WriteStream *ws) {
 	ws->writeUint32LE(_accumStr);
 	ws->writeUint32LE(_accumDex);
 	ws->writeUint32LE(_accumInt);
+
+	if (GAME_IS_CRUSADER) {
+		ws->writeByte(static_cast<byte>(_cruBatteryType));
+		ws->writeUint32LE(_keycards);
+	}
+
 	uint8 namelength = static_cast<uint8>(_name.size());
 	ws->writeByte(namelength);
 	for (unsigned int i = 0; i < namelength; ++i)
@@ -413,6 +440,11 @@ bool MainActor::loadData(Common::ReadStream *rs, uint32 version) {
 	_accumDex = static_cast<int32>(rs->readUint32LE());
 	_accumInt = static_cast<int32>(rs->readUint32LE());
 
+	if (GAME_IS_CRUSADER) {
+		_cruBatteryType = static_cast<CruBatteryType>(rs->readByte());
+		_keycards = rs->readUint32LE();
+	}
+
 	uint8 namelength = rs->readByte();
 	_name.resize(namelength);
 	for (unsigned int i = 0; i < namelength; ++i)
@@ -421,8 +453,19 @@ bool MainActor::loadData(Common::ReadStream *rs, uint32 version) {
 	return true;
 }
 
-uint32 MainActor::I_teleportToEgg(const uint8 *args, unsigned int /*argsize*/) {
-	ARG_UINT16(mapnum);
+uint32 MainActor::I_teleportToEgg(const uint8 *args, unsigned int argsize) {
+	uint16 mapnum;
+	if (argsize == 12) {
+		ARG_UINT16(map);
+		mapnum = map;
+	} else {
+		// TODO: Confirm this works right.
+		// Crusader teleport uses main actor map.
+		assert(argsize == 8);
+		MainActor *av = getMainActor();
+		mapnum = av->getMapNum();
+	}
+
 	ARG_UINT16(teleport_id);
 	ARG_UINT16(unknown); // 0/1
 
@@ -480,6 +523,30 @@ uint32 MainActor::I_isAvatarInCombat(const uint8 * /*args*/,
 		return 1;
 	else
 		return 0;
+}
+
+uint32 MainActor::I_getMaxEnergy(const uint8 *args,
+								 unsigned int /*argsize*/) {
+	ARG_ACTOR_FROM_PTR(actor);
+	MainActor *av = getMainActor();
+	if (actor != av) {
+		return 0;
+	}
+	return av->getMaxEnergy();
+}
+
+uint32 MainActor::I_hasKeycard(const uint8 *args,
+								 unsigned int /*argsize*/) {
+	ARG_UINT16(num);
+	MainActor *av = getMainActor();
+	return av->hasKeycard(num);
+}
+
+uint32 MainActor::I_clrKeycards(const uint8 *args,
+								 unsigned int /*argsize*/) {
+	MainActor *av = getMainActor();
+	av->clrKeycards();
+	return 0;
 }
 
 void MainActor::useInventoryItem(uint32 shapenum) {

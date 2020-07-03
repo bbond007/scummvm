@@ -4,9 +4,15 @@ Programmcodes finden Sie auf Englisch unter:
 
 #### 2.2.0 (DD.MM.YYYY)
 
+ Neue Spiele:
+   - Unterstützung für die englische Übersetzung von "Prince and the Coward" hinzugefügt.
+   - Unterstützung für Ultima IV - Quest of the Avatar hinzugefügt.
+   - Unterstützung für Ultima VI - The False Prophet hinzugefügt.
+   - Unterstützung für Ultima VIII - Pagan hinzugefügt.
+
  Allgemein:
    - Alle Engines unterstützen nun automatisch gespeicherte Spielstände.
-   - Fehler starten nun den Debugger, anstatt ScummVM einfach abstürzen zu lassen.
+   - Fehler werden nun im Debugger angezeigt, anstatt ScummVM einfach abstürzen zu lassen.
    - Artikel werden bei der Sortierung der Spiele im Launcher nicht mehr berücksichtigt.
    - Hebräisch wird nun korrekt in der Benutzeroberfläche dargestellt (benötigt die FriBiDi-Bibliothek).
 
@@ -16,6 +22,7 @@ Programmcodes finden Sie auf Englisch unter:
 
  Kyra:
    - Unterstützung für die PC-98-Version von Eye of the Beholder I hinzugefügt.
+   - Unterstützung für die spanische Version von Eye of the Beholder I und II, Legend of Kyrandia 1 (Fan-Übersetzung auf CD-ROM) und Legend of Kyrandia 2 (Disketten-Version und Fan-Übersetzung auf CD-ROM) hinzugefügt.
 
  Prince:
    - Fehlerhafte Anzeige der Item-Beschreibungen im Inventar korrigiert.
@@ -30,7 +37,10 @@ Programmcodes finden Sie auf Englisch unter:
    - Bisherige NES-Farbpalette durch genauere NTSC-Palette von Mesen ersetzt.
    - Neue Option zur Benutzeroberfläche hinzugefügt, welche die Auswahl einer Farbpalette basierend auf dem NES Classic erlaubt.
    - Farbpalette in der Apple //gs-Version von Maniac Mansion verbessert.
-   - Absturzt beim Betreten der Gara in der Apple //gs-Version von Maniac Mansion behoben.
+   - Absturz beim Betreten der Garage in der Apple //gs-Version von Maniac Mansion behoben.
+
+ Sky:
+   - Synchronisation der Musik-Lautstärke zwischen dem nativen Einstellungs-Dialog des Spiels und der ScummVM-Konfiguration korrigiert.
 
  Sword1:
    - Unterstützung für lokalisierte Menüs in der russischen Version der Novy Disk Trilogy hinzugefügt.
@@ -39,7 +49,7 @@ Programmcodes finden Sie auf Englisch unter:
    - System zur Verfolgung von Errungenschaften hinzugefügt, für mehr als 10 Spiele verfügbar.
 
  Xeen:
-   - Fehlendes Sprite korrigiert, welches dargestellt wird, wenn ein Gegner von einem Energie-Strahl getroffen wird.
+   - Fehlendes Sprite hinzugefügt, welches dargestellt werden soll, wenn ein Gegner von einem Energie-Strahl getroffen wird.
    - Das Spiel friert nun nicht mehr wegen fehlerhafter Mob-Daten an der Spitze des Hexenturms ein.
    - Absturz beim Laden einige Spielstände aus dem Launcher heraus korrigiert.
    - Die Quelle in Nightshadow kann nun geheilt werden.

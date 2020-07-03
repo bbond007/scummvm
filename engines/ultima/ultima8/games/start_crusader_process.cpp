@@ -37,6 +37,7 @@
 #include "ultima/ultima8/gumps/cru_status_gump.h"
 #include "ultima/ultima8/conf/setting_manager.h"
 #include "ultima/ultima8/world/get_object.h"
+#include "ultima/ultima8/world/item_factory.h"
 #include "ultima/ultima8/graphics/palette_fader_process.h"
 #include "ultima/ultima8/audio/music_process.h"
 
@@ -88,6 +89,8 @@ void StartCrusaderProcess::run() {
 
 	if (!_skipStart) {
 		// TODO: Find the first MISS1EGG egg like in U8 - should teleport in
+		// Game starts a teleport process to Egg 0x1e:
+		// Item 9115 (class TeleportEgg, shape 404, 1, (60656,59312,16) q:99, m:0, n:0, f: 0x2000, ef:0x3 shapeinfo f:1009, fam:8, et:0)
 		/*
 		LOOPSCRIPT(script, LS_AND(LS_SHAPE_EQUAL1(73), LS_Q_EQUAL(36)));
 		currentmap->areaSearch(&uclist, script, sizeof(script),
@@ -106,9 +109,14 @@ void StartCrusaderProcess::run() {
 		egg->hatch();
 		*/
 
+		// TODO: How is this created in the game??
+		Egg *miss1egg = new Egg();
+		miss1egg->setShape(2317);
+		miss1egg->assignObjId();
+		miss1egg->callUsecodeEvent_hatch();
 	}
 
-	MusicProcess::get_instance()->playMusic(2);
+	//MusicProcess::get_instance()->playMusic(2);
 
 	Ultima8Engine::get_instance()->setAvatarInStasis(false);
 

@@ -35,11 +35,12 @@ namespace Petka {
 
 const uint16 kFallback = 0xFFFE;
 
-BigDialogue::BigDialogue() {
+BigDialogue::BigDialogue(PetkaEngine &vm)
+	: _vm(vm) {
 	_currOp = nullptr;
 	_startOpIndex = 0;
 
-	Common::ScopedPtr<Common::SeekableReadStream> file(g_vm->openFile("dialogue.fix", true));
+	Common::ScopedPtr<Common::SeekableReadStream> file(vm.openFile("dialogue.fix", true));
 	if (!file)
 		return;
 
@@ -72,7 +73,7 @@ void BigDialogue::loadSpeechesInfo() {
 	if (!_speeches.empty())
 		return;
 
-	Common::ScopedPtr<Common::SeekableReadStream> file(g_vm->openFile("dialogue.lod", true));
+	Common::ScopedPtr<Common::SeekableReadStream> file(_vm.openFile("dialogue.lod", true));
 	if (!file)
 		return;
 
@@ -127,16 +128,9 @@ const Common::U32String *BigDialogue::getSpeechInfo(int *talkerId, const char **
 		*talkerId = _speeches[index].speakerId;
 		return &_speeches[index].text;
 	}
-	case kOperationCircle: {
-		const uint current = _currOp->circle.curr;
-		_currOp += 1;
-		for (uint i = 0; i < current; ++i) {
-			while (_currOp->type != kOperationBreak)
-				_currOp += 1;
-			_currOp += 1;
-		}
+	case kOperationCircle:
+		circleMoveTo(_currOp->circle.curr);
 		assert(_currOp->type == kOperationPlay);
-	}
 		// fall through
 	case kOperationPlay:
 		if (soundName)
@@ -379,18 +373,14 @@ void BigDialogue::next(int choice) {
 			if (!processed)
 				return;
 			_currOp->circle.curr = (byte)((_currOp->circle.curr + 1) % _currOp->circle.count);
-			for (uint i = 0; i < _currOp->circle.count; ++i) {
-				while (_currOp->type != kOperationBreak)
-					_currOp += 1;
-				_currOp += 1;
-			}
+			circleMoveTo(_currOp->circle.count);
 			processed = false;
 			break;
 		case kOperationUserMessage:
 			if (processed)
 				_currOp += 1;
 			else {
-				g_vm->getQSystem()->_mainInterface->_dialog.startUserMsg(_currOp->userMsg.arg);
+				_vm.getQSystem()->_mainInterface->_dialog.startUserMsg(_currOp->userMsg.arg);
 			}
 			return;
 		default:
@@ -474,6 +464,15 @@ void BigDialogue::getMenuChoices(Common::Array<Common::U32String> &choices) {
 	for (uint i = 0; i < count; ++i) {
 		int id;
 		choices.push_back(*getSpeechInfo(&id, nullptr, i));
+	}
+}
+
+void BigDialogue::circleMoveTo(byte index) {
+	_currOp += 1;
+	for (uint i = 0; i < index; ++i) {
+		while (_currOp->type != kOperationBreak)
+			_currOp += 1;
+		_currOp += 1;
 	}
 }
 

@@ -25,29 +25,33 @@
 #include "common/error.h"
 #include "common/substream.h"
 
-#include "audio/mixer.h"
-
 #include "common/macresman.h"
 
 #include "graphics/macgui/macwindowmanager.h"
 
 #include "director/director.h"
 #include "director/archive.h"
+#include "director/cast.h"
+#include "director/movie.h"
 #include "director/score.h"
 #include "director/sound.h"
-#include "director/lingo/lingo.h"
+#include "director/stage.h"
 #include "director/util.h"
+#include "director/lingo/lingo.h"
 
 namespace Director {
+
+const uint32 wmMode = Graphics::kWMModalMenuMode | Graphics::kWMModeNoDesktop
+	| Graphics::kWMModeManualDrawWidgets | Graphics::kWMModeFullscreen;
 
 DirectorEngine *g_director;
 
 DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gameDesc) : Engine(syst), _gameDescription(gameDesc),
 		_rnd("director") {
 	DebugMan.addDebugChannel(kDebugLingoExec, "lingoexec", "Lingo Execution");
-	DebugMan.addDebugChannel(kDebugLingoCompile, "lingocompile", "Lingo Compilation");
-	DebugMan.addDebugChannel(kDebugLingoParse, "lingoparse", "Lingo code parsing");
-	DebugMan.addDebugChannel(kDebugLingoCompileOnly, "compileonly", "Skip Lingo code execution");
+	DebugMan.addDebugChannel(kDebugCompile, "compile", "Lingo Compilation");
+	DebugMan.addDebugChannel(kDebugParse, "parse", "Lingo code parsing");
+	DebugMan.addDebugChannel(kDebugCompileOnly, "compileonly", "Skip Lingo code execution");
 	DebugMan.addDebugChannel(kDebugLoading, "loading", "Loading");
 	DebugMan.addDebugChannel(kDebugImages, "images", "Image drawing");
 	DebugMan.addDebugChannel(kDebugText, "text", "Text rendering");
@@ -57,6 +61,8 @@ DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gam
 	DebugMan.addDebugChannel(kDebugNoLoop, "noloop", "Do not loop the playback");
 	DebugMan.addDebugChannel(kDebugBytecode, "bytecode", "Execute Lscr bytecode");
 	DebugMan.addDebugChannel(kDebugFewFramesOnly, "fewframesonly", "Only run the first 10 frames");
+	DebugMan.addDebugChannel(kDebugPreprocess, "preprocess", "Lingo preprocessing");
+	DebugMan.addDebugChannel(kDebugScreenshot, "screenshot", "screenshot each frame");
 
 	g_director = this;
 
@@ -69,13 +75,14 @@ DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gam
 	// Load Patterns
 	loadPatterns();
 
-	_currentScore = nullptr;
+	// Load key codes
+	loadKeyCodes();
+
+	_currentMovie = nullptr;
 	_soundManager = nullptr;
 	_currentPalette = nullptr;
 	_currentPaletteLength = 0;
 	_lingo = nullptr;
-
-	_sharedScore = nullptr;
 
 	_mainArchive = nullptr;
 	_macBinary = nullptr;
@@ -109,8 +116,9 @@ DirectorEngine::DirectorEngine(OSystem *syst, const DirectorGameDescription *gam
 }
 
 DirectorEngine::~DirectorEngine() {
-	delete _sharedScore;
-	delete _currentScore;
+	delete _currentMovie;
+
+	_wm->removeWindow(_currentStage);
 
 	if (_macBinary) {
 		delete _macBinary;
@@ -134,23 +142,19 @@ Common::Error DirectorEngine::run() {
 	_macBinary = nullptr;
 	_soundManager = nullptr;
 
-	_wm = new Graphics::MacWindowManager(Graphics::kWMModalMenuMode | Graphics::kWMModeNoDesktop
-							| Graphics::kWMModeManualDrawWidgets);
+	_wm = new Graphics::MacWindowManager(wmMode, &_director3QuickDrawPatterns);
+	_wm->setEngine(this);
+
+	_currentStage = new Stage(_wm->getNextId(), false, false, false, _wm);
+	_currentStage->disableBorder();
+	_wm->addWindowInitialized(_currentStage);
+	_wm->setScreen(_currentStage->getSurface());
 
 	_lingo = new Lingo(this);
-	_soundManager = new DirectorSound();
+	_soundManager = new DirectorSound(this);
 
 	if (getGameGID() == GID_TEST) {
-		_mainArchive = nullptr;
-		_currentScore = nullptr;
-
-		if (debugChannelSet(-1, kDebugText)) {
-			testFontScaling();
-			testFonts();
-		}
-
-		_lingo->runTests();
-
+		runTests();
 		return Common::kNoError;
 	} else if (getGameGID() == GID_TESTALL) {
 		enqueueAllMovies();
@@ -160,8 +164,8 @@ Common::Error DirectorEngine::run() {
 	//_mainArchive = new RIFFArchive();
 	//_mainArchive->openFile("bookshelf_example.mmm");
 
-	_currentScore = new Score(this);
-	_currentPath = getPath(getEXEName(), _currentPath);
+	if (getPlatform() == Common::kPlatformWindows)
+		_machineType = 256; // IBM PC-type machine
 
 	if (getVersion() < 4) {
 		if (getPlatform() == Common::kPlatformWindows) {
@@ -176,8 +180,6 @@ Common::Error DirectorEngine::run() {
 	} else {
 		_sharedCastFile = "Shared.dir";
 	}
-
-	loadSharedCastsFrom(_currentPath + _sharedCastFile);
 
 	debug(0, "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\nObtaining score name\n");
 
@@ -197,8 +199,17 @@ Common::Error DirectorEngine::run() {
 		if (_mainArchive->hasResource(MKTAG('B', 'N', 'D', 'L'), "Projector")) {
 			warning("Detected Projector file");
 
+			if (_mainArchive->hasResource(MKTAG('X', 'C', 'O', 'D'), -1)) {
+				Common::Array<uint16> xcod = _mainArchive->getResourceIDList(MKTAG('X', 'C', 'O', 'D'));
+				for (Common::Array<uint16>::iterator iterator = xcod.begin(); iterator != xcod.end(); ++iterator) {
+					Resource res = _mainArchive->getResourceDetail(MKTAG('X', 'C', 'O', 'D'), *iterator);
+					debug(0, "Detected XObject '%s'", res.name.c_str());
+					g_lingo->openXLib(res.name, kXObj);
+				}
+			}
+
 			if (_mainArchive->hasResource(MKTAG('S', 'T', 'R', '#'), 0)) {
-				_currentScore->setArchive(_mainArchive);
+				_currentMovie->setArchive(_mainArchive);
 
 				Common::SeekableSubReadStreamEndian *name = _mainArchive->getResource(MKTAG('S', 'T', 'R', '#'), 0);
 				int num = name->readUint16();
@@ -214,46 +225,46 @@ Common::Error DirectorEngine::run() {
 				_nextMovie.movie = pathMakeRelative(sname);
 				warning("Replaced score name with: %s (from %s)", _nextMovie.movie.c_str(), sname.c_str());
 
-				delete _currentScore;
-				_currentScore = nullptr;
+				delete _currentMovie;
+				_currentMovie = nullptr;
 
 				delete name;
 			}
 		}
 	}
 
-	if (_currentScore)
-		_currentScore->setArchive(_mainArchive);
+	if (_currentMovie)
+		_currentMovie->setArchive(_mainArchive);
 
 	bool loop = true;
 
 	while (loop) {
 		loop = false;
 
-		if (_currentScore) {
+		if (_currentMovie) {
 			debug(0, "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-			debug(0, "@@@@   Score name '%s' in '%s'", _currentScore->getMacName().c_str(), _currentPath.c_str());
+			debug(0, "@@@@   Movie name '%s' in '%s'", _currentMovie->getMacName().c_str(), _currentPath.c_str());
 			debug(0, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
 
-			bool goodMovie = _currentScore->loadArchive();
+			bool goodMovie = _currentMovie->loadArchive();
 
 			// If we came in a loop, then skip as requested
 			if (!_nextMovie.frameS.empty()) {
-				_currentScore->setStartToLabel(_nextMovie.frameS);
+				_currentMovie->getScore()->setStartToLabel(_nextMovie.frameS);
 				_nextMovie.frameS.clear();
 			}
 
 			if (_nextMovie.frameI != -1) {
-				_currentScore->setCurrentFrame(_nextMovie.frameI);
+				_currentMovie->getScore()->setCurrentFrame(_nextMovie.frameI);
 				_nextMovie.frameI = -1;
 			}
 
-			if (!debugChannelSet(-1, kDebugLingoCompileOnly) && goodMovie) {
-				debugC(1, kDebugEvents, "Starting playback of score '%s'", _currentScore->getMacName().c_str());
+			if (!debugChannelSet(-1, kDebugCompileOnly) && goodMovie) {
+				debugC(1, kDebugEvents, "Starting playback of movie '%s'", _currentMovie->getMacName().c_str());
 
-				_currentScore->startLoop();
+				_currentMovie->getScore()->startLoop();
 
-				debugC(1, kDebugEvents, "Finished playback of score '%s'", _currentScore->getMacName().c_str());
+				debugC(1, kDebugEvents, "Finished playback of movie '%s'", _currentMovie->getMacName().c_str());
 			}
 		}
 
@@ -263,27 +274,23 @@ Common::Error DirectorEngine::run() {
 
 		// If a loop was requested, do it
 		if (!_nextMovie.movie.empty()) {
-			_lingo->restartLingo();
-
-			// Persist screen between the movies
-			// TODO: this is a workaround until the rendering pipeline is reworked
-			if (_currentScore && _currentScore->_surface) {
-				_backSurface.copyFrom(*_currentScore->_surface);
-
-				_newMovieStarted = true;
-			}
-
-			delete _currentScore;
-			_currentScore = nullptr;
+			_newMovieStarted = true;
 
 			_currentPath = getPath(_nextMovie.movie, _currentPath);
 
-			loadSharedCastsFrom(_currentPath + _sharedCastFile);
+			Cast *sharedCast = nullptr;
+			if (_currentMovie) {
+				sharedCast = _currentMovie->getSharedCast();
+				_currentMovie->_sharedCast = nullptr;
+			}
+
+			delete _currentMovie;
+			_currentMovie = nullptr;
 
 			Archive *mov = openMainArchive(_currentPath + Common::lastPathComponent(_nextMovie.movie, '/'));
 
 			if (!mov) {
-				warning("nextMovie: No score is loaded");
+				warning("nextMovie: No movie is loaded");
 
 				if (getGameGID() == GID_TESTALL) {
 					loop = true;
@@ -293,9 +300,18 @@ Common::Error DirectorEngine::run() {
 				return Common::kNoError;
 			}
 
-			_currentScore = new Score(this);
-			_currentScore->setArchive(mov);
-			debug(0, "Switching to score '%s'", _currentScore->getMacName().c_str());
+			_currentMovie = new Movie(this);
+			_currentMovie->setArchive(mov);
+			debug(0, "Switching to movie '%s'", _currentMovie->getMacName().c_str());
+
+			_lingo->resetLingo();
+			if (sharedCast && sharedCast->_castArchive
+					&& sharedCast->_castArchive->getFileName().equalsIgnoreCase(_currentPath + _sharedCastFile)) {
+				_currentMovie->_sharedCast = sharedCast;
+			} else {
+				delete sharedCast;
+				_currentMovie->loadSharedCastsFrom(_currentPath + _sharedCastFile);
+			}
 
 			_nextMovie.movie.clear();
 			loop = true;
@@ -303,80 +319,6 @@ Common::Error DirectorEngine::run() {
 	}
 
 	return Common::kNoError;
-}
-
-Common::HashMap<Common::String, Score *> *DirectorEngine::scanMovies(const Common::String &folder) {
-	Common::FSNode directory(folder);
-	Common::FSList movies;
-	const char *sharedMMMname;
-
-	if (getPlatform() == Common::kPlatformWindows)
-		sharedMMMname = "SHARDCST.MMM";
-	else
-		sharedMMMname = "Shared Cast";
-
-
-	Common::HashMap<Common::String, Score *> *nameMap = new Common::HashMap<Common::String, Score *>();
-	if (!directory.getChildren(movies, Common::FSNode::kListFilesOnly))
-		return nameMap;
-
-	if (!movies.empty()) {
-		for (Common::FSList::const_iterator i = movies.begin(); i != movies.end(); ++i) {
-			debugC(2, kDebugLoading, "File: %s", i->getName().c_str());
-
-			if (Common::matchString(i->getName().c_str(), sharedMMMname, true)) {
-				_sharedCastFile = i->getName();
-
-				debugC(2, kDebugLoading, "Shared cast detected: %s", i->getName().c_str());
-				continue;
-			}
-
-			Archive *arc = createArchive();
-
-			warning("name: %s", i->getName().c_str());
-			arc->openFile(i->getName());
-			Score *sc = new Score(this);
-			sc->setArchive(arc);
-			nameMap->setVal(sc->getMacName(), sc);
-
-			debugC(2, kDebugLoading, "Movie name: \"%s\"", sc->getMacName().c_str());
-		}
-	}
-
-	return nameMap;
-}
-
-void DirectorEngine::enqueueAllMovies() {
-	Common::FSNode dir(ConfMan.get("path"));
-	Common::FSList files;
-	if (!dir.getChildren(files, Common::FSNode::kListFilesOnly)) {
-		warning("DirectorEngine::enqueueAllMovies(): Failed inquiring file list");
-		return;
-	}
-
-	for (Common::FSList::const_iterator file = files.begin(); file != files.end(); ++file)
-		_movieQueue.push_back((*file).getName());
-
-	Common::sort(_movieQueue.begin(), _movieQueue.end());
-
-	debug(1, "=========> Enqueued %d movies", _movieQueue.size());
-}
-
-MovieReference DirectorEngine::getNextMovieFromQueue() {
-	MovieReference res;
-
-	if (_movieQueue.empty())
-		return res;
-
-	res.movie = _movieQueue.front();
-
-	debug(0, "=======================================");
-	debug(0, "=========> Next movie is %s", res.movie.c_str());
-	debug(0, "=======================================");
-
-	_movieQueue.remove_at(0);
-
-	return res;
 }
 
 } // End of namespace Director

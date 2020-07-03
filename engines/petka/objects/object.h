@@ -23,6 +23,8 @@
 #ifndef PETKA_OBJECT_H
 #define PETKA_OBJECT_H
 
+#include "common/rect.h"
+
 #include "petka/base.h"
 
 namespace Common {
@@ -41,10 +43,10 @@ public:
 	virtual void update(int time) {};
 	virtual void updateZ() {};
 	virtual void show(bool v) {};
-	virtual void setPos(int x, int y) {};
-	virtual bool isInPoint(int x, int y) { return false; }
-	virtual void onMouseMove(int x, int y) {}
-	virtual void onClick(int x, int y) {}
+	virtual void setPos(Common::Point p, bool center) {};
+	virtual bool isInPoint(Common::Point p) { return false; }
+	virtual void onMouseMove(Common::Point p) {}
+	virtual void onClick(Common::Point p) {}
 
 public:
 	int32 _resourceId;
@@ -77,13 +79,13 @@ public:
 	int32 _walkY;
 	int32 _time;
 	byte _frame;
-	int32 _isShown;
-	int32 _animate;
-	int _updateZ;
+	bool _isShown;
+	bool _animate;
+	bool _updateZ;
 	bool _holdMessages;
-	int _isActive;
-	int _startSound;
-	int _notLoopedSound;
+	bool _isActive;
+	bool _startSound;
+	bool _loopedSound;
 	Sound *_sound;
 	int8 _status;
 	uint16 _id;
@@ -103,11 +105,11 @@ public:
 	void draw() override;
 	void update(int time) override;
 	void updateZ() override;
-	bool isInPoint(int x, int y) override;
-	void setPos(int x, int y) override;
+	bool isInPoint(Common::Point p) override;
+	void setPos(Common::Point p, bool center) override;
 	void show(bool v) override;
-	void onClick(int x, int y) override;
-	void onMouseMove(int x, int y) override;
+	void onClick(Common::Point p) override;
+	void onMouseMove(Common::Point p) override;
 };
 
 } // End of namespace Petka

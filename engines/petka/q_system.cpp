@@ -24,8 +24,6 @@
 #include "common/substream.h"
 #include "common/system.h"
 
-#include "graphics/colormasks.h"
-
 #include "petka/petka.h"
 #include "petka/interfaces/startup.h"
 #include "petka/interfaces/main.h"
@@ -43,23 +41,23 @@
 
 namespace Petka {
 
-QSystem::QSystem()
-	: _cursor(nullptr), _case(nullptr), _star(nullptr), _petka(nullptr), _chapayev(nullptr),
-	_mainInterface(nullptr), _currInterface(nullptr), _prevInterface(nullptr), _isIniting(0),
-	_sceneWidth(640) {}
+QSystem::QSystem(PetkaEngine &vm)
+	: _vm(vm), _mainInterface(nullptr), _currInterface(nullptr), _prevInterface(nullptr),
+	_totalInit(false), _sceneWidth(640) {}
 
 QSystem::~QSystem() {
-
+	for (uint i = 0; i < _allObjects.size(); ++i) {
+		delete _allObjects[i];
+	}
 }
 
 bool QSystem::init() {
-	Common::ScopedPtr<Common::SeekableReadStream> stream(g_vm->openFile("script.dat", true));
+	Common::ScopedPtr<Common::SeekableReadStream> stream(_vm.openFile("script.dat", true));
 	if (!stream)
 		return false;
-	_isIniting = 1;
-	Common::ScopedPtr<Common::SeekableReadStream> namesStream(g_vm->openFile("Names.ini", true));
-	Common::ScopedPtr<Common::SeekableReadStream> castStream(g_vm->openFile("Cast.ini", true));
-	Common::ScopedPtr<Common::SeekableReadStream> bgsStream(g_vm->openFile("BGs.ini", true));
+	Common::ScopedPtr<Common::SeekableReadStream> namesStream(_vm.openFile("Names.ini", true));
+	Common::ScopedPtr<Common::SeekableReadStream> castStream(_vm.openFile("Cast.ini", true));
+	Common::ScopedPtr<Common::SeekableReadStream> bgsStream(_vm.openFile("BGs.ini", true));
 
 	Common::INIFile namesIni;
 	Common::INIFile castIni;
@@ -76,42 +74,28 @@ bool QSystem::init() {
 	if (bgsStream)
 		bgsIni.loadFromStream(*bgsStream);
 
-	uint32 objsCount = stream->readUint32LE() - 2;
+	uint32 objsCount = stream->readUint32LE();
 	uint32 bgsCount = stream->readUint32LE();
-
-	_objs.resize(objsCount);
-	_bgs.resize(bgsCount);
-
-	_petka.reset(new QObjectPetka());
-	_petka->readScriptData(*stream);
-	_petka->readInisData(namesIni, castIni, nullptr);
-	_allObjects.push_back(_petka.get());
-
-	_chapayev.reset(new QObjectChapayev());
-	_chapayev->readScriptData(*stream);
-	_chapayev->readInisData(namesIni, castIni, nullptr);
-	_allObjects.push_back(_chapayev.get());
-
-	for (uint i = 0; i < objsCount; ++i) {
-		_objs[i].readScriptData(*stream);
-		_objs[i].readInisData(namesIni, castIni, nullptr);
-		_allObjects.push_back(&_objs[i]);
-	}
-	for (uint i = 0; i < bgsCount; ++i) {
-		_bgs[i].readScriptData(*stream);
-		_bgs[i].readInisData(namesIni, castIni, &bgsIni);
-		_allObjects.push_back(&_bgs[i]);
+	_allObjects.reserve(objsCount + bgsCount + 3);
+	for (uint i = 0; i < objsCount + bgsCount; ++i) {
+		QMessageObject *obj = nullptr;
+		if (i == 0) {
+			obj = new QObjectPetka;
+		} else if (i == 1) {
+			obj = new QObjectChapayev;
+		} else if (i < objsCount) {
+			obj = new QObject;
+		} else {
+			obj = new QObjectBG;
+		}
+		obj->readScriptData(*stream);
+		obj->readInisData(namesIni, castIni, &bgsIni);
+		_allObjects.push_back(obj);
 	}
 
-	addMessageForAllObjects(kTotalInit);
-
-	_cursor.reset(new QObjectCursor());
-	_case.reset(new QObjectCase());
-	_star.reset(new QObjectStar());
-
-	_allObjects.push_back(_cursor.get());
-	_allObjects.push_back(_case.get());
-	_allObjects.push_back(_star.get());
+	_allObjects.push_back(new QObjectCursor);
+	_allObjects.push_back(new QObjectCase);
+	_allObjects.push_back(new QObjectStar);
 
 	_mainInterface.reset(new InterfaceMain());
 	_startupInterface.reset(new InterfaceStartup());
@@ -119,11 +103,20 @@ bool QSystem::init() {
 	_sequenceInterface.reset(new InterfaceSequence());
 	_panelInterface.reset(new InterfacePanel());
 	_mapInterface.reset(new InterfaceMap());
-	if (g_vm->getPart() == 0) {
+
+	if (_vm.getPart() == 0) {
 		_prevInterface = _currInterface = _startupInterface.get();
 	} else {
 		_prevInterface = _currInterface = _mainInterface.get();
 	}
+
+	_totalInit = true;
+
+	addMessageForAllObjects(kTotalInit);
+	update();
+
+	_totalInit = false;
+
 	_currInterface->start(0);
 	return true;
 }
@@ -171,8 +164,8 @@ void QSystem::update() {
 }
 
 void QSystem::togglePanelInterface() {
-	if (_currInterface != _startupInterface.get() && _star->_isActive) {
-		_case->show(0);
+	if (_currInterface != _startupInterface.get() && getStar()->_isActive) {
+		getCase()->show(0);
 		if (_currInterface == _panelInterface.get()) {
 			_currInterface->stop();
 		} else if (_currInterface == _mainInterface.get()) {
@@ -182,8 +175,8 @@ void QSystem::togglePanelInterface() {
 }
 
 void QSystem::toggleMapInterface() {
-	if (_currInterface != _startupInterface.get() && _star->_isActive && _room->_showMap) {
-		_case->show(0);
+	if (_currInterface != _startupInterface.get() && getStar()->_isActive && _room->_showMap) {
+		getCase()->show(false);
 		if (_currInterface == _mapInterface.get()) {
 			_currInterface->stop();
 		} else if (_currInterface == _mainInterface.get()) {
@@ -193,9 +186,10 @@ void QSystem::toggleMapInterface() {
 	}
 }
 
-void QSystem::setChapayev() {
-	if (_star->_isActive && _currInterface == _mainInterface.get() && _chapayev->_isShown) {
-		_cursor->setAction(kActionObjUseChapayev);
+void QSystem::setCursorAction(int action) {
+	if (getStar()->_isActive && _currInterface == _mainInterface.get()) {
+		if (action != kActionObjUseChapayev || getChapay()->_isShown)
+			getCursor()->setAction(action);
 	}
 }
 
@@ -230,9 +224,10 @@ void QSystem::load(Common::ReadStream *s) {
 	}
 
 	uint itemSize = s->readUint32LE();
-	_case->_items.clear();
+	QObjectCase *objCase = getCase();
+	objCase->_items.clear();
 	for (uint i = 0; i < itemSize; ++i) {
-		_case->_items.push_back(s->readSint32LE());
+		objCase->_items.push_back(s->readSint32LE());
 	}
 
 	_room = (QObjectBG *)findObject(readString(s));
@@ -240,18 +235,19 @@ void QSystem::load(Common::ReadStream *s) {
 		_mainInterface->loadRoom(_room->_id, true);
 	}
 
-	g_vm->getBigDialogue()->load(s);
+	_vm.getBigDialogue()->load(s);
 
-	_cursor->_resourceId = s->readUint32LE();
-	_cursor->_actionType = s->readUint32LE();
+	QObjectCursor *cursor = getCursor();
+	cursor->_resourceId = s->readUint32LE();
+	cursor->_actionType = s->readUint32LE();
 	int invObjId = s->readSint32LE();
 	if (invObjId != -1) {
-		_cursor->_invObj = findObject(invObjId);
+		cursor->_invObj = findObject(invObjId);
 	} else {
-		_cursor->_invObj = nullptr;
+		cursor->_invObj = nullptr;
 	}
 
-	g_vm->videoSystem()->makeAllDirty();
+	_vm.videoSystem()->makeAllDirty();
 }
 
 void QSystem::save(Common::WriteStream *s) {
@@ -269,23 +265,152 @@ void QSystem::save(Common::WriteStream *s) {
 		s->writeUint32LE(_allObjects[i]->_animate);
 	}
 
-	s->writeUint32LE(_case->_items.size());
-	for (uint i = 0; i < _case->_items.size(); ++i) {
-		s->writeSint32LE(_case->_items[i]);
+	QObjectCase *objCase = getCase();
+	s->writeUint32LE(objCase->_items.size());
+	for (uint i = 0; i < objCase->_items.size(); ++i) {
+		s->writeSint32LE(objCase->_items[i]);
 	}
 
 	writeString(s, _room->_name);
 
 	// heroes (no impl)
 
-	g_vm->getBigDialogue()->save(s);
+	_vm.getBigDialogue()->save(s);
 
-	s->writeUint32LE(_cursor->_resourceId);
-	s->writeUint32LE(_cursor->_actionType);
-	if (_cursor->_invObj) {
-		s->writeSint32LE(_cursor->_invObj->_resourceId);
+	QObjectCursor *cursor = getCursor();
+	s->writeUint32LE(cursor->_resourceId);
+	s->writeUint32LE(cursor->_actionType);
+	if (cursor->_invObj) {
+		s->writeSint32LE(cursor->_invObj->_resourceId);
 	} else {
 		s->writeSint32LE(-1);
+	}
+}
+
+QObjectPetka *QSystem::getPetka() const {
+	return (QObjectPetka *)_allObjects[0];
+}
+
+QObjectChapayev *QSystem::getChapay() const {
+	return (QObjectChapayev *)_allObjects[1];
+}
+
+QObjectCursor *QSystem::getCursor() const {
+	return (QObjectCursor *)_allObjects[_allObjects.size() - 3];
+}
+
+QObjectCase *QSystem::getCase() const {
+	return (QObjectCase *)_allObjects[_allObjects.size() - 2];
+}
+
+QObjectStar *QSystem::getStar() const {
+	return (QObjectStar *)_allObjects.back();
+}
+
+void QSystem::onEvent(const Common::Event &event) {
+	switch (event.type) {
+	case Common::EVENT_MOUSEMOVE: {
+		Common::Point p = event.mouse;
+		p.x += _xOffset;
+		_currInterface->onMouseMove(p);
+		break;
+	}
+	case Common::EVENT_LBUTTONDOWN: {
+		Common::Point p = event.mouse;
+		p.x += _xOffset;
+		_currInterface->onLeftButtonDown(p);
+		break;
+	}
+	case Common::EVENT_RBUTTONDOWN: {
+		Common::Point p = event.mouse;
+		p.x += _xOffset;
+		_currInterface->onRightButtonDown(p);
+		break;
+	}
+	case Common::EVENT_KEYDOWN:
+		switch (event.kbd.keycode) {
+		case Common::KEYCODE_1:
+		case Common::KEYCODE_l:
+			setCursorAction(kActionLook);
+			break;
+		case Common::KEYCODE_2:
+		case Common::KEYCODE_w:
+			setCursorAction(kActionWalk);
+			break;
+		case Common::KEYCODE_3:
+		case Common::KEYCODE_g:
+			setCursorAction(kActionTake);
+			break;
+		case Common::KEYCODE_4:
+		case Common::KEYCODE_u:
+			setCursorAction(kActionUse);
+			break;
+		case Common::KEYCODE_5:
+		case Common::KEYCODE_t:
+			setCursorAction(kActionTalk);
+			break;
+		case Common::KEYCODE_6:
+		case Common::KEYCODE_c:
+			setCursorAction(kActionObjUseChapayev);
+			break;
+		case Common::KEYCODE_i:
+			toggleCase();
+			break;
+		case Common::KEYCODE_TAB:
+		case Common::KEYCODE_m:
+			toggleMapInterface();
+			break;
+		case Common::KEYCODE_o:
+			togglePanelInterface();
+			break;
+		case Common::KEYCODE_ESCAPE:
+			goPrevInterface();
+			break;
+		case Common::KEYCODE_F2:
+			startSaveLoad(kSaveMode);
+			break;
+		case Common::KEYCODE_F3:
+			startSaveLoad(kLoadMode);
+			break;
+		case Common::KEYCODE_r:
+			if (event.kbd.flags & Common::KBD_ALT) {
+				_mainInterface->_dialog.fixCursor(); // Buggy in original
+			}
+			break;
+#if 1
+		case Common::KEYCODE_RIGHT:
+			_xOffset += 6;
+			_vm.videoSystem()->makeAllDirty();
+			break;
+		case Common::KEYCODE_LEFT:
+			_xOffset -= 6;
+			_vm.videoSystem()->makeAllDirty();
+			break;
+#endif
+		default:
+			break;
+		}
+	default:
+		break;
+	}
+}
+
+void QSystem::goPrevInterface() {
+	getCase()->show(false);
+	if (_currInterface != _startupInterface.get() && _currInterface != _sequenceInterface.get())
+		_currInterface->stop();
+}
+
+void QSystem::toggleCase() {
+	if (_currInterface == _mainInterface.get() && getStar()->_isActive) {
+		QObjectCase *obj = getCase();
+		obj->show(obj->_isShown == 0);
+	}
+}
+
+void QSystem::startSaveLoad(int id) {
+	if (_currInterface == _mainInterface.get() && getStar()->_isActive) {
+		_saveLoadInterface->start(id);
 	}
 }
 
