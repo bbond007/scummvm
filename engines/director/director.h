@@ -80,7 +80,8 @@ enum {
 	kDebugBytecode		= 1 << 11,
 	kDebugFewFramesOnly	= 1 << 12,
 	kDebugPreprocess	= 1 << 13,
-	kDebugScreenshot	= 1 << 14
+	kDebugScreenshot	= 1 << 14,
+	kDebugDesktop		= 1 << 15
 };
 
 struct MovieReference {
@@ -134,11 +135,11 @@ public:
 	Common::String getEXEName() const;
 	DirectorSound *getSoundManager() const { return _soundManager; }
 	Graphics::MacWindowManager *getMacWindowManager() const { return _wm; }
-	Archive *getMainArchive() const { return _mainArchive; }
+	Archive *getMainArchive() const;
 	Lingo *getLingo() const { return _lingo; }
 	Stage *getStage() const { return _currentStage; }
-	Movie *getCurrentMovie() const { return _currentMovie; }
-	Common::String getCurrentPath() const { return _currentPath; }
+	Movie *getCurrentMovie() const;
+	Common::String getCurrentPath() const;
 	void setPalette(int id);
 	void setPalette(byte *palette, uint16 count);
 	bool hasFeature(EngineFeature f) const override;
@@ -152,8 +153,6 @@ public:
 
 	void loadKeyCodes();
 
-	void loadInitialMovie(const Common::String movie);
-	Archive *openMainArchive(const Common::String movie);
 	Archive *createArchive();
 
 	// events.cpp
@@ -164,9 +163,8 @@ public:
 	void waitForClick();
 
 public:
-	Common::HashMap<Common::String, Score *> *_movies;
-
 	Common::RandomSource _rnd;
+	Graphics::ManagedSurface *_surface;
 	Graphics::MacWindowManager *_wm;
 
 public:
@@ -178,10 +176,7 @@ public:
 	bool _playbackPaused;
 	bool _skipFrameAdvance;
 
-	MovieReference _nextMovie;
-	Common::List<MovieReference> _movieStack;
-
-	bool _newMovieStarted;
+	Common::String _sharedCastFile;
 
 protected:
 	Common::Error run() override;
@@ -189,53 +184,25 @@ protected:
 private:
 	const DirectorGameDescription *_gameDescription;
 
-	Common::HashMap<Common::String, Movie *> *scanMovies(const Common::String &folder);
-	void loadEXE(const Common::String movie);
-	void loadEXEv3(Common::SeekableReadStream *stream);
-	void loadEXEv4(Common::SeekableReadStream *stream);
-	void loadEXEv5(Common::SeekableReadStream *stream);
-	void loadEXEv7(Common::SeekableReadStream *stream);
-	void loadEXERIFX(Common::SeekableReadStream *stream, uint32 offset);
-	void loadMac(const Common::String movie);
-
-	Archive *_mainArchive;
-	Common::MacResManager *_macBinary;
 	DirectorSound *_soundManager;
 	byte *_currentPalette;
 	uint16 _currentPaletteLength;
 	Lingo *_lingo;
 
 	Stage *_currentStage;
-	Movie *_currentMovie;
-	Common::String _currentPath;
 
 	Graphics::MacPatterns _director3Patterns;
 	Graphics::MacPatterns _director3QuickDrawPatterns;
 
 	Common::HashMap<int, PaletteV4 *> _director4Palettes;
 
-	Common::String _sharedCastFile;
-
 	bool _draggingSprite;
 	uint16 _draggingSpriteId;
 	Common::Point _draggingSpritePos;
-
-	Common::StringArray _movieQueue;
-
-
-// tests.cpp
-private:
-	void testFontScaling();
-	void testFonts();
-
-	void enqueueAllMovies();
-	MovieReference getNextMovieFromQueue();
-
-	void runTests();
 };
 
 extern DirectorEngine *g_director;
-extern const uint32 wmMode;
+extern uint32 wmMode;
 
 } // End of namespace Director
 

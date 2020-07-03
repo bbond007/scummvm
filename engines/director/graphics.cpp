@@ -816,6 +816,9 @@ void inkDrawPixel(int x, int y, int color, void *data) {
 		Graphics::macDrawPixel(x, y, color, p->macPlot);
 		tmpSrc = *dst;
 
+		if (p->ink == kInkTypeReverse)
+			tmpSrc = 0;
+
 		*dst = tmpDst;
 		src = &tmpSrc;
 	} else {
@@ -833,10 +836,11 @@ void inkDrawPixel(int x, int y, int color, void *data) {
 		if (*src == p->backColor)
 			break;
 		// fall through
+	case kInkTypeMatte:
+	case kInkTypeMask:
+		// Only unmasked pixels make it here, so copy them straight
 	case kInkTypeCopy:
 		*dst = *src;
-	case kInkTypeMask:
-		// TODO: Migrate from Stage to here
 		break;
 	case kInkTypeTransparent:
 		// FIXME: Is colour to ignore always white (last entry in pallette)?
@@ -845,7 +849,7 @@ void inkDrawPixel(int x, int y, int color, void *data) {
 		break;
 	case kInkTypeReverse:
 		// TODO: Migrate from Stage to here
-		*dst ^= *src;
+		*dst ^= ~(*src);
 		break;
 	case kInkTypeGhost:
 		if (*src != p->numColors - 1)
@@ -866,9 +870,6 @@ void inkDrawPixel(int x, int y, int color, void *data) {
 	case kInkTypeNotGhost:
 		if (*src != p->numColors - 1)
 			*dst = *dst | *src;
-		break;
-	case kInkTypeMatte:
-		// TODO: Migrate from Stage to here.
 		break;
 		// Arithmetic ink types
 	case kInkTypeBlend:

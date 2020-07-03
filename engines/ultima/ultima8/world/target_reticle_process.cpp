@@ -95,8 +95,8 @@ bool TargetReticleProcess::findTargetItem() {
 		_lastTargetDir = dir;
 		changed = true;
 	} else if (!item) {
-		debug("New reticle target: NONE");
 		if (_lastTargetItem) {
+			debug("New reticle target: NONE");
 			Item *lastItem = getItem(_lastTargetItem);
 			if (lastItem)
 				lastItem->clearExtFlag(Item::EXT_TARGET);
@@ -150,21 +150,24 @@ void TargetReticleProcess::itemMoved(Item *item) {
 
 	SpriteProcess *spriteproc = dynamic_cast<SpriteProcess *>(Kernel::get_instance()->getProcess(_reticleSpriteProcess));
 
-	// TODO: If the item moved outside the direction we're targeting,
-	// the process should be terminated.
-
 	if (spriteproc) {
 		if (actordir != _lastTargetDir || dirtoitem != _lastTargetDir) {
 			spriteproc->terminate();
 			clearSprite();
+		} else {
+			spriteproc->move(x, y, z);
 		}
-	} else {
-		spriteproc->move(x, y, z);
 	}
 }
 
 void TargetReticleProcess::clearSprite() {
 	_reticleSpriteProcess = 0;
+	if (_lastTargetItem) {
+		Item *item = getItem(_lastTargetItem);
+		if (item) {
+			item->clearExtFlag(Item::EXT_TARGET);
+		}
+	}
 	_lastTargetItem = 0;
 	_lastTargetDir = 0x10;
 }

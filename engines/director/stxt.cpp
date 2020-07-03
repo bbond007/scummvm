@@ -29,7 +29,16 @@ namespace Director {
 
 Stxt::Stxt(Common::SeekableSubReadStreamEndian &textStream) {
 	// TODO: Side effects on textStream make this a little hard to understand in context?
-	uint32 unk1 = textStream.readUint32();
+
+	// D4+ variant
+	if (textStream.size() == 0)
+		return;
+
+	uint32 offset = textStream.readUint32();
+	if (offset != 12){
+		error("Stxt init: unhandlef offset");
+		return;
+	}
 	uint32 strLen = textStream.readUint32();
 	uint32 dataLen = textStream.readUint32();
 	Common::String text;
@@ -51,7 +60,7 @@ Stxt::Stxt(Common::SeekableSubReadStreamEndian &textStream) {
 		}
 		text += ch;
 	}
-	debugC(3, kDebugText, "Stxt init: unk1: %d strLen: %d dataLen: %d textlen: %u", unk1, strLen, dataLen, text.size());
+	debugC(3, kDebugText, "Stxt init: offset: %d strLen: %d dataLen: %d textlen: %u", offset, strLen, dataLen, text.size());
 	if (strLen < 200)
 		debugC(3, kDebugText, "text: '%s'", Common::toPrintable(text).c_str());
 

@@ -20,22 +20,43 @@
  *
  */
 
+#include "common/system.h"
+#include "common/macresman.h"
+
 #include "graphics/primitives.h"
 #include "graphics/macgui/macwindowmanager.h"
 
 #include "director/director.h"
+#include "director/cast.h"
+#include "director/lingo/lingo.h"
 #include "director/movie.h"
 #include "director/stage.h"
 #include "director/score.h"
 #include "director/castmember.h"
 #include "director/sprite.h"
+#include "director/util.h"
 
 namespace Director {
 
-Stage::Stage(int id, bool scrollable, bool resizable, bool editable, Graphics::MacWindowManager *wm)
+Stage::Stage(int id, bool scrollable, bool resizable, bool editable, Graphics::MacWindowManager *wm, DirectorEngine *vm)
 	: MacWindow(id, scrollable, resizable, editable, wm) {
+	_vm = vm;
 	_stageColor = 0;
 	_puppetTransition = nullptr;
+
+	_currentMovie = nullptr;
+	_mainArchive = nullptr;
+	_macBinary = nullptr;
+	_nextMovie.frameI = -1;
+	_newMovieStarted = true;
+}
+
+Stage::~Stage() {
+	delete _currentMovie;
+	if (_macBinary) {
+		delete _macBinary;
+		_macBinary = nullptr;
+	}
 }
 
 bool Stage::render(bool forceRedraw, Graphics::ManagedSurface *blitTo) {
@@ -82,7 +103,9 @@ void Stage::reset() {
 
 void Stage::addDirtyRect(const Common::Rect &r) {
 	Common::Rect bounds = r;
-	bounds.clip(_dims);
+	Common::Rect clip = _dims;
+	clip.moveTo(0, 0);
+	bounds.clip(clip);
 
 	if (bounds.width() > 0 && bounds.height() > 0)
 		_dirtyRects.push_back(bounds);
@@ -181,130 +204,103 @@ void Stage::inkBlitFrom(Channel *channel, Common::Rect destRect, Graphics::Manag
 		return;
 	}
 
-	// Otherwise, we are drawing a cast type that does have a built-in surface, so
-	// blit from that.
-	// TODO: Work these ink types into inkDrawPixel.
-	if (sprite->_ink == kInkTypeMatte) {
-		drawMatteSprite(channel, srcRect, destRect, blitTo);
-		return;
-	} else if (sprite->_ink == kInkTypeReverse) {
-		drawReverseSprite(channel, srcRect, destRect, blitTo);
-		return;
-	}
-	// Otherwise, fall through to inkDrawPixel
+	// First, get any masks that might be needed.
+	const Graphics::Surface *mask = channel->getMask();
 
 	pd.srcPoint.y = MAX(abs(srcRect.top - destRect.top), 0);
 	for (int i = 0; i < destRect.height(); i++, pd.srcPoint.y++) {
 		pd.srcPoint.x = MAX(abs(srcRect.left - destRect.left), 0);
+		const byte *msk = mask ? (const byte *)mask->getBasePtr(pd.srcPoint.x, pd.srcPoint.y) : nullptr;
 
 		for (int j = 0; j < destRect.width(); j++, pd.srcPoint.x++)
-			inkDrawPixel(destRect.left + j, destRect.top + i, 0, &pd);
+			if (!mask || (msk && (sprite->_ink == kInkTypeMatte ? !(*msk++) : *msk++)))
+				inkDrawPixel(destRect.left + j, destRect.top + i, 0, &pd);
 	}
 }
 
-void Stage::drawMatteSprite(Channel *channel, Common::Rect &srcRect, Common::Rect &destRect, Graphics::ManagedSurface *blitTo) {
-	// Like background trans, but all white pixels NOT ENCLOSED by coloured pixels are transparent
-	Graphics::Surface tmp;
-	tmp.create(destRect.width(), destRect.height(), Graphics::PixelFormat::createFormatCLUT8());
-	tmp.copyFrom(channel->getSurface()->rawSurface());
-
-	if (!blitTo->clip(srcRect, destRect))
-		return; // Out of screen
-
-	// Searching white color in the corners
-	int whiteColor = -1;
-
-	for (int y = 0; y < tmp.h; y++) {
-		for (int x = 0; x < tmp.w; x++) {
-			byte color = *(byte *)tmp.getBasePtr(x, y);
-
-			if (g_director->getPalette()[color * 3 + 0] == 0xff &&
-				g_director->getPalette()[color * 3 + 1] == 0xff &&
-				g_director->getPalette()[color * 3 + 2] == 0xff) {
-				whiteColor = color;
-				break;
-			}
-		}
-	}
-
-	if (whiteColor == -1) {
-		debugC(1, kDebugImages, "Score::drawMatteSprite(): No white color for Matte image");
-
-		for (int yy = 0; yy < destRect.height(); yy++) {
-		const byte *src = (const byte *)channel->getSurface()->getBasePtr(MAX(abs(srcRect.left - destRect.left), 0), MAX(abs(srcRect.top - destRect.top + yy), 0));
-		byte *dst = (byte *)blitTo->getBasePtr(destRect.left, destRect.top + yy);
-
-			for (int xx = 0; xx < destRect.width(); xx++, src++, dst++)
-				*dst = *src;
-		}
-	} else {
-		Graphics::FloodFill ff(&tmp, whiteColor, 0, true);
-
-		for (int yy = 0; yy < tmp.h; yy++) {
-			ff.addSeed(0, yy);
-			ff.addSeed(tmp.w - 1, yy);
-		}
-
-		for (int xx = 0; xx < tmp.w; xx++) {
-			ff.addSeed(xx, 0);
-			ff.addSeed(xx, tmp.h - 1);
-		}
-		ff.fillMask();
-
-		for (int yy = 0; yy < destRect.height(); yy++) {
-			const byte *mask = (const byte *)ff.getMask()->getBasePtr(MAX(abs(srcRect.left - destRect.left), 0), MAX(abs(srcRect.top - destRect.top - yy), 0));
-			const byte *src = (const byte *)channel->getSurface()->getBasePtr(MAX(abs(srcRect.left - destRect.left), 0), MAX(abs(srcRect.top - destRect.top - yy), 0));
-			byte *dst = (byte *)blitTo->getBasePtr(destRect.left, destRect.top + yy);
-
-			for (int xx = 0; xx < destRect.width(); xx++, src++, dst++, mask++)
-				if (*mask == 0)
-					*dst = *src;
-		}
-	}
-
-	tmp.free();
+Common::Point Stage::getMousePos() {
+	return g_system->getEventManager()->getMousePos() - Common::Point(_dims.left, _dims.top);
 }
 
-void Stage::drawReverseSprite(Channel *channel, Common::Rect &srcRect, Common::Rect &destRect, Graphics::ManagedSurface *blitTo) {
-	uint8 skipColor = g_director->getPaletteColorCount() - 1;
-	for (int ii = 0; ii < destRect.height(); ii++) {
-		const byte *src = (const byte *)channel->getSurface()->getBasePtr(MAX(abs(srcRect.left - destRect.left), 0), MAX(abs(srcRect.top - destRect.top - ii), 0));
-		byte *dst = (byte *)blitTo->getBasePtr(destRect.left, destRect.top + ii);
-		byte srcColor = *src;
+bool Stage::step() {
+	bool loop = false;
 
-		for (int j = 0; j < destRect.width(); j++, src++, dst++) {
-			if (!channel->_sprite->_cast || channel->_sprite->_cast->_type == kCastShape)
-				srcColor = 0x0;
-			else
-				srcColor = *src;
-			uint16 targetSprite = g_director->getCurrentMovie()->getScore()->getSpriteIDFromPos(Common::Point(destRect.left + j, destRect.top + ii));
-			if ((targetSprite != 0)) {
-				// TODO: This entire reverse colour attempt needs a lot more testing on
-				// a lot more colour depths.
-				if (srcColor != skipColor) {
-					if (!g_director->getCurrentMovie()->getScore()->_channels[targetSprite]->_sprite->_cast ||  g_director->getCurrentMovie()->getScore()->_channels[targetSprite]->_sprite->_cast->_type != kCastBitmap) {
-						if (*dst == 0 || *dst == 255) {
-							*dst = g_director->transformColor(*dst);
-						} else if (srcColor == 255 || srcColor == 0) {
-							*dst = g_director->transformColor(*dst - 40);
-						} else {
-							*dst = g_director->transformColor(*src - 40);
-						}
-					} else {
-						if (*dst == 0 && g_director->getVersion() == 3 &&
-								g_director->getCurrentMovie()->getScore()->_channels[targetSprite]->_sprite->_cast->_type == kCastBitmap &&
-								((BitmapCastMember*)g_director->getCurrentMovie()->getScore()->_channels[targetSprite]->_sprite->_cast)->_bitsPerPixel > 1) {
-							*dst = g_director->transformColor(*src - 40);
-						} else {
-							*dst ^= g_director->transformColor(srcColor);
-						}
-					}
-				}
-			} else if (srcColor != skipColor) {
-				*dst = g_director->transformColor(srcColor);
-			}
+	if (_currentMovie) {
+		debug(0, "\n@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+		debug(0, "@@@@   Movie name '%s' in '%s'", _currentMovie->getMacName().c_str(), _currentPath.c_str());
+		debug(0, "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\n");
+
+		bool goodMovie = _currentMovie->loadArchive();
+
+		// If we came in a loop, then skip as requested
+		if (!_nextMovie.frameS.empty()) {
+			_currentMovie->getScore()->setStartToLabel(_nextMovie.frameS);
+			_nextMovie.frameS.clear();
+		}
+
+		if (_nextMovie.frameI != -1) {
+			_currentMovie->getScore()->setCurrentFrame(_nextMovie.frameI);
+			_nextMovie.frameI = -1;
+		}
+
+		if (!debugChannelSet(-1, kDebugCompileOnly) && goodMovie) {
+			debugC(1, kDebugEvents, "Starting playback of movie '%s'", _currentMovie->getMacName().c_str());
+
+			_currentMovie->getScore()->startLoop();
+
+			debugC(1, kDebugEvents, "Finished playback of movie '%s'", _currentMovie->getMacName().c_str());
 		}
 	}
+
+	if (_vm->getGameGID() == GID_TESTALL) {
+		_nextMovie = getNextMovieFromQueue();
+	}
+
+	// If a loop was requested, do it
+	if (!_nextMovie.movie.empty()) {
+		_newMovieStarted = true;
+
+		_currentPath = getPath(_nextMovie.movie, _currentPath);
+
+		Cast *sharedCast = nullptr;
+		if (_currentMovie) {
+			sharedCast = _currentMovie->getSharedCast();
+			_currentMovie->_sharedCast = nullptr;
+		}
+
+		delete _currentMovie;
+		_currentMovie = nullptr;
+
+		Archive *mov = openMainArchive(_currentPath + Common::lastPathComponent(_nextMovie.movie, '/'));
+
+		if (!mov) {
+			warning("nextMovie: No movie is loaded");
+
+			if (_vm->getGameGID() == GID_TESTALL) {
+				return true;
+			}
+
+			return false;
+		}
+
+		_currentMovie = new Movie(this);
+		_currentMovie->setArchive(mov);
+		debug(0, "Switching to movie '%s'", _currentMovie->getMacName().c_str());
+
+		g_lingo->resetLingo();
+		if (sharedCast && sharedCast->_castArchive
+				&& sharedCast->_castArchive->getFileName().equalsIgnoreCase(_currentPath + _vm->_sharedCastFile)) {
+			_currentMovie->_sharedCast = sharedCast;
+		} else {
+			delete sharedCast;
+			_currentMovie->loadSharedCastsFrom(_currentPath + _vm->_sharedCastFile);
+		}
+
+		_nextMovie.movie.clear();
+		loop = true;
+	}
+
+	return loop;
 }
 
 } // end of namespace Director
